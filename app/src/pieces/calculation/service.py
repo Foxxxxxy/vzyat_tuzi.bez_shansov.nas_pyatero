@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.src.common import round_floats
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.building.models import BuildingModel
-from app.src.pieces.calculation.models import RequestModel
+from app.src.pieces.calculation.models import RequestModel, LegalEntityType
 from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, EquipmentCalculationResponseSchema, \
     CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema, CalculationCreateRequestSchema, \
@@ -142,7 +142,8 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
     predicted_income_per_year_rub = form.predicted_income_per_year_rub
 
     calculation_prepared_data["predicted_income_per_year_rub"] = predicted_income_per_year_rub
-    calculation_prepared_data["total_taxes_expenses"] = predicted_income_per_year_rub * 0.06
+    tax = 0.06 if legal_entity_type == LegalEntityType.IP else 0.20
+    calculation_prepared_data["total_taxes_expenses"] = predicted_income_per_year_rub * tax
     calculation_prepared_data["total_expenses"] += calculation_prepared_data["total_taxes_expenses"]
 
     # accounting services
