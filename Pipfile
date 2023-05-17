@@ -4,21 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-sqlalchemy = "*"
-pydantic = "*"
-alembic = "*"
-psycopg2 = "*"
+fastapi = "*"
 uvicorn = "*"
-python-jose = "*"
-passlib = "*"
-fastapi = {extras = ["all"], version = "*"}
-fastapi-sqlalchemy = "*"
-python-dotenv = "*"
-openpyxl = "*"
-nltk = "*"
-pymorphy2 = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.9"
+python_full_version = "3.9.16"
