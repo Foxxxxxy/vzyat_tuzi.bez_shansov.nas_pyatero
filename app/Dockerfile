@@ -5,15 +5,16 @@ FROM python:3.9
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /code/
+COPY . /code/app
+WORKDIR /code/app
 
 # Install dependencies
 RUN pip install pipenv
-COPY Pipfile /code/
-COPY Pipfile.lock /code/
+#COPY Pipfile /code/
+#COPY Pipfile.lock /code/
 RUN pipenv install --system --dev
 
-COPY . /code/app
+#COPY . /code/app
 
 EXPOSE 3030
 

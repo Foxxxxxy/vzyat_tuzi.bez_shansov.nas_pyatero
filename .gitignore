@@ -1,3 +1,4 @@
 .idea
 test_main.http
 app/__pycache__/
+.*.idea
