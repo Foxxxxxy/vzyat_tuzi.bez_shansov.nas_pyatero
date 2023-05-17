@@ -9,10 +9,11 @@ WORKDIR /code/
 
 # Install dependencies
 RUN pip install pipenv
-COPY ../Pipfile Pipfile.lock /code/
+COPY Pipfile /code/
+COPY Pipfile.lock /code/
 RUN pipenv install --system --dev
 
-COPY ./app /code/app
+COPY . /code/app
 
 EXPOSE 3030
 
