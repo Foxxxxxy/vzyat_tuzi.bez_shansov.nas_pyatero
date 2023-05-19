@@ -1,5 +1,5 @@
 <script setup>
-import { AppSidebar, AppHeader } from '~/components/app'
+import { AppSidebar, AppHeader } from '~/components/app';
 </script>
 
 <template>
