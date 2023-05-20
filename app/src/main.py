@@ -10,6 +10,7 @@ from app.src.pieces.district.service import parse_district
 from app.src.pieces.patent.service import parse_patents
 from app.src.pieces.user.router import router as auth_router
 from app.src.pieces.calculation.router import router as calculation_router
+from app.src.pieces.equipment.router import router as equipment_router
 
 # todo change for alembic
 models.Base.metadata.create_all(bind=engine)
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(calculation_router)
+app.include_router(equipment_router)
 
 
 from app.src.pieces.equipment.service import parse_stanki
