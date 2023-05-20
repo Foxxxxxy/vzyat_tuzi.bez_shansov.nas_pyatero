@@ -11,7 +11,7 @@ Use prefix 'Schema' for schema classes and 'Model' for model classes
 class UserModel(Base):
     pass
 
-class SignInInputSchema(BaseModel):
+class SignInSchema(BaseModel):
     pass
 ```
 
