@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
+from app.src.pieces.calculation.models import RequestModel
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, CalculationPreparedDataSchema, \
     EquipmentCalculationResponseSchema
 from app.src.pieces.calculation.service import join_request_with_model
@@ -78,9 +79,19 @@ async def create_calculation(form: CalculationCreateFormSchema, db: Session = De
         total_additional_services_expenses=0.0,
     )
 
-@router.get("/pdf/{calc_id}", response_class=FileResponse)
-async def download_calculated_report(calc_id: int):
-    report = CalculationPreparedDataSchema(
+
+@router.get("/pdf/{req_id}", response_class=FileResponse)
+async def download_calculated_report(req_id: int, db: Session = Depends(get_db)):
+    request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
+    report = mock_service(request)
+
+    PdfCreator(report, req_id)
+    headers = {'Content-Disposition': 'attachment; filename="out.pdf"'}
+    return FileResponse(path=f"{script_dir}/pdf/brochures/brochure{req_id}.pdf", filename=f"out.pdf", headers=headers)
+
+
+def mock_service(request: RequestModel):
+    return CalculationPreparedDataSchema(
         industry_name="бизнес",
         legal_entity='OOO',
         district="Центральный район",
@@ -100,7 +111,3 @@ async def download_calculated_report(calc_id: int):
         additional_services=[],
         total_additional_services_expenses=0,
     )
-
-    PdfCreator(report, calc_id)
-    headers = {'Content-Disposition': 'attachment; filename="out.pdf"'}
-    return FileResponse(path=f"{script_dir}/pdf/brochures/brochure{calc_id}.pdf", filename=f"out.pdf", headers=headers)
