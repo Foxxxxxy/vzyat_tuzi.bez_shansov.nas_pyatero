@@ -7,6 +7,7 @@ from app.src.database import models
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.src.pieces.district.service import parse_district
+from app.src.pieces.patent.service import parse_patents
 from app.src.pieces.user.router import router as auth_router
 from app.src.pieces.calculation.router import router as calculation_router
 
@@ -40,4 +41,4 @@ app.include_router(calculation_router)
 from app.src.pieces.equipment.service import parse_stanki
 @app.post("/parse")
 async def parse(db: Session = Depends(get_db)):
-    parse_district('srednyaa_kadastr_stoimost_po_okrugam.xlsx', db)
+    parse_patents('patentirovanie_potencialniy_dohod_moskva.xlsx', db)
