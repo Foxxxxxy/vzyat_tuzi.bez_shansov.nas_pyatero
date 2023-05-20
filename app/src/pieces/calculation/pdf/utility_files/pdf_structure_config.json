@@ -1,0 +1,37 @@
+{
+  "business_info_page": {
+    "tables": [
+        {
+          "table_name": "Информация о бизнесе",
+          "fields": {
+            "industry_name": "Отрасль бизнеса",
+            "legal_entity_type": "Вид бизнеса",
+            "district": "Расположение бизнеса",
+            "employee_amount": "Количество сотрудников"
+          }
+        },
+        {
+          "table_name": "Общие затраты",
+          "fields": {
+            "total_employee_expenses": "Персонал",
+            "total_rent_expenses": "Аренда недвижимости",
+            "total_taxes_expenses": "Налоги",
+            "total_equipments_expenses": "Оборудование",
+            "total_additional_services_expenses": "Дополнительные услуги",
+            "total_expenses": "Итого"
+          }
+        }
+      ]
+  },
+  "employee_page": {
+    "tables": [
+      {
+        "table_name": "Детальные затраты на персонал",
+          "fields": {
+            "employee_amount": "Количество сотрудников",
+            "total_employee_expenses": "Итого"
+          }
+      }
+    ]
+  }
+}
