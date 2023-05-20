@@ -8,3 +8,6 @@ class EquipmentCreationSchema(BaseModel):
 
 class EquipmentSchema(EquipmentCreationSchema):
     id: int
+
+    class Config:
+        orm_mode = True
