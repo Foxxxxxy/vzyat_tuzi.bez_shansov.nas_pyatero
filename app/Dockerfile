@@ -14,6 +14,8 @@ RUN pip install pipenv
 #COPY Pipfile.lock /code/
 RUN pipenv install --system --dev
 
+WORKDIR /code
+
 #COPY . /code/app
 
 EXPOSE 3030
