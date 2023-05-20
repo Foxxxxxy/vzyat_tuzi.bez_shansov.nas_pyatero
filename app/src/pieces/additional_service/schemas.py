@@ -8,3 +8,7 @@ class AdditionalServiceCreationSchema(BaseModel):
 
 class AdditionalServiceSchema(AdditionalServiceCreationSchema):
     id: int
+
+    class Config:
+        orm_mode = True
+

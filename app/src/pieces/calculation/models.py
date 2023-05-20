@@ -25,6 +25,7 @@ class RequestModel(Base):
     building_area_size = Column(Float)
     land_area_size = Column(Float)
     equipment = Column(ARRAY(Integer))
+    equipment_amounts = Column(ARRAY(Integer))
     additional_services = Column(ARRAY(Integer))
     legal_entity_type = Column(Enum(LegalEntityType))
     predicted_income_per_year_rub = Column(Float)
