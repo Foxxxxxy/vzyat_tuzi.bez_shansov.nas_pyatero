@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.src.database.common import get_db
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, CalculationPreparedDataSchema, \
     EquipmentCalculationResponseSchema
-from app.src.pieces.calculation.service import make_pdf
+from app.src.pieces.calculation.service import join_request_with_model
 from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
 
@@ -19,50 +19,54 @@ RUBS_FOR_DOLLAR = 71
 # todo with response_model - спиздить способ выгрузки файла из лцт2022
 @router.post("/create")  # , response_model=UserOutputSchema)
 async def create_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db)):
-    calculation_prepared_data = CalculationPreparedDataSchema()
+    calculation_prepared_data = dict()
 
     district_model: DistrictModel = db.query(DistrictModel).filter(DistrictModel.id == form.district_id).first()
-    calculation_prepared_data.district = district_model.name
+    calculation_prepared_data['district'] = district_model.name
 
     # rent
-    calculation_prepared_data.total_rent_expenses = form.land_area_size * district_model.average_price_rub
+    calculation_prepared_data['total_rent_expenses'] = form.land_area_size * district_model.average_price_rub
 
     # equipment
-    form.equipment.sort(key=lambda x: x.id)
-    equipment_models: list[EquipmentModel] = db.query(EquipmentModel).filter(EquipmentModel.id.in_([eq.equipment_type_id for eq in form.equipment])).order_by(EquipmentModel.id)
-    equipment_responses = [
-        EquipmentCalculationResponseSchema(
-            equipment=equipment_model,
-            amount=equipment_request.amount,
-            total_expenses=equipment_model.average_price_dollar * RUBS_FOR_DOLLAR * equipment_request.amount,
-        )
-        for equipment_request, equipment_model
-        in zip(form.equipment, equipment_models)
-    ]
-    calculation_prepared_data.equipments = equipment_responses
+    equipments = join_request_with_model(form.equipment, EquipmentModel, EquipmentCalculationResponseSchema,
+                                         lambda equipment_request, equipment_model: {
+                                             'equipment': equipment_model,
+                                             'amount': equipment_request.amount,
+                                             'total_expenses': equipment_model.average_price_dollar * RUBS_FOR_DOLLAR * equipment_request.amount,
+                                         },
+                                         db
+                                         )
 
+    calculation_prepared_data['equipments'] = equipments
 
+    return CalculationPreparedDataSchema(
+        # business info
+        industry_name='',
+        subindustry_name='',
+        legal_entity_type='',
+        district='',
 
+        # general
+        total_expenses=0.0,
 
-    industry_name: str
-    subindustry_name: str
-    legal_entity_type: str
-    district: str
+        # employee
+        employee_amount=0,
+        total_employee_expenses=0.0,
 
-    # general
-    total_expenses: float
+        # rent
+        building_area_size=0.0,
+        land_area_size=0.0,
+        total_rent_expenses=0.0,
 
-    # employee
-    employee_amount: int
-    total_employee_expenses: float
+        # taxes
+        predicted_income_per_year_rub=0.0,
+        total_taxes_expenses=0.0,
 
-    # rent
-    building_area_size: float
-    land_area_size: float
-    total_rent_expenses: float
+        # equipment
+        equipments=equipments,
+        total_equipments_expenses=0.0,
 
-    # taxes
-    predicted_income_per_year_rub: float
-    total_taxes_expenses: float
-
-
+        # additional services
+        additional_services=[],  # list[AdditionalServiceCalculationResponseSchema]
+        total_additional_services_expenses=0.0,
+    )
