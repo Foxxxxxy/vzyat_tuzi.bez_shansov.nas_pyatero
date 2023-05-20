@@ -1,49 +1,103 @@
-from typing import Dict
+import json
+import os
 
 from fpdf import FPDF
+from pypdf import PdfMerger, PdfReader
 
+from app.src.pieces.calculation.schemas import CalculationPreparedDataSchema
 
-class Report:
-    def __init__(self, data: Dict):
-        self.data = data
-
-    def get_data(self):
-        return self.data
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class PdfCreator:
 
-    def __init__(self, report: Report):
-        self.report = report
+    def __init__(self, calculation_report: CalculationPreparedDataSchema, req_id: int):
+        # Common data
+        self.calculation_report = calculation_report
 
-        self.pdf = FPDF()
+        self.util_files_dir = f"{script_dir}/utility_files"
+        self.output_dir = f"{script_dir}/brochures"
+        self.constructed_pdf_name = f"{self.util_files_dir}/constructed.pdf"
+        self.output_pdf_name = f"{self.output_dir}/brochure{req_id}.pdf"
+        with open(f"{self.util_files_dir}/pdf_structure_config.json") as config_file:
+            self.pdf_config = json.load(config_file)
+
+        self.constructed_pages = ["business_info_page",
+                                  "employee_page"]
+        self.pdfs_to_merge = [f"{self.util_files_dir}/title.pdf",
+                              f"{self.util_files_dir}/greetings.pdf",
+                              f"{self.util_files_dir}/constructed.pdf"]
+
+        # pdf utils
+        self.constructed_pdf = FPDF()
+        self.pdf_merger = PdfMerger()
+
+        # pdf settings
         self.__set_font_for_russian_language()
 
-        self.__add_table_with_calculation_data()
+        # construction logic
+        self.__construct_pdf(self.constructed_pdf_name)
+        self.__merge_pdf_pages_to_pdf_file(self.output_pdf_name)
 
-    def output_pdf(self, pdf_name):
-        self.pdf.output(pdf_name)
+    def __merge_pdf_pages_to_pdf_file(self, output_pdf_name):
+        for pdf_name in self.pdfs_to_merge:
+            self.pdf_merger.append(PdfReader(open(pdf_name, 'rb')))
+        self.pdf_merger.write(output_pdf_name)
+
+    # Entry point for whole pdf construction
+    def __construct_pdf(self, pdf_name):
+        for page_name in self.constructed_pages:
+            self.__construct_page(page_name)
+
+        self.constructed_pdf.output(pdf_name)
+
+    # Entry point for pages construction
+    def __construct_page(self, page_name):
+        page_config = self.pdf_config[page_name]
+
+        self.constructed_pdf.add_page()
+        for table_config in page_config["tables"]:
+            self.__construct_table_for_page(table_config)
+
+    def __construct_table_for_page(self, table_config):
+        self.constructed_pdf.multi_cell(0, txt=table_config["table_name"])
+        with self.constructed_pdf.table(first_row_as_headings=False) as table:
+            for k, v in table_config["fields"].items():
+                row = table.row()
+                row_value = getattr(self.calculation_report, k)
+                row.cell(str(v))
+                row.cell(str(row_value))
+        self.constructed_pdf.ln()
 
     def __set_font_for_russian_language(self):
-        self.pdf.add_font(fname='DejaVuSansCondensed.ttf')
-        self.pdf.set_font('DejaVuSansCondensed', size=14)
-
-    def __add_table_with_calculation_data(self):
-        self.pdf.add_page()
-        with self.pdf.table(first_row_as_headings=False) as table:
-            for k, v in self.report.get_data().items():
-                row = table.row()
-                row.cell(k)
-                row.cell(v)
+        self.constructed_pdf.add_font(fname=f'{self.util_files_dir}/DejaVuSansCondensed.ttf')
+        self.constructed_pdf.set_font('DejaVuSansCondensed', size=14)
 
 
-def main():
-    report = Report(
-        {"1": "1", "2": "2", "3": "3"}
-    )
-    pdf_creator = PdfCreator(report)
-    pdf_creator.output_pdf("brochure.pdf")
-
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     report = CalculationPreparedDataSchema(
+#         industry_name="бизнес",
+#         legal_entity='OOO',
+#         district="Центральный район",
+#         employee_amount=5,
+#         total_employee_expenses="500",
+#         total_rent_expenses="100",
+#         total_taxes_expenses="100",
+#         total_equipments_expenses="100",
+#         total_expenses="800",
+#
+#         subindustry_name="",
+#         legal_entity_type="",
+#         building_area_size=0,
+#         land_area_size=0,
+#         predicted_income_per_year_rub=0,
+#         equipments=[],
+#         additional_services=[],
+#         total_additional_services_expenses=0,
+#     )
+#
+#     PdfCreator(report)
+#
+#
+# if __name__ == "__main__":
+#     main()
