@@ -11,6 +11,20 @@ from sqlalchemy.orm import Session
 from app.src.pieces.equipment.schemas import EquipmentCreationSchema
 
 
+def get_equipment_by_id(db: Session, user_id: int) -> EquipmentModel:
+    return db.query(EquipmentModel).filter(EquipmentModel.id == user_id).first()
+
+
+def get_equipments(db: Session, skip: int = 0, limit: int = 100) -> list[EquipmentModel]:
+    return db.query(EquipmentModel).offset(skip).limit(limit).all()
+
+
+def get_equipment_suggestions(db: Session, subtext: str = '', skip: int = 0, limit: int = 100) -> list[EquipmentModel]:
+    if subtext == '':
+        return get_equipments(db, skip, limit)
+    return db.query(EquipmentModel).filter(EquipmentModel.name.contains(subtext)).offset(skip).limit(limit).all()
+
+
 def create_equipment(equipment: EquipmentCreationSchema, db: Session) -> EquipmentModel:
     equipment = EquipmentModel(**equipment.dict())
     db.add(equipment)
