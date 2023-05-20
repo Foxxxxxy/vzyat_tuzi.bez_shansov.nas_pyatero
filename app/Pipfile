@@ -12,6 +12,7 @@ fastapi-sqlalchemy = "*"
 passlib = "*"
 python-jose = "*"
 openpyxl = "*"
+fpdf2 = "*"
 
 [dev-packages]
 
