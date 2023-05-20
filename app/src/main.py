@@ -40,6 +40,23 @@ app.include_router(calculation_router)
 app.include_router(equipment_router)
 
 
+@app.on_event("startup")
+async def startup_event(db: Session = Depends(get_db)):
+    data = [
+        (parse_district, 'srednyaa_kadastr_stoimost_po_okrugam.xlsx'),
+        (parse_stanki, 'stanki_srednaya_csena.xlsx'),
+        (parse_patents, 'patentirovanie_potencialniy_dohod_moskva.xlsx'),
+    ]
+
+    for func, name in data:
+        try:
+            func(name, db)
+            print(f'SUCCESS: dataset {name} WAS downloaded')
+        except Exception as e:
+            print(f'ERROR: dataset {name} WAS NOT downloaded')
+
+
+
 from app.src.pieces.equipment.service import parse_stanki
 @app.post("/parse")
 async def parse(db: Session = Depends(get_db)):
