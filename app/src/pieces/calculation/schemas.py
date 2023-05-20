@@ -7,7 +7,7 @@ from app.src.pieces.equipment.schemas import EquipmentSchema
 
 
 class EquipmentCalculationRequestSchema(BaseModel):
-    equipment_type_id: int
+    id: int
     amount: int
 
 
@@ -18,7 +18,7 @@ class EquipmentCalculationResponseSchema(BaseModel):
 
 
 class AdditionalServiceCalculationRequestSchema(BaseModel):
-    additional_service_type_id: int
+    id: int
 
 
 class AdditionalServiceCalculationResponseSchema(BaseModel):
@@ -29,12 +29,16 @@ class AdditionalServiceCalculationResponseSchema(BaseModel):
 class CalculationCreateFormSchema(BaseModel):
     industry_id: int  # id сферы хоз деятельности todo таблица сфер хоз деятельности
     subindustry_id: Optional[int]
+
+    district_id: int
+
     employee_amount: int  # количество рабочих, чел
 
     building_area_size: float  # площадь здания, м2
     land_area_size: float  # площадь земельного участка, м2
 
-    equipment_id: int  # оборудование todo таблица оборудования
+    equipment: list[EquipmentCalculationRequestSchema]
+    additional_services: list[AdditionalServiceCalculationRequestSchema]
 
     legal_entity_type: LegalEntityType
 
