@@ -16,6 +16,3 @@ class UserModel(Base):
     organisation_name = Column(String)
     inn = Column(String)  # todo validation
     web_site = Column(String)
-
-
-

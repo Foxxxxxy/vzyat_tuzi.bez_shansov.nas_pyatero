@@ -11,6 +11,7 @@ psycopg2-binary = "*"
 fastapi-sqlalchemy = "*"
 passlib = "*"
 python-jose = "*"
+openpyxl = "*"
 
 [dev-packages]
 

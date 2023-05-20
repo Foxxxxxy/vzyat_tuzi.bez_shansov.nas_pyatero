@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
 
+from app.src.database.common import get_db
 from app.src.database.database import engine
 from app.src.database import models
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,3 +31,10 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(calculation_router)
+
+
+from app.src.pieces.equipment.service import parse_stanki
+@app.post("/parse")
+async def get_access_token(db: Session = Depends(get_db)):
+    parse_stanki('stanki_srednaya_csena.xlsx', db)
+    #user = authenticate_user(form_data.username, form_data.password, db)
