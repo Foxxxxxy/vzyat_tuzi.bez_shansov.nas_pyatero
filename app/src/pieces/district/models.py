@@ -7,5 +7,5 @@ class DistrictModel(Base):
     __tablename__ = 'district'
 
     id = Column(Integer, primary_key=True, index=True)
-    average_price_rub = Column(Float)
+    average_price_per_m2_rub = Column(Float)
     name = Column(String, unique=True)

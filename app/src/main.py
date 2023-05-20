@@ -6,6 +6,7 @@ from app.src.database.database import engine
 from app.src.database import models
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.src.pieces.district.service import parse_district
 from app.src.pieces.user.router import router as auth_router
 from app.src.pieces.calculation.router import router as calculation_router
 
@@ -38,6 +39,5 @@ app.include_router(calculation_router)
 
 from app.src.pieces.equipment.service import parse_stanki
 @app.post("/parse")
-async def get_access_token(db: Session = Depends(get_db)):
-    parse_stanki('stanki_srednaya_csena.xlsx', db)
-    #user = authenticate_user(form_data.username, form_data.password, db)
+async def parse(db: Session = Depends(get_db)):
+    parse_district('srednyaa_kadastr_stoimost_po_okrugam.xlsx', db)
