@@ -85,9 +85,9 @@ class CalculationCreateFormSchema(BaseModel):
 class CalculationPreparedDataSchema(BaseModel):
     # business info
     industry_name: str
-    subindustry_name: str
-    legal_entity_type: str
+    # subindustry_name: str
     district: str
+    legal_entity_type: str
 
     # general
     total_expenses: float
