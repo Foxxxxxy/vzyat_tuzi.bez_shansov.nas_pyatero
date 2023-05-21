@@ -32,10 +32,3 @@ class RequestModel(Base):
 
     industry = relationship("IndustryModel")
     district = relationship("DistrictModel")
-
-# todo - it will be a model that stores calculation results. It will have its own api like /calculation/{calculation_id}
-# class CalculationModel(Base):
-#     __tablename__ = "calculation"
-#
-#     id = Column(Integer, primary_key=True, index=True)
-#     # foreign key user id
