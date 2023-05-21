@@ -3,18 +3,27 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
+from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.calculation.models import RequestModel
 from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, EquipmentCalculationResponseSchema, \
-    CalculationPreparedDataSchema
+    CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema
 from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
+from app.src.pieces.industry.models import IndustryModel
 
 RUBS_FOR_DOLLAR = 71
 
 
 def make_pdf():
     return 'pdf'
+
+
+def get_model_instance_by_id(model_class, form, form_id_field: str, db: Session):
+    model: model_class = db.query(model_class).filter(
+        model_class.id == getattr(form, form_id_field)
+    ).first()
+    return model
 
 
 def join_request_with_model(request_list, model_class, schema_class, update_strategy, db: Session):
@@ -24,9 +33,6 @@ def join_request_with_model(request_list, model_class, schema_class, update_stra
     responses = [
         schema_class(
             **update_strategy(equipment_request, equipment_model)
-            # equipment=equipment_model,
-            # amount=equipment_request.amount,
-            # total_expenses=equipment_model.average_price_dollar * RUBS_FOR_DOLLAR * equipment_request.amount,
         )
         for equipment_request, equipment_model
         in zip(request_list, model_list)
@@ -37,57 +43,73 @@ def join_request_with_model(request_list, model_class, schema_class, update_stra
 def handle_calculation(form: CalculationCreateFormSchema, db: Session):
     calculation_prepared_data = dict()
 
-    district_model: DistrictModel = db.query(DistrictModel).filter(DistrictModel.id == form.district_id).first()
+    # industry
+    industry_model = get_model_instance_by_id(IndustryModel, form, "industry_id", db)
+
+    calculation_prepared_data["industry_name"] = industry_model.name
+
+    # district
+    district_model = get_model_instance_by_id(DistrictModel, form, "district_id", db)
+
     calculation_prepared_data['district'] = district_model.name
 
+    # legal entity type
+    legal_entity_type = form.legal_entity_type
+
+    calculation_prepared_data["legal_entity_type"] = legal_entity_type.name
+
+    # employee
+    employee_amount = form.employee_amount
+
+    calculation_prepared_data["employee_amount"] = employee_amount
+    calculation_prepared_data["total_employee_expenses"] = 0.0
+
     # rent
+    building_area_size = form.building_area_size
+    land_area_size = form.land_area_size
+
+    calculation_prepared_data["building_area_size"] = building_area_size
+    calculation_prepared_data["land_area_size"] = land_area_size
     calculation_prepared_data['total_rent_expenses'] = form.land_area_size * district_model.average_price_per_m2_rub
 
+    # taxes
+    predicted_income_per_year_rub = form.predicted_income_per_year_rub
+
+    calculation_prepared_data["predicted_income_per_year_rub"] = predicted_income_per_year_rub
+    calculation_prepared_data["total_taxes_expenses"] = 0.0
+
     # equipment
-    equipments = join_request_with_model \
-        (
-             form.equipment, EquipmentModel, EquipmentCalculationResponseSchema,
-             lambda equipment_request, equipment_model: {
-                 'equipment': equipment_model,
-                 'amount': equipment_request.amount,
-                 'total_expenses': equipment_model.average_price_dollar * RUBS_FOR_DOLLAR * equipment_request.amount,
-             },
-             db
-         )
+    equipments = join_request_with_model(
+        form.equipment, EquipmentModel, EquipmentCalculationResponseSchema,
+        lambda equipment_request, equipment_model: {
+            'equipment': equipment_model,
+            'amount': equipment_request.amount,
+            'total_expenses': equipment_model.average_price_dollar * RUBS_FOR_DOLLAR * equipment_request.amount,
+        },
+        db
+    )
 
     calculation_prepared_data['equipments'] = equipments
+    calculation_prepared_data["total_equipments_expenses"] = \
+        sum(it.total_expenses for it in equipments)
 
-    return CalculationPreparedDataSchema(
-        # business info
-        industry_name='',
-        subindustry_name='',
-        legal_entity_type='',
-        district='',
-
-        # general
-        total_expenses=0.0,
-
-        # employee
-        employee_amount=0,
-        total_employee_expenses=0.0,
-
-        # rent
-        building_area_size=0.0,
-        land_area_size=0.0,
-        total_rent_expenses=0.0,
-
-        # taxes
-        predicted_income_per_year_rub=0.0,
-        total_taxes_expenses=0.0,
-
-        # equipment
-        equipments=equipments,
-        total_equipments_expenses=0.0,
-
-        # additional services
-        additional_services=[],  # list[AdditionalServiceCalculationResponseSchema]
-        total_additional_services_expenses=0.0,
+    # additional services
+    additional_services = join_request_with_model(
+        form.additional_services, AdditionalServiceModel, AdditionalServiceCalculationResponseSchema,
+        lambda additional_service_request, additional_service_model: {
+            'additional_service': additional_service_model,
+            'total_expenses': additional_service_model.average_price_dollar * RUBS_FOR_DOLLAR
+        },
+        db
     )
+
+    calculation_prepared_data['additional_services'] = additional_services
+    calculation_prepared_data["total_additional_services_expenses"] = \
+        sum(it.total_expenses for it in additional_services)
+
+    calculation_prepared_data["total_expenses"] = 0.0
+
+    return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
 def download_calculation(req_id: int, db: Session):
