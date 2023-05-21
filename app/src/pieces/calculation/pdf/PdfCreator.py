@@ -39,6 +39,9 @@ class PdfCreator:
         self.__construct_pdf(self.constructed_pdf_name)
         self.__merge_pdf_pages_to_pdf_file(self.output_pdf_name)
 
+    def get_output_pdf_filename(self):
+        return self.output_pdf_name
+
     def __merge_pdf_pages_to_pdf_file(self, output_pdf_name):
         for pdf_name in self.pdfs_to_merge:
             self.pdf_merger.append(PdfReader(open(pdf_name, 'rb')))
@@ -72,32 +75,3 @@ class PdfCreator:
     def __set_font_for_russian_language(self):
         self.constructed_pdf.add_font(fname=f'{self.util_files_dir}/DejaVuSansCondensed.ttf')
         self.constructed_pdf.set_font('DejaVuSansCondensed', size=14)
-
-
-# def main():
-#     report = CalculationPreparedDataSchema(
-#         industry_name="бизнес",
-#         legal_entity='OOO',
-#         district="Центральный район",
-#         employee_amount=5,
-#         total_employee_expenses="500",
-#         total_rent_expenses="100",
-#         total_taxes_expenses="100",
-#         total_equipments_expenses="100",
-#         total_expenses="800",
-#
-#         subindustry_name="",
-#         legal_entity_type="",
-#         building_area_size=0,
-#         land_area_size=0,
-#         predicted_income_per_year_rub=0,
-#         equipments=[],
-#         additional_services=[],
-#         total_additional_services_expenses=0,
-#     )
-#
-#     PdfCreator(report)
-#
-#
-# if __name__ == "__main__":
-#     main()
