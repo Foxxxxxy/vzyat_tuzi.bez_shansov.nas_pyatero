@@ -29,12 +29,12 @@ def parse_patents(filename: str, db: Session):
     worksheet = workbook.active
 
     for row in worksheet.iter_rows(min_row=3, max_row=9, max_col=4, values_only=True):
-        print(row)
+        #print(row)
         schema = PatentCreationSchema(name=row[1], income_rub=float(row[2]), percent_rate=float(row[3]), price=float(row[2]) * float(row[3]) / 100)
         res = create_patent(schema, db)
-        print('eq created')
-        print(schema.name, schema.income_rub, schema.percent_rate, schema.price)
-        print('-----')
+        #print('eq created')
+        #print(schema.name, schema.income_rub, schema.percent_rate, schema.price)
+        #print('-----')
         #print(res.average_price_dollar)
         #print(res.name)
         #print(res.id)  # todo check it
