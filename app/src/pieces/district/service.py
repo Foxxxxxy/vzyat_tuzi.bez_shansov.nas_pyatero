@@ -27,7 +27,7 @@ def parse_district(filename: str, db: Session):
     for row in worksheet.iter_rows(min_row=2, max_row=9, max_col=4, values_only=True):
         schema = DistrictCreationSchema(name=row[1], average_price_per_m2_rub=float(row[2]))
         res = create_district(schema, db)
-        print('eq created')
-        print(res.average_price_per_m2_rub)
-        print(res.name)
-        print(res.id)
+        #print('eq created')
+        #print(res.average_price_per_m2_rub)
+        #print(res.name)
+        #print(res.id)

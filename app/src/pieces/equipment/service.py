@@ -44,7 +44,7 @@ def parse_stanki(filename: str, db: Session):
         # todo - add try-except block and smart error count
         schema = EquipmentCreationSchema(name=row[1], average_price_dollar=float(row[2]))
         res = create_equipment(schema, db)
-        print('eq created')
-        print(res.average_price_dollar)
-        print(res.name)
-        print(res.id)
+        #print('eq created')
+        #print(res.average_price_dollar)
+        #print(res.name)
+        #print(res.id)
