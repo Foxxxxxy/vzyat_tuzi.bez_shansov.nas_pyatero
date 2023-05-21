@@ -34,7 +34,7 @@ def join_request_with_model(request_list, model_class, schema_class, update_stra
     return responses
 
 
-def handle_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db)):
+def handle_calculation(form: CalculationCreateFormSchema, db: Session):
     calculation_prepared_data = dict()
 
     district_model: DistrictModel = db.query(DistrictModel).filter(DistrictModel.id == form.district_id).first()
@@ -90,7 +90,7 @@ def handle_calculation(form: CalculationCreateFormSchema, db: Session = Depends(
     )
 
 
-def download_calculation(req_id: int, db: Session = Depends(get_db)):
+def download_calculation(req_id: int, db: Session):
     db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
     request = CalculationCreateFormSchema(request_dict=db_request.__dict__, db=db)
 

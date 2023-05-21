@@ -53,24 +53,22 @@ class CalculationCreateFormSchema(BaseModel):
     class Config:
         orm_mode = True
 
-    def __init__(self, **kwargs):
-        request_dict = kwargs["request_dict"]
-        db = kwargs["db"]
-
+    def __init__(self, request_dict, db):
         equipment_ids = request_dict["equipment"]
         additional_services_ids = request_dict["additional_services"]
 
-        equipment_db = db.query(EquipmentModel).filter(EquipmentModel.id.in_(equipment_ids))
-        additional_services_db = db.query(AdditionalServiceModel).filter(AdditionalServiceModel.id.in_(additional_services_ids))
+        equipment_models = db.query(EquipmentModel).filter(EquipmentModel.id.in_(equipment_ids))
+        additional_services_models = db.query(AdditionalServiceModel).filter(AdditionalServiceModel.id.in_(additional_services_ids))
 
-        equipment_list = [EquipmentSchema.from_orm(it) for it in equipment_db]
-        equipment_list_with_amounts = [EquipmentCalculationRequestSchema(id=it.id, amount=amount) for it, amount in
-                                       zip(equipment_list, request_dict["equipment_amounts"])]
-        additional_services_list = [AdditionalServiceSchema.from_orm(it) for it in additional_services_db]
+        equipment_schemas = [EquipmentSchema.from_orm(it) for it in equipment_models]
+        equipment_calculation_request_schemas = [
+            EquipmentCalculationRequestSchema(id=it.id, amount=amount) for it, amount in
+            zip(equipment_schemas, request_dict["equipment_amounts"])
+        ]
+        additional_services_schemas = [AdditionalServiceSchema.from_orm(it) for it in additional_services_models]
 
-        request_dict["equipment"] = equipment_list_with_amounts
-        request_dict["additional_services"] = additional_services_list
-        kwargs["request_dict"] = request_dict
+        request_dict["equipment"] = equipment_calculation_request_schemas
+        request_dict["additional_services"] = additional_services_schemas
 
         super().__init__(**request_dict)
 
