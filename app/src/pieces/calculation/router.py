@@ -29,7 +29,7 @@ async def create_calculation(form: CalculationCreateFormSchema, db: Session = De
     return service.handle_calculation(form, db)
 
 
-@router.get("{req_id}/download-pdf", response_class=FileResponse)
+@router.get("/{req_id}/download-pdf", response_class=FileResponse)
 async def download_calculated_report(req_id: int, db: Session = Depends(get_db)):
     pdf_filename = service.download_calculation(req_id, db)
     headers = {'Content-Disposition': 'attachment; filename="out.pdf"'}
