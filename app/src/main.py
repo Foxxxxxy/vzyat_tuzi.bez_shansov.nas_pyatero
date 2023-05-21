@@ -12,6 +12,7 @@ from app.src.pieces.patent.service import parse_patents
 from app.src.pieces.user.router import router as auth_router
 from app.src.pieces.calculation.router import router as calculation_router
 from app.src.pieces.equipment.router import router as equipment_router
+from app.src.pieces.currency.sheduled_update import schedule_currency_update
 
 
 origins = [
@@ -64,6 +65,8 @@ def fill_db(head_only: bool = False):
         print('all datasets downloaded successfully')
     else:
         print(f'WARNING: some datasets WERE NOT downloaded successfully: {len(data) - errors}/{len(data)}')
+
+    schedule_currency_update("RUB")
 
 
 

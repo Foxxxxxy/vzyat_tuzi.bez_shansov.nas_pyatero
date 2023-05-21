@@ -8,6 +8,8 @@ ENV PYTHONUNBUFFERED 1
 COPY . /code/app
 WORKDIR /code/app
 
+RUN apt-get update && apt-get install cron -y
+
 # Install dependencies
 RUN pip install pipenv
 #COPY Pipfile /code/
