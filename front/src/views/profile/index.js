@@ -3,8 +3,8 @@ import redirect_first from '../_middleware/redirect_first'
 
 export default [
   {
-    path: '/',
-    name: 'Home',
+    path: '/profile',
+    name: 'Profile',
     component: View,
     meta: {
       middlewares: [redirect_first],

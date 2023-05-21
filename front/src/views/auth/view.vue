@@ -1,9 +1,11 @@
 <script setup>
 import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
 import { reactive, ref, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'
+import { register, sign_in } from '~/api/route.auth.js';
 
 const router = useRouter();
+const route = useRoute()
 
 const form = reactive({
   email: '',
@@ -15,13 +17,14 @@ const registrationForm = reactive({
   surname: '',
   last_name: '',
   email: '',
-  org_name: '',
+  organisation_name: '',
   inn: '',
   web_site: '',
   type_of_work: '',
   country: '',
   city: '',
   work_position: '',
+  level: 1,
   password: '',
 });
 
@@ -33,12 +36,13 @@ const registrationStep = ref(1);
 
 const isValidStep = ref(false);
 
-const login = () => {
+const login = async () => {
   console.log('LOGIN');
 };
 
-const signup = () => {
+const signup = async () => {
   console.log('SIGN UP');
+  await register({ ...registrationForm });
 };
 
 const validateEmail = (email) => {
@@ -51,13 +55,13 @@ const validateEmail = (email) => {
 
 const next = () => {
   registrationStep.value += 1;
-  isValidStep.value = validate(registrationStep.value)
+  isValidStep.value = validate(registrationStep.value);
 };
 
 const back = () => {
-  registrationStep.value -= 1
-  isValidStep.value = validate(registrationStep.value)
-}
+  registrationStep.value -= 1;
+  isValidStep.value = validate(registrationStep.value);
+};
 
 const validate = (step) => {
   if (step === 1 && !registrationForm.name.length) {
@@ -66,7 +70,12 @@ const validate = (step) => {
   if (step === 2 && !registrationForm.inn.length) {
     return false;
   }
-  if (step === 4 && (!registrationForm.email.length || !validateEmail(registrationForm.email))) {
+  if (
+    step === 4 &&
+    (!registrationForm.email.length ||
+      registrationForm.password.length < 8 ||
+      !validateEmail(registrationForm.email))
+  ) {
     return false;
   }
   return true;
@@ -86,6 +95,7 @@ const handlePopup = (isAgree) => {
   } else {
     isShowPopup.value = false;
     step.value = 'registration';
+    router.push({ path: 'auth', query: { step: 'registration' }})
   }
   updateCache();
 };
@@ -94,6 +104,9 @@ onMounted(() => {
   const isShownPopup = localStorage.getItem('popup_shown');
   if (!isShownPopup) {
     isShowPopup.value = true;
+  }
+  if (route.query.step === 'registration') {
+    step.value = 'registration';
   }
 });
 </script>
@@ -147,11 +160,18 @@ onMounted(() => {
           "Регистрация" ниже
         </p>
         <common-button
-          @click="step = 'registration'"
+          @click="() => step = 'registration'"
           class="auth-modal__button"
           variant="outlined"
         >
           Регистрация
+        </common-button>
+        <common-button
+          @click="router.push('/')"
+          class="auth-modal__button"
+          variant="outlined"
+        >
+          Вернуться на главную
         </common-button>
       </div>
     </div>
@@ -190,8 +210,8 @@ onMounted(() => {
         <div class="auth-modal__step" v-show="registrationStep === 2">
           <div class="auth-modal__block">
             <common-input
-              v-model="registrationForm.org_name"
-              :value="registrationForm.org_name"
+              v-model="registrationForm.organisation_name"
+              :value="registrationForm.organisation_name"
               class="auth-modal__input"
               label="Наименование организации"
             />
@@ -262,9 +282,11 @@ onMounted(() => {
             <common-input
               v-model="registrationForm.password"
               :value="registrationForm.password"
+              :required="true"
               class="auth-modal__input"
               label="Пароль"
             />
+            <p class="auth-modal__block-hint">Минимально 8 символов</p>
           </div>
         </div>
       </div>
@@ -304,6 +326,14 @@ onMounted(() => {
         >
           Войти
         </common-button>
+
+        <common-button
+          @click="router.push('/')"
+          class="auth-modal__button"
+          variant="outlined"
+        >
+          Вернуться на главную
+        </common-button>
       </div>
     </div>
   </div>
@@ -328,6 +358,9 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   padding: 20px;
+  @include md {
+    padding: 0;
+  }
   &-modal {
     max-width: 550px;
     width: 100%;
@@ -337,6 +370,9 @@ onMounted(() => {
     border-radius: 5px;
     text-align: center;
     position: relative;
+    @include md {
+      padding: 50px 24px;
+    }
     &__steps {
       @include create-font(20px, 600, 22px);
       color: $accent-purple;
@@ -349,6 +385,11 @@ onMounted(() => {
       &:not(:last-child) {
         margin-bottom: 24px;
       }
+      @include md {
+        &:hover {
+          opacity: 1;
+        }
+      }
     }
     &__form {
       margin-bottom: 24px;
@@ -356,6 +397,10 @@ onMounted(() => {
     &__block {
       &:not(:last-child) {
         margin-bottom: 12px;
+      }
+      &-hint {
+        @include create-font(14px, 400, 22px);
+        margin-top: 6px;
       }
     }
     &__input {

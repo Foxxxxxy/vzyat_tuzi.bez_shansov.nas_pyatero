@@ -25,7 +25,7 @@ class MiddlewareSupport {
 export function hook(router) {
   const middleware = new MiddlewareSupport(router)
   router.beforeEach(async (to, from, next) => {
-    if (!to.meta.middleware) return next()
+    if (!to.meta.middlewares) return next()
     await middleware.hook(to, from, next)
   })
 }

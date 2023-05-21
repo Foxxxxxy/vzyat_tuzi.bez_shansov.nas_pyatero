@@ -33,7 +33,10 @@ import { AppSidebar, AppHeader } from '~/components/app';
 .content {
   grid-area: content;
   min-height: 100vh;
+  height: 0;
+  overflow: auto;
   background-color: #f6f6f8;
   padding: 50px;
+  padding-bottom: 150px;
 }
 </style>
