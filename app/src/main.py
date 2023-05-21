@@ -66,6 +66,7 @@ def fill_db(head_only: bool = False):
     else:
         print(f'WARNING: some datasets WERE NOT downloaded successfully: {len(data) - errors}/{len(data)}')
 
+    # scheduled currency update for dollar course
     schedule_currency_update("RUB")
 
 
