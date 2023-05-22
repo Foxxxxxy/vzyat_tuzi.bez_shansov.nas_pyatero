@@ -4,7 +4,7 @@ import { ref, reactive } from 'vue';
 const props = defineProps({
   value: {
     type: String,
-    required: true
+    required: true,
   },
   required: Boolean,
   label: {
@@ -16,66 +16,71 @@ const props = defineProps({
   },
   suggestions: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   isErrored: Boolean,
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'set-item']);
 
 const updateInput = (ev) => {
   emit('update:modelValue', ev.target.value);
-  isActiveLabel.value = true
+  isActiveLabel.value = true;
 };
 
-const isActiveLabel = ref(false)
+const isActiveLabel = ref(false);
 
-const currentSuggestion = ref({})
+const currentSuggestion = ref({});
 
 const focus = () => {
-  // isActiveLabel.value = true
-}
+  isActiveLabel.value = true;
+};
 
 const blur = () => {
   setTimeout(() => {
-    isActiveLabel.value = false
-  }, 100)
-}
+    isActiveLabel.value = false;
+  }, 200);
+};
 
 const setItem = (item) => {
-  currentSuggestion.value = item
+  currentSuggestion.value = item;
   emit('update:modelValue', item.name);
-}
+  emit('set-item', item);
+};
 </script>
 
 <template>
-  <label class="label">
+  <div class="label">
     <p class="label__title">
       {{ label }}
       <span v-if="required" class="label__required">*</span>
     </p>
     <input
+      :value="value"
       :type="type"
       :class="{ error: isErrored }"
       class="input"
       @input="updateInput"
-      @focus="focus"
       @blur="blur"
-      :value="value"
+      @focus="focus"
     />
-    <div class="suggestions" v-if="isActiveLabel">
+    <div class="suggestions" v-show="isActiveLabel">
       <div class="suggestions__item">
         <p class="suggestions__text">Выберите из списка:</p>
       </div>
-      <div class="suggestions__item" @click="setItem(item)" v-for="item of suggestions" :key="item.id">
+      <div
+        class="suggestions__item"
+        @click="setItem(item)"
+        v-for="item of suggestions"
+        :key="item.id"
+      >
         <p class="suggestions__text">{{ item.name }}</p>
       </div>
     </div>
-  </label>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-
 .suggestions {
   background-color: $primary-white;
   border-radius: 5px;

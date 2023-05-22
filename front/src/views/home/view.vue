@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import {
   CommonButton,
   CommonInput,
@@ -7,7 +7,7 @@ import {
 } from '~/components/common';
 import { get_equipment_suggestion } from '~/api/route.equipment';
 
-const step = ref(1);
+const step = ref(2);
 
 const next = () => {
   step.value += 1;
@@ -18,15 +18,86 @@ const back = () => {
 };
 
 const form = reactive({
-  equipment: ''
-})
+  industry: {
+    input_type: 'suggestion',
+    type: 'industry',
+    value: '',
+    chosen_id: 0,
+    route: get_equipment_suggestion,
+    suggestions: [],
+  },
 
-const suggestions = ref([])
+  employee_amount: {
+    input_type: 'simple',
+    type: 'employee_amount',
+    value: '',
+  },
 
-const inputEq = async () => {
-  const res = await get_equipment_suggestion(form.equipment, 0, 100)
-  suggestions.value = [...res]
+  equipment: {
+    input_type: 'suggestion',
+    type: 'equipment',
+    value: '',
+    chosen_id: 0,
+    route: get_equipment_suggestion,
+    suggestions: [],
+    count: 1
+  },
+
+  building_area_size: {
+    input_type: 'simple',
+    type: 'building_area_size',
+    value: '',
+  },
+
+  land_area_size: {
+    input_type: 'simple',
+    type: 'land_area_size',
+    value: '',
+  },
+
+  buildings: {
+    input_type: 'suggestion',
+    type: 'buildings',
+    value: '',
+    chosen_id: 0,
+    route: get_equipment_suggestion,
+    suggestions: [],
+  },
+
+  org_type: {
+    input_type: 'org_type',
+    type: 'org_type',
+    value: '',
+    chosen_id: 0,
+    route: get_equipment_suggestion,
+    suggestions: [],
+    count: 1
+  },
+});
+
+const suggestions = ref([]);
+
+const getAllSuggestions = async () => {
+  for (let key in form) {
+    const block = form[key];
+    if (block.input_type === 'suggestion') {
+      block.suggestions = [...(await block.route(block.value, 0, 100))];
+    }
+  }
 };
+
+const updateSuggestion = async (key) => {
+  const block = form[key]
+  block.suggestions = [...(await block.route(block.value, 0, 100))]
+};
+
+const setSuggestions = (suggestion, key) => {
+  form[key].chosen_id = suggestion.id
+}
+
+onMounted(async () => {
+  await getAllSuggestions();
+});
 </script>
 
 <template>
@@ -41,71 +112,89 @@ const inputEq = async () => {
         <div class="home-modal__step" v-show="step === 1">
           <div class="home-modal__block">
             <common-helpinput
-              @input="inputEq"
-              v-model="form.equipment"
-              :value="form.equipment"
-              :suggestions="suggestions"
-              label="Предполагаемое к использованию оборудование;"
+              v-model="form.industry.value"
+              class="home-modal__input"
+              label="Отрасль ведения хозяйственной деятельности"
+              :value="form.industry.value"
+              :suggestions="form.industry.suggestions"
+              @input="updateSuggestion('industry')"
+              @set-item="(item) => setSuggestions(item, 'industry')"
             />
           </div>
           <div class="home-modal__block">
             <common-input
+              v-model="form.employee_amount.value"
+              :value="form.employee_amount.value"
               class="home-modal__input"
-              label="Штатная численность сотрудников;"
+              label="Штатная численность сотрудников:"
             />
           </div>
           <div class="home-modal__block">
             <common-input
+              v-model="form.building_area_size.value"
+              :value="form.building_area_size.value"
               class="home-modal__input"
-              label="Территория расположения производства"
+              label="Предполагаемая площадь земельного участка для расположения промышленного производства (в квадратных метрах)"
             />
           </div>
           <div class="home-modal__block">
             <common-input
+              v-model="form.land_area_size.value"
+              :value="form.land_area_size.value"
               class="home-modal__input"
-              label="Предполагаемая площадь земельного участка для расположения промышленного производства (в квадратных метрах);"
+              label="Планируемая площадь объектов капитального строительства"
             />
           </div>
         </div>
+
         <div class="home-modal__step" v-show="step === 2">
-          <div class="home-modal__block">
-            <common-input
+          <div class="home-modal__block home-modal__block--fluid">
+            <common-helpinput
+              v-model="form.equipment.value"
               class="home-modal__input"
-              label="Планируемая площадь объектов капитального строительства;"
+              label="Предполагаемое к использованию оборудование (начните вводить и выберите из списка)"
+              :value="form.equipment.value"
+              :suggestions="form.equipment.suggestions"
+              @input="updateSuggestion('equipment')"
+              @set-item="(item) => setSuggestions(item, 'equipment')"
+            />
+            <common-input
+              v-model="form.equipment.count"
+              :value="form.equipment.count"
+              class="home-modal__input"
+              label="Количество, шт (введите число)"
             />
           </div>
           <div class="home-modal__block">
-            <common-input
-              class="home-modal__input"
-              label="Предполагаемое к использованию оборудование;"
-            />
-          </div>
-          <div class="home-modal__block">
-            <common-input
+            <common-helpinput
+              v-model="form.buildings.value"
               class="home-modal__input"
               label="Планируемый тип зданий/сооружений и их площади;"
+              :value="form.buildings.value"
+              :suggestions="form.buildings.suggestions"
+              @input="updateSuggestion('buildings')"
+              @set-item="(item) => setSuggestions(item, 'buildings')"
             />
           </div>
-          <div class="home-modal__block">
-            <common-input
+          <div class="home-modal__block home-modal__block--fluid">
+            <common-helpinput
+              v-model="form.org_type.value"
               class="home-modal__input"
-              label="Предоставление бухгалтерских услуг;"
+              label="Предоставление бухгалтерских услуг"
+              :value="form.org_type.value"
+              :suggestions="form.org_type.suggestions"
+              @input="updateSuggestion('org_type')"
+              @set-item="(item) => setSuggestions(item, 'org_type')"
+            />
+            <common-input
+              v-model="form.org_type.count"
+              :value="form.org_type.count"
+              class="home-modal__input"
+              label="Количество документов"
             />
           </div>
         </div>
         <div class="home-modal__step" v-show="step === 3">
-          <div class="home-modal__block">
-            <common-input
-              class="home-modal__input"
-              label="Отрасль ведения хозяйственной деятельности;"
-            />
-          </div>
-          <div class="home-modal__block">
-            <common-input
-              class="home-modal__input"
-              label="Иные потребности (подключение к сетям инженерно-технического обеспечения и другие)."
-            />
-          </div>
         </div>
       </div>
       <div class="home-modal__bottom">
@@ -138,7 +227,7 @@ const inputEq = async () => {
     width: 100%;
     margin: 0 auto;
     background-color: $primary-white;
-    padding: 72px 100px;
+    padding: 72px 40px;
     border-radius: 5px;
     text-align: center;
     position: relative;
@@ -167,6 +256,18 @@ const inputEq = async () => {
       margin-bottom: 24px;
     }
     &__block {
+      &--fluid {
+        display: flex;
+        align-items: flex-end;
+
+        .home-modal__input:first-child {
+          width: 175%;
+          margin-right: 8px;
+        }
+        .home-modal__input:last-child {
+          width: 70%;
+        }
+      }
       &:not(:last-child) {
         margin-bottom: 12px;
       }
