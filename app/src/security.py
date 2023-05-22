@@ -28,14 +28,14 @@ async def get_user_secured(token: str = Depends(oauth2_scheme), db: Session = De
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = await get_user_by_email(db, username)
+    user = get_user_by_email(db, username)
     if user is None:
         raise credentials_exception
     return user
 
 
 async def _check_for_permission(user: UserModel, level: EUserLevel, name: str) -> UserModel:
-    if prod_mode and user.role < level:
+    if prod_mode and user.level < level:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"You need to be at least {name}"

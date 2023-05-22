@@ -9,11 +9,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.src.pieces.district.service import parse_district
 from app.src.pieces.industry.service import parse_industry
 from app.src.pieces.patent.service import parse_patents
-from app.src.pieces.user.router import router as auth_router
+from app.src.pieces.user.models import UserModel
+from app.src.pieces.user.router import router as auth_router, get_password_hash
 from app.src.pieces.calculation.router import router as calculation_router
 from app.src.pieces.equipment.router import router as equipment_router
 from app.src.pieces.currency.sheduled_update import schedule_currency_update
 
+from app.src.pieces.user.schemas import SignUpSchema, EUserLevel
+from app.src.pieces.user.service import create_user
 
 origins = [
     "http://localhost",
@@ -40,7 +43,30 @@ app.include_router(calculation_router)
 app.include_router(equipment_router)
 
 
+level_to_name = {
+    EUserLevel.user: 'user',
+    EUserLevel.moderator: 'moderator',
+    EUserLevel.admin: 'admin',
+}
+
+
+def create_template_user_schema(level: EUserLevel):
+    name = level_to_name[level]
+    return SignUpSchema(password=get_password_hash('12345678'),
+                          email=name,
+                          name=name,
+                          last_name=name,
+                          organisation_name=name,
+                          inn='123321',
+                          web_site='https://site.ru',
+                          level=level)
+
+
 def fill_db(head_only: bool = False):
+    with SessionLocal() as db:
+        create_user(db, create_template_user_schema(EUserLevel.user))
+        create_user(db, create_template_user_schema(EUserLevel.admin))
+        print('users created')
     only_first = 50 if head_only else None
     data = [
         (parse_district, 'srednyaa_kadastr_stoimost_po_okrugam.xlsx'),
@@ -76,6 +102,7 @@ async def startup_event():
     """
     Refresh table types by dropping all tables and creating them again
     Fill database with a few data from datasets
+    Add base users
     """
     models.Base.metadata.drop_all(bind=engine)
     models.Base.metadata.create_all(bind=engine)
