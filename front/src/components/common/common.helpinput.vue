@@ -18,6 +18,7 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  isMultiply: Boolean,
   isErrored: Boolean,
 });
 

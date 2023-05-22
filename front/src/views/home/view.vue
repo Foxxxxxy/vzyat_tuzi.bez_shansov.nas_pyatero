@@ -4,10 +4,12 @@ import {
   CommonButton,
   CommonInput,
   CommonHelpinput,
+  CommonMultiplyInput,
 } from '~/components/common';
 import { get_equipment_suggestion } from '~/api/route.equipment';
+import { create_calculation } from '~/api/route.calculation';
 
-const step = ref(2);
+const step = ref(1);
 
 const next = () => {
   step.value += 1;
@@ -33,15 +35,28 @@ const form = reactive({
     value: '',
   },
 
-  equipment: {
-    input_type: 'suggestion',
-    type: 'equipment',
-    value: '',
-    chosen_id: 0,
-    route: get_equipment_suggestion,
-    suggestions: [],
-    count: 1
-  },
+  equipment: [
+    {
+      input_type: 'suggestion',
+      type: 'equipment',
+      value: '',
+      chosen_id: 0,
+      route: get_equipment_suggestion,
+      suggestions: [],
+      count: 1,
+    },
+  ],
+  buildings: [
+    {
+      input_type: 'suggestion',
+      type: 'buildings',
+      value: '',
+      chosen_id: 0,
+      route: get_equipment_suggestion,
+      suggestions: [],
+      count: 1,
+    },
+  ],
 
   building_area_size: {
     input_type: 'simple',
@@ -55,13 +70,10 @@ const form = reactive({
     value: '',
   },
 
-  buildings: {
-    input_type: 'suggestion',
-    type: 'buildings',
+  predicted_income_per_year_rub: {
+    input_type: 'simple',
+    type: 'predicted_income_per_year_rub',
     value: '',
-    chosen_id: 0,
-    route: get_equipment_suggestion,
-    suggestions: [],
   },
 
   org_type: {
@@ -70,30 +82,110 @@ const form = reactive({
     value: '',
     chosen_id: 0,
     route: get_equipment_suggestion,
-    suggestions: [],
-    count: 1
+    suggestions: [
+      {
+        name: 'ООО',
+        id: 'OOO_AO',
+      },
+      {
+        name: 'ИП',
+        id: 'IP',
+      },
+    ],
+    count: 1,
   },
 });
-
-const suggestions = ref([]);
 
 const getAllSuggestions = async () => {
   for (let key in form) {
     const block = form[key];
-    if (block.input_type === 'suggestion') {
+    if (Array.isArray(block)) {
+      const data = [...(await block[0].route(block[0].value, 0, 100))];
+      for (let i = 0; i < block.length; i++) {
+        block[i].suggestions = data;
+      }
+      continue;
+    }
+    if (block.input_type === 'suggestion' && block.type !== 'org_type') {
       block.suggestions = [...(await block.route(block.value, 0, 100))];
     }
   }
 };
 
-const updateSuggestion = async (key) => {
-  const block = form[key]
-  block.suggestions = [...(await block.route(block.value, 0, 100))]
+const updateSuggestion = async (key, index) => {
+  if (index >= 0) {
+    const block = form[key][index];
+    block.suggestions = [...(await block.route(block.value, 0, 100))];
+    return;
+  }
+  const block = form[key];
+  block.suggestions = [...(await block.route(block.value, 0, 100))];
 };
 
-const setSuggestions = (suggestion, key) => {
-  form[key].chosen_id = suggestion.id
-}
+const setSuggestions = (suggestion, key, index) => {
+  if (index >= 0) {
+    return (form[key][index].chosen_id = suggestion.id);
+  }
+  form[key].chosen_id = suggestion.id;
+};
+
+const addMore = async (key, route) => {
+  const block = form[key];
+  const newItem = {
+    input_type: 'suggestion',
+    type: key,
+    value: '',
+    chosen_id: 0,
+    route: route,
+    suggestions: [...(await route('', 0, 100))],
+    count: 1,
+  };
+  block.push(newItem);
+};
+
+const deleteItem = (key, idx) => {
+  console.log(key, idx);
+  if (form[key].length > 1) {
+    form[key] = form[key].filter((item, itemIndex) => itemIndex !== idx);
+  }
+};
+
+const submit = async () => {
+  const data = {
+    industry_id: form.industry.chosen_id,
+    subindustry_id: 1, // УДАЛИТЬ
+    district_id: 1, // IN PROGRESS
+    employee_amount: +form.employee_amount.value,
+    building_area_size: +form.building_area_size.value,
+    land_area_size: +form.land_area_size.value,
+    equipment: form.equipment.map((item) => {
+      return {
+        id: +item.chosen_id,
+        amount: +item.count,
+      };
+    }),
+    ////////////
+    buildings: form.buildings.map((item) => {
+      return {
+        id: +item.chosen_id,
+        amount: +item.count,
+      };
+    }),
+    ////////////
+    additional_services: [
+      {
+        id: 2,
+      },
+    ],
+
+    legal_entity_type: form.org_type.chosen_id,
+    predicted_income_per_year_rub: +form.predicted_income_per_year_rub.value
+  };
+
+  console.log(data);
+
+  await create_calculation({...data});
+};
 
 onMounted(async () => {
   await getAllSuggestions();
@@ -123,7 +215,7 @@ onMounted(async () => {
           </div>
           <div class="home-modal__block">
             <common-input
-              v-model="form.employee_amount.value"
+              v-model.number="form.employee_amount.value"
               :value="form.employee_amount.value"
               class="home-modal__input"
               label="Штатная численность сотрудников:"
@@ -131,16 +223,16 @@ onMounted(async () => {
           </div>
           <div class="home-modal__block">
             <common-input
-              v-model="form.building_area_size.value"
-              :value="form.building_area_size.value"
+              v-model.number="form.land_area_size.value"
+              :value="form.land_area_size.value"
               class="home-modal__input"
               label="Предполагаемая площадь земельного участка для расположения промышленного производства (в квадратных метрах)"
             />
           </div>
           <div class="home-modal__block">
             <common-input
-              v-model="form.land_area_size.value"
-              :value="form.land_area_size.value"
+              v-model.number="form.building_area_size.value"
+              :value="form.building_area_size.value"
               class="home-modal__input"
               label="Планируемая площадь объектов капитального строительства"
             />
@@ -148,34 +240,26 @@ onMounted(async () => {
         </div>
 
         <div class="home-modal__step" v-show="step === 2">
-          <div class="home-modal__block home-modal__block--fluid">
-            <common-helpinput
-              v-model="form.equipment.value"
-              class="home-modal__input"
-              label="Предполагаемое к использованию оборудование (начните вводить и выберите из списка)"
-              :value="form.equipment.value"
-              :suggestions="form.equipment.suggestions"
-              @input="updateSuggestion('equipment')"
-              @set-item="(item) => setSuggestions(item, 'equipment')"
-            />
-            <common-input
-              v-model="form.equipment.count"
-              :value="form.equipment.count"
-              class="home-modal__input"
-              label="Количество, шт (введите число)"
-            />
-          </div>
-          <div class="home-modal__block">
-            <common-helpinput
-              v-model="form.buildings.value"
-              class="home-modal__input"
-              label="Планируемый тип зданий/сооружений и их площади;"
-              :value="form.buildings.value"
-              :suggestions="form.buildings.suggestions"
-              @input="updateSuggestion('buildings')"
-              @set-item="(item) => setSuggestions(item, 'buildings')"
-            />
-          </div>
+          <common-multiply-input
+            label-main="Планируемый тип зданий/сооружений и их площади"
+            label-count="Площадь, м2"
+            suggestion-key="buildings"
+            :block="form.buildings"
+            @add="addMore"
+            @delete="deleteItem"
+            @update-suggestion="updateSuggestion"
+            @set-suggestions="setSuggestions"
+          />
+          <common-multiply-input
+            label-main="Предполагаемое к использованию оборудование (начните вводить и выберите из списка)"
+            label-count="Количество, шт"
+            suggestion-key="equipment"
+            :block="form.equipment"
+            @add="addMore"
+            @delete="deleteItem"
+            @update-suggestion="updateSuggestion"
+            @set-suggestions="setSuggestions"
+          />
           <div class="home-modal__block home-modal__block--fluid">
             <common-helpinput
               v-model="form.org_type.value"
@@ -187,7 +271,7 @@ onMounted(async () => {
               @set-item="(item) => setSuggestions(item, 'org_type')"
             />
             <common-input
-              v-model="form.org_type.count"
+              v-model.number="form.org_type.count"
               :value="form.org_type.count"
               class="home-modal__input"
               label="Количество документов"
@@ -195,11 +279,26 @@ onMounted(async () => {
           </div>
         </div>
         <div class="home-modal__step" v-show="step === 3">
+          <div class="home-modal__block">
+            <common-input
+              v-model.number="form.predicted_income_per_year_rub.value"
+              :value="form.predicted_income_per_year_rub.value"
+              class="home-modal__input"
+              label="Предполагаемый доход в год, руб"
+            />
+          </div>
         </div>
       </div>
       <div class="home-modal__bottom">
-        <common-button @click="next" class="home-modal__button">
+        <common-button
+          v-if="step !== 3"
+          @click="next"
+          class="home-modal__button"
+        >
           Далее
+        </common-button>
+        <common-button v-else @click="submit" class="home-modal__button">
+          Отправить
         </common-button>
         <common-button
           variant="outlined"
@@ -231,6 +330,30 @@ onMounted(async () => {
     border-radius: 5px;
     text-align: center;
     position: relative;
+    &__actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    &__more {
+      display: flex;
+      align-items: center;
+      @include create-font(14px, 500, 18px);
+      color: $accent-purple;
+      cursor: pointer;
+      &-icon {
+        margin-right: 8px;
+        color: $accent-purple;
+      }
+      &:last-child {
+        color: red;
+        .home-modal__more-icon {
+          color: red;
+          transform: rotate(45deg);
+        }
+      }
+    }
     @include md {
       padding: 50px 24px;
     }
