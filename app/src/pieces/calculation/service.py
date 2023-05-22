@@ -8,11 +8,16 @@ from app.src.pieces.calculation.models import RequestModel
 from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, EquipmentCalculationResponseSchema, \
     CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema
+from app.src.pieces.currency.currency import Currency
 from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
 from app.src.pieces.industry.models import IndustryModel
 
 RUBS_FOR_DOLLAR = 71
+
+
+def get_rubs_for_dollar(db: Session):
+    return Currency.get_currency("RUB", db)
 
 
 def make_pdf():
