@@ -25,7 +25,6 @@ router = APIRouter(
 )
 
 
-# todo with response_model - спиздить способ выгрузки файла из лцт2022
 @router.post("/create", response_model=CalculationPreparedDataSchema)
 async def create_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
     return service.handle_calculation(form, db)
