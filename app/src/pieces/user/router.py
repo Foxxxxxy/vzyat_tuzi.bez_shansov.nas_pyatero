@@ -11,9 +11,10 @@ from jose import jwt
 import re
 
 
+from app.src.pieces.user.models import UserModel
 from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema
 from app.src.pieces.user import service as user_service
-
+from app.src.security import auth_user
 
 router = APIRouter(
     prefix="/user",
@@ -27,8 +28,8 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def authenticate_user(email: str, password: str, db: Session = Depends(get_db)) -> Union[UserOutputSchema, None]:
-    user = await user_service.get_user_by_email(db, email)
+def authenticate_user(email: str, password: str, db: Session = Depends(get_db)) -> Union[UserOutputSchema, None]:
+    user = user_service.get_user_by_email(db, email)
     if not user:
         return None
     if not verify_password(password, user.hashed_password):
@@ -86,7 +87,7 @@ async def sign_up(form: SignUpSchema, db: Session = Depends(get_db)):
 
 
 @router.get("/{id}", response_model=UserOutputSchema)
-async def get_user(id: int, db: Session = Depends(get_db)):
+async def get_user(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
     result = user_service.get_user_by_id(db, id)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
