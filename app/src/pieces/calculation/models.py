@@ -19,7 +19,6 @@ class RequestModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     industry_id = Column(Integer, ForeignKey("industry.id"))
-    # subindustry_id: int
     district_id = Column(Integer, ForeignKey("district.id"))
     employee_amount = Column(Integer)
     building_area_size = Column(Float)
@@ -29,6 +28,7 @@ class RequestModel(Base):
     additional_services = Column(ARRAY(Integer))
     legal_entity_type = Column(Enum(LegalEntityType))
     predicted_income_per_year_rub = Column(Float)
+    accounting_services_documents_amount = Column(Integer)
 
     industry = relationship("IndustryModel")
     district = relationship("DistrictModel")

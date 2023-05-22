@@ -31,6 +31,9 @@ def get_model_instance_by_id(model_class, form, form_id_field: str, db: Session)
     return model
 
 
+def calculate_accounting_services_expenses(accounting_services_documents_amount: int) -> float:
+    return accounting_services_documents_amount * 1000.0  # todo
+
 def join_request_with_model(request_list, model_class, schema_class, update_strategy, db: Session):
     request_list.sort(key=lambda x: x.id)
     model_list: list[model_class] = db.query(model_class).filter(
@@ -45,7 +48,7 @@ def join_request_with_model(request_list, model_class, schema_class, update_stra
     return responses
 
 
-def handle_calculation(form: CalculationCreateFormSchema, db: Session):
+def handle_calculation(form: CalculationCreateFormSchema, db: Session) -> CalculationPreparedDataSchema:
     calculation_prepared_data = dict()
 
     # industry
@@ -81,7 +84,13 @@ def handle_calculation(form: CalculationCreateFormSchema, db: Session):
     predicted_income_per_year_rub = form.predicted_income_per_year_rub
 
     calculation_prepared_data["predicted_income_per_year_rub"] = predicted_income_per_year_rub
-    calculation_prepared_data["total_taxes_expenses"] = 0.0
+    calculation_prepared_data["total_taxes_expenses"] = predicted_income_per_year_rub * 0.06
+
+    # accounting services # todo add these fields to pdf
+    accounting_services_documents_amount = form.accounting_services_documents_amount
+
+    calculation_prepared_data["accounting_services_documents_amount"] = accounting_services_documents_amount
+    calculation_prepared_data["accounting_services_expenses"] = calculate_accounting_services_expenses(accounting_services_documents_amount)
 
     # equipment
     equipments = join_request_with_model(

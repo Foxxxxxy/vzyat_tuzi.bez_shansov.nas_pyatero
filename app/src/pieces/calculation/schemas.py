@@ -34,7 +34,6 @@ class AdditionalServiceCalculationResponseSchema(BaseModel):
 
 class CalculationCreateFormSchema(BaseModel):
     industry_id: int  # id сферы хоз деятельности todo таблица сфер хоз деятельности
-    subindustry_id: Optional[int]
 
     district_id: int
 
@@ -49,6 +48,8 @@ class CalculationCreateFormSchema(BaseModel):
     legal_entity_type: LegalEntityType
 
     predicted_income_per_year_rub: float  # предполагаемый доход в год - для подсчета стоимости патента
+
+    accounting_services_documents_amount: int
 
     class Config:
         orm_mode = True
@@ -85,7 +86,6 @@ class CalculationCreateFormSchema(BaseModel):
 class CalculationPreparedDataSchema(BaseModel):
     # business info
     industry_name: str
-    # subindustry_name: str
     district: str
     legal_entity_type: str
 
@@ -104,6 +104,10 @@ class CalculationPreparedDataSchema(BaseModel):
     # taxes
     predicted_income_per_year_rub: float
     total_taxes_expenses: float
+
+    # accounting services
+    accounting_services_documents_amount: int
+    accounting_services_expenses: float
 
     # equipment
     equipments: list[EquipmentCalculationResponseSchema]
