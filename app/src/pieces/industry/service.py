@@ -10,13 +10,26 @@ from openpyxl import load_workbook
 from sqlalchemy.orm import Session
 
 
+def get_industry_by_id(db: Session, user_id: int) -> IndustryModel:
+    return db.query(IndustryModel).filter(IndustryModel.id == user_id).first()
+
+
+def get_industries(db: Session, skip: int = 0, limit: int = 100) -> list[IndustryModel]:
+    return db.query(IndustryModel).offset(skip).limit(limit).all()
+
+
+def get_industry_suggestions(db: Session, subtext: str = '', skip: int = 0, limit: int = 100) -> list[IndustryModel]:
+    if subtext == '':
+        return get_industries(db, skip, limit)
+    return db.query(IndustryModel).filter(IndustryModel.name.contains(subtext)).offset(skip).limit(limit).all()
+
+
 def create_industry(industry: IndustryCreationSchema, db: Session) -> IndustryModel:
     industry = IndustryModel(**industry.dict())
     db.add(industry)
     db.commit()
     db.refresh(industry)
     return industry
-
 
 
 def parse_industry(filename: str, db: Session, only_first: Union[int, None] = None):

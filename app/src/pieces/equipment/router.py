@@ -25,7 +25,7 @@ async def get_equipments_suggestions(subtext: str = '', skip: int = 0, limit: in
 async def get_equipment(id: int, db: Session = Depends(get_db)):
     result = equipment_service.get_equipment_by_id(db, id)
     if result is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such equipment")
     return result
 
 
@@ -33,6 +33,6 @@ async def get_equipment(id: int, db: Session = Depends(get_db)):
 async def get_equipments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     result = equipment_service.get_equipments(db, skip, limit)
     if result is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such equipment")
     return result
 
