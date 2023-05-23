@@ -7,7 +7,7 @@ from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.calculation.models import RequestModel
 from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, EquipmentCalculationResponseSchema, \
-    CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema
+    CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema, CalculationCreateRequestSchema
 from app.src.pieces.currency.currency import Currency
 from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
@@ -34,6 +34,7 @@ def get_model_instance_by_id(model_class, form, form_id_field: str, db: Session)
 def calculate_accounting_services_expenses(accounting_services_documents_amount: int) -> float:
     return accounting_services_documents_amount * 1000.0  # todo
 
+
 def join_request_with_model(request_list, model_class, schema_class, update_strategy, db: Session):
     request_list.sort(key=lambda x: x.id)
     model_list: list[model_class] = db.query(model_class).filter(
@@ -48,8 +49,17 @@ def join_request_with_model(request_list, model_class, schema_class, update_stra
     return responses
 
 
-def handle_calculation(form: CalculationCreateFormSchema, db: Session) -> CalculationPreparedDataSchema:
+def create_request(request: CalculationCreateFormSchema, db: Session) -> RequestModel:
+    request = RequestModel(**request.as_request_model_dict())
+    db.add(request)
+    db.commit()
+    db.refresh(request)
+    return request
+
+
+def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> CalculationPreparedDataSchema:
     calculation_prepared_data = dict()
+    calculation_prepared_data['request_id'] = form.id
 
     # industry
     industry_model = get_model_instance_by_id(IndustryModel, form, "industry_id", db)
@@ -126,11 +136,19 @@ def handle_calculation(form: CalculationCreateFormSchema, db: Session) -> Calcul
     return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
+def handle_calculation(form: CalculationCreateFormSchema, db: Session) -> CalculationPreparedDataSchema:
+    # save request to db
+    request_model = create_request(form, db)
+    # todo - better make converter from CalculationCreateFormSchema to CalculationCreateRequestSchema
+    calculation_create_request_schema = CalculationCreateRequestSchema.from_request_model(request_model, db)
+    return _handle_calculation(calculation_create_request_schema, db)
+
+
 def download_calculation(req_id: int, db: Session):
     db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
-    request = CalculationCreateFormSchema(request_dict=db_request.__dict__, db=db)
+    request = CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
 
-    response = handle_calculation(request, db)
+    response = _handle_calculation(request, db)
     pdf_creator = PdfCreator(response, req_id)
 
     return pdf_creator.get_output_pdf_filename()

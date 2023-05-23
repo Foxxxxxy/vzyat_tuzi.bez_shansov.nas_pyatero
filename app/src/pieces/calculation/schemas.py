@@ -51,10 +51,37 @@ class CalculationCreateFormSchema(BaseModel):
 
     accounting_services_documents_amount: int
 
+    # todo
+    # building = List[Building] список зданий и цены по их кв метру и их размер в кв м
+
+    # todo
+    # данные для рассчета бухгалтерского калькулятора
+
+    # todo
+    # иные потребности List[Потребность]
+
+    def as_request_model_dict(self):
+        result_dict = self.dict()
+        result_dict['equipment_amounts'] = [el['amount'] for el in result_dict['equipment']]
+        result_dict['equipment'] = [el['id'] for el in result_dict['equipment']]
+        result_dict['additional_services'] = [el['id'] for el in result_dict['additional_services']]
+        return result_dict
+
+
+
+
+
+class CalculationCreateRequestSchema(CalculationCreateFormSchema):
+    """
+    orm wrapper for RequestModel
+    """
+    id: int  # RequestModel id
+
     class Config:
         orm_mode = True
-
-    def __init__(self, request_dict, db):
+    @staticmethod
+    def from_request_model(request_model: RequestModel, db):
+        request_dict = request_model.__dict__
         equipment_ids = request_dict["equipment"]
         additional_services_ids = request_dict["additional_services"]
 
@@ -71,19 +98,14 @@ class CalculationCreateFormSchema(BaseModel):
         request_dict["equipment"] = equipment_calculation_request_schemas
         request_dict["additional_services"] = additional_services_schemas
 
-        super().__init__(**request_dict)
-
-    # todo
-    # building = List[Building] список зданий и цены по их кв метру и их размер в кв м
-
-    # todo
-    # данные для рассчета бухгалтерского калькулятора
-
-    # todo
-    # иные потребности List[Потребность]
+        return CalculationCreateRequestSchema(**request_dict)
 
 
 class CalculationPreparedDataSchema(BaseModel):
+    # _techincal
+    request_id: int
+
+
     # business info
     industry_name: str
     district: str
