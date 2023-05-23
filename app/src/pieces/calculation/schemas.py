@@ -7,11 +7,14 @@ from sqlalchemy.orm import Session
 from app.src.database.common import get_db
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.additional_service.schemas import AdditionalServiceSchema
+from app.src.pieces.building.models import BuildingModel
+from app.src.pieces.building.schemas import BuildingSchema
 from app.src.pieces.calculation.models import LegalEntityType, RequestModel
 from app.src.pieces.equipment.models import EquipmentModel
 from app.src.pieces.equipment.schemas import EquipmentSchema
 
 
+# equipment
 class EquipmentCalculationRequestSchema(BaseModel):
     id: int
     amount: int
@@ -23,6 +26,19 @@ class EquipmentCalculationResponseSchema(BaseModel):
     total_expenses: float
 
 
+# building
+class BuildingCalculationRequestSchema(BaseModel):
+    id: int
+    area: int
+
+
+class BuildingCalculationResponseSchema(BaseModel):
+    building: BuildingSchema
+    area: int
+    total_expenses: float
+
+
+# additional services
 class AdditionalServiceCalculationRequestSchema(BaseModel):
     id: int
 
@@ -43,16 +59,14 @@ class CalculationCreateFormSchema(BaseModel):
     land_area_size: float  # площадь земельного участка, м2
 
     equipment: list[EquipmentCalculationRequestSchema]
-    additional_services: list[AdditionalServiceCalculationRequestSchema]
+    additional_services: list[AdditionalServiceCalculationRequestSchema] # todo
+    buildings: list[BuildingCalculationRequestSchema]
 
     legal_entity_type: LegalEntityType
 
     predicted_income_per_year_rub: float  # предполагаемый доход в год - для подсчета стоимости патента
 
     accounting_services_documents_amount: int
-
-    # todo
-    # building = List[Building] список зданий и цены по их кв метру и их размер в кв м
 
     # todo
     # данные для рассчета бухгалтерского калькулятора
@@ -62,13 +76,15 @@ class CalculationCreateFormSchema(BaseModel):
 
     def as_request_model_dict(self):
         result_dict = self.dict()
+
         result_dict['equipment_amounts'] = [el['amount'] for el in result_dict['equipment']]
         result_dict['equipment'] = [el['id'] for el in result_dict['equipment']]
+
+        result_dict['building_areas'] = [el['area'] for el in result_dict['buildings']]
+        result_dict['buildings'] = [el['id'] for el in result_dict['buildings']]
+
         result_dict['additional_services'] = [el['id'] for el in result_dict['additional_services']]
         return result_dict
-
-
-
 
 
 class CalculationCreateRequestSchema(CalculationCreateFormSchema):
@@ -83,9 +99,11 @@ class CalculationCreateRequestSchema(CalculationCreateFormSchema):
     def from_request_model(request_model: RequestModel, db):
         request_dict = request_model.__dict__
         equipment_ids = request_dict["equipment"]
+        building_ids = request_dict["buildings"]
         additional_services_ids = request_dict["additional_services"]
 
         equipment_models = db.query(EquipmentModel).filter(EquipmentModel.id.in_(equipment_ids))
+        building_models = db.query(BuildingModel).filter(BuildingModel.id.in_(building_ids))
         additional_services_models = db.query(AdditionalServiceModel).filter(AdditionalServiceModel.id.in_(additional_services_ids))
 
         equipment_schemas = [EquipmentSchema.from_orm(it) for it in equipment_models]
@@ -93,9 +111,17 @@ class CalculationCreateRequestSchema(CalculationCreateFormSchema):
             EquipmentCalculationRequestSchema(id=it.id, amount=amount) for it, amount in
             zip(equipment_schemas, request_dict["equipment_amounts"])
         ]
+
+        building_schemas = [BuildingSchema.from_orm(it) for it in building_models]
+        building_calculation_request_schemas = [
+            BuildingCalculationRequestSchema(id=it.id, area=area) for it, area in
+            zip(building_schemas, request_dict["building_areas"])
+        ]
+
         additional_services_schemas = [AdditionalServiceSchema.from_orm(it) for it in additional_services_models]
 
         request_dict["equipment"] = equipment_calculation_request_schemas
+        request_dict["buildings"] = building_calculation_request_schemas
         request_dict["additional_services"] = additional_services_schemas
 
         return CalculationCreateRequestSchema(**request_dict)
@@ -134,6 +160,9 @@ class CalculationPreparedDataSchema(BaseModel):
     # equipment
     equipments: list[EquipmentCalculationResponseSchema]
     total_equipments_expenses: float
+
+    buildings: list[BuildingCalculationResponseSchema]
+    total_buildings_expenses: float
 
     # additional services
     additional_services: list[AdditionalServiceCalculationResponseSchema]

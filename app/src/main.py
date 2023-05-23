@@ -6,13 +6,18 @@ from app.src.database.database import engine, SessionLocal
 from app.src.database import models
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.src.pieces.building.service import parse_buildings
 from app.src.pieces.district.service import parse_district
 from app.src.pieces.industry.service import parse_industry
 from app.src.pieces.patent.service import parse_patents
-from app.src.pieces.user.models import UserModel
+
+
 from app.src.pieces.user.router import router as auth_router, get_password_hash
 from app.src.pieces.calculation.router import router as calculation_router
 from app.src.pieces.equipment.router import router as equipment_router
+from app.src.pieces.building.router import router as building_router
+from app.src.pieces.industry.router import router as industry_router
+
 from app.src.pieces.currency.sheduled_update import schedule_currency_update
 
 from app.src.pieces.user.schemas import SignUpSchema, EUserLevel
@@ -41,6 +46,8 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(calculation_router)
 app.include_router(equipment_router)
+app.include_router(building_router)
+app.include_router(industry_router)
 
 
 level_to_name = {
@@ -73,6 +80,7 @@ def fill_db(head_only: bool = False):
         (parse_stanki, 'stanki_srednaya_csena.xlsx'),
         (parse_patents, 'patentirovanie_potencialniy_dohod_moskva.xlsx'),
         (parse_industry, 'obezlichenie_dannie.xlsm'),
+        (parse_buildings, 'building_dataset.xlsx'),
     ]
 
     errors = 0

@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
 from app.src.pieces.additional_service.models import AdditionalServiceModel
+from app.src.pieces.building.models import BuildingModel
 from app.src.pieces.calculation.models import RequestModel
 from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, EquipmentCalculationResponseSchema, \
-    CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema, CalculationCreateRequestSchema
+    CalculationPreparedDataSchema, AdditionalServiceCalculationResponseSchema, CalculationCreateRequestSchema, \
+    BuildingCalculationResponseSchema
 from app.src.pieces.currency.currency import Currency
 from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
@@ -112,10 +114,24 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
         },
         db
     )
-
     calculation_prepared_data['equipments'] = equipments
     calculation_prepared_data["total_equipments_expenses"] = \
         sum(it.total_expenses for it in equipments)
+
+
+    # buildings
+    buildings = join_request_with_model(
+        form.buildings, BuildingModel, BuildingCalculationResponseSchema,
+        lambda building_request, building_model: {
+            'building': building_model,
+            'area': building_request.area,
+            'total_expenses': building_model.average_price_rub * building_request.area,
+        },
+        db
+    )
+    calculation_prepared_data['buildings'] = buildings
+    calculation_prepared_data["total_buildings_expenses"] = \
+        sum(it.total_expenses for it in buildings)
 
     # additional services
     additional_services = join_request_with_model(
