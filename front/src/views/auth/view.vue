@@ -1,11 +1,13 @@
 <script setup>
 import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
 import { reactive, ref, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router'
-import { register, sign_in } from '~/api/route.auth.js';
+import { useRoute, useRouter } from 'vue-router';
+import { get_token, register } from '~/api/route.auth.js';
+import { useStore } from '~/stores/stores.main';
 
 const router = useRouter();
-const route = useRoute()
+const route = useRoute();
+const store = useStore();
 
 const form = reactive({
   email: '',
@@ -36,13 +38,43 @@ const registrationStep = ref(1);
 
 const isValidStep = ref(false);
 
+const createCache = (user) => {
+  localStorage.setItem('user', JSON.stringify(user));
+};
+
+const setUserStore = (email, password, level, user_id, token) => {
+  store.$state.user.email = email;
+  store.$state.user.password = password;
+  store.$state.user.level = level;
+  store.$state.user.user_id = user_id;
+  store.$state.user.token = token;
+};
+
 const login = async () => {
-  console.log('LOGIN');
+  const { access_token, level, user_id } = await get_token(
+    form.email,
+    form.password
+  );
+
+  setUserStore(form.email, form.password, level, user_id, access_token);
+  createCache(store.$state.user);
+  router.push('/');
 };
 
 const signup = async () => {
-  console.log('SIGN UP');
-  await register({ ...registrationForm });
+  //TODO ДОБАВИТЬ ПРОВЕРКУ ПО СТАТУСУ ЗАПРОСА
+  const res = await register({ ...registrationForm });
+
+  if (!res.detail) {
+    const { access_token, level, user_id } = await get_token(
+      res.email,
+      registrationForm.password
+    );
+
+    setUserStore(form.email, form.password, level, user_id, access_token);
+    createCache(store.$state.user);
+    router.push('/');
+  }
 };
 
 const validateEmail = (email) => {
@@ -95,7 +127,7 @@ const handlePopup = (isAgree) => {
   } else {
     isShowPopup.value = false;
     step.value = 'registration';
-    router.push({ path: 'auth', query: { step: 'registration' }})
+    router.push({ path: 'auth', query: { step: 'registration' } });
   }
   updateCache();
 };
@@ -160,7 +192,7 @@ onMounted(() => {
           "Регистрация" ниже
         </p>
         <common-button
-          @click="() => step = 'registration'"
+          @click="() => (step = 'registration')"
           class="auth-modal__button"
           variant="outlined"
         >

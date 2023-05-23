@@ -14,6 +14,7 @@ const props = defineProps({
     type: String,
     default: () => 'text',
   },
+  viewOnly: Boolean,
   isErrored: Boolean,
 });
 
@@ -44,6 +45,7 @@ const blur = () => {
       <span v-if="required" class="label__required">*</span>
     </p>
     <input
+      v-if="!viewOnly"
       :type="type"
       :class="{ error: isErrored }"
       class="input"
@@ -52,6 +54,7 @@ const blur = () => {
       @blur="blur"
       :value="value"
     />
+    <p v-else class="label__view">{{ value }}</p>
   </label>
 </template>
 
@@ -62,6 +65,9 @@ const blur = () => {
   display: block;
   &__required {
     color: red;
+  }
+  &__view {
+    font-weight: bold
   }
   &__title {
     @include create-font(16px, 400, 22px);

@@ -3,13 +3,28 @@ import { SERVER_ENDPOINT } from './_global';
 
 /**
  * @param {string} username
- * @param {string} surname
+ * @param {string} password
  */
-export function get_token(formBody) {
-  console.log(formBody);
-  return xfetch.$post(`${SERVER_ENDPOINT}/auth/get_token`, formBody, {
+
+export function get_token(email, password) {
+  const makeFormData = () => {
+    const user_data = {
+      username: email,
+      password: password,
+    }
+
+    const formBody = []
+    for (let property in user_data) {
+      let encodedKey = encodeURIComponent(property)
+      let encodedValue = encodeURIComponent(user_data[property])
+      formBody.push(encodedKey + '=' + encodedValue)
+    }
+    return formBody.join('&')
+  }
+  return xfetch.$post(`${SERVER_ENDPOINT}/user/get_token`, makeFormData(), {
     type: 'application/x-www-form-urlencoded;charset=UTF-8',
-  });
+  }
+  );
 }
 
 /**
@@ -37,24 +52,6 @@ export function register({
       organisation_name,
       inn,
       web_site,
-    },
-    { token: null }
-  );
-}
-
-/**
- * @param {string} username
- * @param {string} surname
- */
-export function sign_in({
-  password,
-  email,
-} = {}) {
-  return xfetch.$post(
-    `${SERVER_ENDPOINT}/user/sign_in`,
-    {
-      password,
-      email,
     },
     { token: null }
   );

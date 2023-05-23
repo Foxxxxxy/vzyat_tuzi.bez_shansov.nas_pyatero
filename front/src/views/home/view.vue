@@ -8,8 +8,11 @@ import {
 } from '~/components/common';
 import { get_equipment_suggestion } from '~/api/route.equipment';
 import { create_calculation } from '~/api/route.calculation';
+import { useStore } from '~/stores/stores.main';
+import { ResultView } from './'
 
 const step = ref(1);
+const store = useStore()
 
 const next = () => {
   step.value += 1;
@@ -18,6 +21,8 @@ const next = () => {
 const back = () => {
   step.value -= 1;
 };
+
+const result = ref(null)
 
 const form = reactive({
   industry: {
@@ -119,7 +124,9 @@ const updateSuggestion = async (key, index) => {
     return;
   }
   const block = form[key];
-  block.suggestions = [...(await block.route(block.value, 0, 100))];
+  if (block.type !== 'org_type') {
+    block.suggestions = [...(await block.route(block.value, 0, 100))];
+  }
 };
 
 const setSuggestions = (suggestion, key, index) => {
@@ -179,12 +186,14 @@ const submit = async () => {
     ],
 
     legal_entity_type: form.org_type.chosen_id,
+    accounting_services_documents_amount: +form.org_type.count,
     predicted_income_per_year_rub: +form.predicted_income_per_year_rub.value
   };
 
-  console.log(data);
-
-  await create_calculation({...data});
+  const resultData = await create_calculation({...data});
+  console.log(resultData);
+  result.value = {...resultData}
+  store.$state.result = {...resultData}
 };
 
 onMounted(async () => {
@@ -193,7 +202,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="home">
+  <div v-if="!result" class="home">
     <div class="home-modal">
       <p class="home-modal__steps">{{ step }}/3 шаг</p>
       <h1 class="home-modal__title">
@@ -311,6 +320,7 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+  <result-view :result="result" v-else />
 </template>
 
 <style scoped lang="scss">

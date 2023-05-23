@@ -23,7 +23,7 @@ const deleteItem = () => {
 }
 
 const updateSuggestion = (type, index) => {
-  emit('add', type, index)
+  emit('updateSuggestion', type, index)
 }
 
 const setSuggestions = (item, type, index) => {

@@ -12,6 +12,7 @@ export function create_calculation({
   additional_services,
   legal_entity_type,
   predicted_income_per_year_rub,
+  accounting_services_documents_amount
 } = {}) {
   return xfetch.$post(
     `${SERVER_ENDPOINT}/calculation/create`,
@@ -26,6 +27,7 @@ export function create_calculation({
       additional_services,
       legal_entity_type,
       predicted_income_per_year_rub,
+      accounting_services_documents_amount
     },
     { token: null }
   );
