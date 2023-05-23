@@ -17,12 +17,12 @@ router = APIRouter(
 
 
 @router.get("/suggestions", response_model=list[EquipmentSchema])
-async def get_equipments_suggestions(subtext: str = '', skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+async def get_equipments_suggestions(subtext: str = '', skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return equipment_service.get_equipment_suggestions(db, subtext, skip, limit)
 
 
 @router.get("/{id}", response_model=EquipmentSchema)
-async def get_equipment(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+async def get_equipment(id: int, db: Session = Depends(get_db)):
     result = equipment_service.get_equipment_by_id(db, id)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
@@ -30,7 +30,7 @@ async def get_equipment(id: int, db: Session = Depends(get_db), user: UserModel 
 
 
 @router.get("/", response_model=list[EquipmentSchema])
-async def get_equipments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+async def get_equipments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     result = equipment_service.get_equipments(db, skip, limit)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")

@@ -87,7 +87,7 @@ async def sign_up(form: SignUpSchema, db: Session = Depends(get_db)):
 
 
 @router.get("/{id}", response_model=UserOutputSchema)
-async def get_user(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+async def get_user(id: int, db: Session = Depends(get_db)):
     result = user_service.get_user_by_id(db, id)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
@@ -95,7 +95,7 @@ async def get_user(id: int, db: Session = Depends(get_db), user: UserModel = Dep
 
 
 @router.get("/", response_model=list[UserOutputSchema])
-async def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+async def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     result = user_service.get_users(db, skip, limit)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")

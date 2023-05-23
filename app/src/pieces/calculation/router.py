@@ -26,7 +26,7 @@ router = APIRouter(
 
 
 @router.post("/create", response_model=CalculationPreparedDataSchema)
-async def create_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+async def create_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db)):
     return service.handle_calculation(form, db)
 
 
