@@ -26,12 +26,19 @@ def get_building_suggestions(db: Session, subtext: str = '', skip: int = 0, limi
     return db.query(BuildingModel).filter(BuildingModel.name.contains(subtext)).offset(skip).limit(limit).all()
 
 
-def create_building(equipment: BuildingCreationSchema, db: Session) -> BuildingModel:
-    equipment = BuildingModel(**equipment.dict())
-    db.add(equipment)
+def add_building(db: Session, building: BuildingCreationSchema) -> BuildingModel:
+    building = BuildingModel(**building.dict())
+    db.add(building)
     db.commit()
-    db.refresh(equipment)
-    return equipment
+    db.refresh(building)
+    return building
+
+
+def delete_building(db: Session, id: int,) -> BuildingModel:
+    building = db.query(BuildingModel).filter(BuildingModel.id == id).first()
+    db.delete(building)
+    db.commit()
+    return building
 
 
 def parse_buildings(filename: str, db: Session, only_first: Union[int, None] = None):
@@ -46,7 +53,7 @@ def parse_buildings(filename: str, db: Session, only_first: Union[int, None] = N
         if row[2] is None or row[2] == '-':
             continue
         schema = BuildingCreationSchema(name=row[1], average_price_rub=float(row[2]))
-        res = create_building(schema, db)
+        res = add_building(db, schema)
         #print('eq created')
         #print(res.average_price_dollar)
         #print(res.name)

@@ -24,11 +24,19 @@ def get_industry_suggestions(db: Session, subtext: str = '', skip: int = 0, limi
     return db.query(IndustryModel).filter(IndustryModel.name.contains(subtext)).offset(skip).limit(limit).all()
 
 
-def create_industry(industry: IndustryCreationSchema, db: Session) -> IndustryModel:
+def add_industry(db: Session, industry: IndustryCreationSchema) -> IndustryModel:
     industry = IndustryModel(**industry.dict())
     db.add(industry)
     db.commit()
     db.refresh(industry)
+    return industry
+
+
+def delete_industry(db: Session, id: int) -> IndustryModel:
+    industry = db.query(IndustryModel) \
+        .filter(IndustryModel.id == id).first()
+    db.delete(industry)
+    db.commit()
     return industry
 
 
@@ -46,7 +54,7 @@ def parse_industry(filename: str, db: Session, only_first: Union[int, None] = No
             continue
 
         schema = IndustryCreationSchema(name=row[1])#, average_price_per_m2_rub=float(row[2]))
-        res = create_industry(schema, db)
+        res = add_industry(db, schema)
         #print(row[5])
         #print('eq created')
         #print(res.average_price_per_m2_rub)

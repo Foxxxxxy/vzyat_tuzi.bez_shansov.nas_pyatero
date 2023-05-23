@@ -17,6 +17,9 @@ from app.src.pieces.calculation.router import router as calculation_router
 from app.src.pieces.equipment.router import router as equipment_router
 from app.src.pieces.building.router import router as building_router
 from app.src.pieces.industry.router import router as industry_router
+from app.src.pieces.additional_service.router import router as additional_service_router
+from app.src.pieces.currency.router import router as currency_router
+from app.src.pieces.district.router import router as district_router
 
 from app.src.pieces.currency.sheduled_update import schedule_currency_update
 
@@ -48,6 +51,9 @@ app.include_router(calculation_router)
 app.include_router(equipment_router)
 app.include_router(building_router)
 app.include_router(industry_router)
+app.include_router(additional_service_router)
+app.include_router(currency_router)
+app.include_router(district_router)
 
 
 level_to_name = {
