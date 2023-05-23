@@ -86,6 +86,11 @@ async def sign_up(form: SignUpSchema, db: Session = Depends(get_db)):
     return result
 
 
+@router.get("/me", response_model=UserOutputSchema)
+async def get_me(user: UserModel = Depends(auth_user)):
+    return user
+
+
 @router.get("/{id}", response_model=UserOutputSchema)
 async def get_user(id: int, db: Session = Depends(get_db)):
     result = user_service.get_user_by_id(db, id)
