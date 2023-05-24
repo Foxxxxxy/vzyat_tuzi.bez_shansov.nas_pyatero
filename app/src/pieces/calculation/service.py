@@ -90,7 +90,8 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
 
     calculation_prepared_data["building_area_size"] = building_area_size
     calculation_prepared_data["land_area_size"] = land_area_size
-    calculation_prepared_data['total_rent_expenses'] = form.land_area_size * district_model.average_price_per_m2_rub
+    total_area = building_area_size + land_area_size
+    calculation_prepared_data['total_rent_expenses'] = total_area * district_model.average_price_per_m2_rub
 
     # taxes
     predicted_income_per_year_rub = form.predicted_income_per_year_rub
