@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -24,7 +25,7 @@ def get_district_suggestions(db: Session, subtext: str = '',
     if subtext == '':
         return get_districts(db, skip, limit)
     return db.query(DistrictModel) \
-        .filter(DistrictModel.name.contains(subtext)).offset(skip).limit(limit).all()
+        .filter(func.lower(DistrictModel.name).contains(subtext.lower())).offset(skip).limit(limit).all()
 
 
 def add_district(db: Session, district: DistrictCreationSchema) -> DistrictModel:
@@ -32,6 +33,16 @@ def add_district(db: Session, district: DistrictCreationSchema) -> DistrictModel
     db.add(district)
     db.commit()
     db.refresh(district)
+    return district
+
+
+def update_district(db: Session, id: int,
+                    schema: DistrictCreationSchema) -> DistrictModel:
+    district = db.query(DistrictModel) \
+        .filter(DistrictModel.id == id).first()
+    district.average_price_per_m2_rub = schema.average_price_per_m2_rub
+    district.name = schema.name
+    db.commit()
     return district
 
 

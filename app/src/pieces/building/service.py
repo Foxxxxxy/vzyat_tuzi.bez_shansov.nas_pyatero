@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -23,7 +24,8 @@ def get_buildings(db: Session, skip: int = 0, limit: int = 100) -> list[Building
 def get_building_suggestions(db: Session, subtext: str = '', skip: int = 0, limit: int = 100) -> list[BuildingModel]:
     if subtext == '':
         return get_buildings(db, skip, limit)
-    return db.query(BuildingModel).filter(BuildingModel.name.contains(subtext)).offset(skip).limit(limit).all()
+    return db.query(BuildingModel)\
+        .filter(func.lower(BuildingModel.name).contains(subtext.lower())).offset(skip).limit(limit).all()
 
 
 def add_building(db: Session, building: BuildingCreationSchema) -> BuildingModel:
@@ -34,7 +36,17 @@ def add_building(db: Session, building: BuildingCreationSchema) -> BuildingModel
     return building
 
 
-def delete_building(db: Session, id: int,) -> BuildingModel:
+def update_building(db: Session, id: int,
+                    schema: BuildingCreationSchema) -> BuildingModel:
+    building = db.query(BuildingModel) \
+        .filter(BuildingModel.id == id).first()
+    building.average_price_rub = schema.average_price_rub
+    building.name = schema.name
+    db.commit()
+    return building
+
+
+def delete_building(db: Session, id: int, ) -> BuildingModel:
     building = db.query(BuildingModel).filter(BuildingModel.id == id).first()
     db.delete(building)
     db.commit()
@@ -54,7 +66,7 @@ def parse_buildings(filename: str, db: Session, only_first: Union[int, None] = N
             continue
         schema = BuildingCreationSchema(name=row[1], average_price_rub=float(row[2]))
         res = add_building(db, schema)
-        #print('eq created')
-        #print(res.average_price_dollar)
-        #print(res.name)
-        #print(res.id)
+        # print('eq created')
+        # print(res.average_price_dollar)
+        # print(res.name)
+        # print(res.id)

@@ -1,4 +1,3 @@
-# todo - когда будем делать пополнение справочников
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -40,6 +39,12 @@ async def get_industries(skip: int = 0, limit: int = 100, db: Session = Depends(
 async def add_industry(schema: IndustryCreationSchema,
                        db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
     return industry_service.add_industry(db, schema)
+
+
+@router.put("/{id}", response_model=IndustrySchema)
+async def update_industry(id: int, schema: IndustryCreationSchema,
+                          db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
+    return industry_service.update_industry(db, id, schema)
 
 
 @router.delete("/{id}", response_model=IndustrySchema)

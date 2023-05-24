@@ -1,4 +1,3 @@
-# todo - когда будем делать пополнение справочников
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -41,6 +40,12 @@ async def get_additional_services(skip: int = 0, limit: int = 100, db: Session =
 async def add_additional_service(schema: AdditionalServiceCreationSchema,
                                  db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
     return additional_services_service.add_additional_service(db, schema)
+
+
+@router.put("/{id}", response_model=AdditionalServiceSchema)
+async def update_additional_service(id: int, schema: AdditionalServiceCreationSchema,
+                                    db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
+    return additional_services_service.update_additional_service(db, id, schema)
 
 
 @router.delete("/{id}", response_model=AdditionalServiceSchema)

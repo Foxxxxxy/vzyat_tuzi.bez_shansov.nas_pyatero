@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -21,7 +22,8 @@ def get_industries(db: Session, skip: int = 0, limit: int = 100) -> list[Industr
 def get_industry_suggestions(db: Session, subtext: str = '', skip: int = 0, limit: int = 100) -> list[IndustryModel]:
     if subtext == '':
         return get_industries(db, skip, limit)
-    return db.query(IndustryModel).filter(IndustryModel.name.contains(subtext)).offset(skip).limit(limit).all()
+    return db.query(IndustryModel)\
+        .filter(func.lower(IndustryModel.name).contains(subtext.lower())).offset(skip).limit(limit).all()
 
 
 def add_industry(db: Session, industry: IndustryCreationSchema) -> IndustryModel:
@@ -29,6 +31,15 @@ def add_industry(db: Session, industry: IndustryCreationSchema) -> IndustryModel
     db.add(industry)
     db.commit()
     db.refresh(industry)
+    return industry
+
+
+def update_industry(db: Session, id: int,
+                    schema: IndustryCreationSchema) -> IndustryModel:
+    industry = db.query(IndustryModel) \
+        .filter(IndustryModel.id == id).first()
+    industry.name = schema.name
+    db.commit()
     return industry
 
 
@@ -53,10 +64,10 @@ def parse_industry(filename: str, db: Session, only_first: Union[int, None] = No
         if db.query(IndustryModel).filter(IndustryModel.name == row[1]).first():
             continue
 
-        schema = IndustryCreationSchema(name=row[1])#, average_price_per_m2_rub=float(row[2]))
+        schema = IndustryCreationSchema(name=row[1])  # , average_price_per_m2_rub=float(row[2]))
         res = add_industry(db, schema)
-        #print(row[5])
-        #print('eq created')
-        #print(res.average_price_per_m2_rub)
-        #print(res.name)
-        #print(res.id)
+        # print(row[5])
+        # print('eq created')
+        # print(res.average_price_per_m2_rub)
+        # print(res.name)
+        # print(res.id)

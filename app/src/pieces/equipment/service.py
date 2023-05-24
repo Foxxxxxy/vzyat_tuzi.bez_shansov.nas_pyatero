@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -23,7 +24,8 @@ def get_equipments(db: Session, skip: int = 0, limit: int = 100) -> list[Equipme
 def get_equipment_suggestions(db: Session, subtext: str = '', skip: int = 0, limit: int = 100) -> list[EquipmentModel]:
     if subtext == '':
         return get_equipments(db, skip, limit)
-    return db.query(EquipmentModel).filter(EquipmentModel.name.contains(subtext)).offset(skip).limit(limit).all()
+    return db.query(EquipmentModel)\
+        .filter(func.lower(EquipmentModel.name).contains(subtext.lower())).offset(skip).limit(limit).all()
 
 
 def add_equipment(db: Session, equipment: EquipmentCreationSchema) -> EquipmentModel:
@@ -34,7 +36,17 @@ def add_equipment(db: Session, equipment: EquipmentCreationSchema) -> EquipmentM
     return equipment
 
 
-def delete_equipment(db: Session, id: int,) -> EquipmentModel:
+def update_equipment(db: Session, id: int,
+                     schema: EquipmentCreationSchema) -> EquipmentModel:
+    equipment = db.query(EquipmentModel) \
+        .filter(EquipmentModel.id == id).first()
+    equipment.average_price_dollar = schema.average_price_dollar
+    equipment.name = schema.name
+    db.commit()
+    return equipment
+
+
+def delete_equipment(db: Session, id: int, ) -> EquipmentModel:
     equipment = db.query(EquipmentModel).filter(EquipmentModel.id == id).first()
     db.delete(equipment)
     db.commit()
@@ -54,7 +66,7 @@ def parse_stanki(filename: str, db: Session, only_first: Union[int, None] = None
             continue
         schema = EquipmentCreationSchema(name=row[1], average_price_dollar=float(row[2]))
         res = add_equipment(db, schema)
-        #print('eq created')
-        #print(res.average_price_dollar)
-        #print(res.name)
-        #print(res.id)
+        # print('eq created')
+        # print(res.average_price_dollar)
+        # print(res.name)
+        # print(res.id)

@@ -1,3 +1,5 @@
+from sqlalchemy import func
+
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.additional_service.schemas import AdditionalServiceCreationSchema
 from sqlalchemy.orm import Session
@@ -17,7 +19,7 @@ def get_additional_service_suggestions(db: Session, subtext: str = '',
     if subtext == '':
         return get_additional_services(db, skip, limit)
     return db.query(AdditionalServiceModel) \
-        .filter(AdditionalServiceModel.name.contains(subtext)).offset(skip).limit(limit).all()
+        .filter(func.lower(AdditionalServiceModel.name).contains(subtext.lower())).offset(skip).limit(limit).all()
 
 
 def add_additional_service(db: Session,
@@ -26,6 +28,16 @@ def add_additional_service(db: Session,
     db.add(additional_service)
     db.commit()
     db.refresh(additional_service)
+    return additional_service
+
+
+def update_additional_service(db: Session, id: int,
+                              schema: AdditionalServiceCreationSchema) -> AdditionalServiceModel:
+    additional_service = db.query(AdditionalServiceModel) \
+        .filter(AdditionalServiceModel.id == id).first()
+    additional_service.average_price_dollar = schema.average_price_dollar
+    additional_service.name = schema.name
+    db.commit()
     return additional_service
 
 

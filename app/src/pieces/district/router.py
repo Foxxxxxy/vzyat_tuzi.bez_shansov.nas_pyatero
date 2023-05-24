@@ -1,4 +1,3 @@
-# todo - когда будем делать пополнение справочников
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -41,6 +40,12 @@ async def get_districts(skip: int = 0, limit: int = 100, db: Session = Depends(g
 async def add_district(schema: DistrictCreationSchema, db: Session = Depends(get_db),
                        user: UserModel = Depends(auth_admin)):
     return district_service.add_district(db, schema)
+
+
+@router.put("/{id}", response_model=DistrictSchema)
+async def update_district(id: int, schema: DistrictCreationSchema,
+                          db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
+    return district_service.update_district(db, id, schema)
 
 
 @router.delete("/{id}", response_model=DistrictSchema)

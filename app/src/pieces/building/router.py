@@ -1,4 +1,3 @@
-# todo - когда будем делать пополнение справочников
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -41,6 +40,12 @@ async def get_buildings(skip: int = 0, limit: int = 100, db: Session = Depends(g
 async def add_building(schema: BuildingCreationSchema, db: Session = Depends(get_db),
                        user: UserModel = Depends(auth_admin)):
     return building_service.add_building(db, schema)
+
+
+@router.put("/{id}", response_model=BuildingSchema)
+async def update_building(id: int, schema: BuildingCreationSchema,
+                          db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
+    return building_service.update_building(db, id, schema)
 
 
 @router.delete("/{id}", response_model=BuildingSchema)
