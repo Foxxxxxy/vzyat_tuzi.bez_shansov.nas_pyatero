@@ -12,11 +12,13 @@ export function create_calculation({
   additional_services,
   legal_entity_type,
   predicted_income_per_year_rub,
-  accounting_services_documents_amount
+  accounting_services_documents_amount,
+  buildings
 } = {}) {
   return xfetch.$post(
     `${SERVER_ENDPOINT}/calculation/create`,
     {
+      buildings,
       industry_id,
       subindustry_id,
       district_id,

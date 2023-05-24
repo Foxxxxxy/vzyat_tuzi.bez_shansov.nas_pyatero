@@ -7,6 +7,8 @@ import {
   CommonMultiplyInput,
 } from '~/components/common';
 import { get_equipment_suggestion } from '~/api/route.equipment';
+import { get_building_suggestion } from '~/api/route.building';
+import { get_industry_suggestion } from '~/api/route.industry';
 import { create_calculation } from '~/api/route.calculation';
 import { useStore } from '~/stores/stores.main';
 import { ResultView } from './'
@@ -57,7 +59,7 @@ const form = reactive({
       type: 'buildings',
       value: '',
       chosen_id: 0,
-      route: get_equipment_suggestion,
+      route: get_building_suggestion,
       suggestions: [],
       count: 1,
     },
@@ -171,14 +173,12 @@ const submit = async () => {
         amount: +item.count,
       };
     }),
-    ////////////
     buildings: form.buildings.map((item) => {
       return {
         id: +item.chosen_id,
-        amount: +item.count,
+        area: +item.count,
       };
     }),
-    ////////////
     additional_services: [
       {
         id: 2,

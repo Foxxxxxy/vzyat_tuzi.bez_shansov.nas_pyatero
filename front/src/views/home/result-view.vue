@@ -12,124 +12,316 @@ defineProps({
       <header class="result__header">
         <h1 class="result__title">Предпросмотр отчета</h1>
       </header>
-      <div class="result__wrapper">
-        <div class="result__form">
-          <div class="result__block">
-            <common-input
-              label="Количество бухгалтерских документов"
-              class="result__input"
-              :value="result.accounting_services_documents_amount"
-              :view-only="true"
-            />
+      <main class="result__main">
+        <div class="result__section">
+          <div class="result__subtitle">Бухгалтерский учет</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-title">Количество документов</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Расходы</p>
+                </div>
+              </div>
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.accounting_services_documents_amount }} шт.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.accounting_services_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="result__block">
-            <common-input
-              label="Расходы на бухгалтерские документы"
-              class="result__input"
-              :value="result.accounting_services_expenses"
-              :view-only="true"
-            />
-          </div>
-          <div class="result__block">
-            <common-input
-              label="Планируемая площадь объектов капитального строительства"
-              class="result__input"
-              :value="result.building_area_size"
-              :view-only="true"
-            />
-          </div>
-          <div class="result__block">
-            <common-input
-              label="Московский округ"
-              class="result__input"
-              :value="result.district"
-              :view-only="true"
-            />
-          </div>
-          <div class="result__block">
-            <common-input
-              label="Штатная численность сотрудников"
-              class="result__input"
-              :value="result.employee_amount"
-              :view-only="true"
-            />
-          </div>
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.accounting_services_expenses }} руб.</span>
+          </p>
         </div>
-        <div class="result__form">
-          <div class="result__block">
-            <common-input
-              label="Отрасль ведения хозяйственной деятельности"
-              class="result__input"
-              :value="result.industry_name"
-              :view-only="true"
-            />
+        <div class="result__section">
+          <div class="result__subtitle">Налогообложение</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-title">Предполагаемый доход в год</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Налог</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Предоставление бухгалтерских услуг</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Отрасль</p>
+                </div>
+              </div>
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.predicted_income_per_year_rub }} руб.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.total_taxes_expenses }} руб.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.legal_entity_type }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.industry_name }}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="result__block">
-            <common-input
-              label="Предполагаемая площадь земельного участка для расположения промышленного производства"
-              class="result__input"
-              :value="result.land_area_size"
-              :view-only="true"
-            />
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.total_taxes_expenses }} руб.</span>
+          </p>
+        </div>
+        <div class="result__section">
+          <div class="result__subtitle">Персонал</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-title">Количество работников</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Расходы</p>
+                </div>
+              </div>
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.employee_amount }} чел.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.total_employee_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="result__block">
-            <common-input
-              label="Предполагаемый доход в год, руб"
-              class="result__input"
-              :value="result.predicted_income_per_year_rub"
-              :view-only="true"
-            />
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.total_employee_expenses }} руб.</span>
+          </p>
+        </div>
+        <div class="result__section">
+          <div class="result__subtitle">Территория</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-title">Округ</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Площадь земельного участка</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Площадь объектов капитального строительства</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.district }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.land_area_size }} м2.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.building_area_size }} м2.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ result.total_rent_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div class="result__block">
-            <common-input
-              label="Расходы на персонал"
-              class="result__input"
-              :value="result.total_employee_expenses"
-              :view-only="true"
-            />
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.total_rent_expenses }} руб.</span>
+          </p>
+        </div>
+        <div class="result__section">
+          <div class="result__subtitle">Здания</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Средняя стоимость</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Площадь</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div v-for="(item, index) of result.buildings" :key="index" class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.building.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.building.average_price_rub }} руб.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.area }} м2
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.total_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="result__block">
-            <common-input
-              label="Расходы на оборудование"
-              class="result__input"
-              :value="result.total_equipments_expenses"
-              :view-only="true"
-            />
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.total_buildings_expenses }} руб.</span>
+          </p>
+        </div>
+        <div class="result__section">
+          <div class="result__subtitle">Оборудование</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Средняя стоимость</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Количество</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div v-for="(item, index) of result.equipments" :key="index" class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.equipment.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.equipment.average_price_dollar }} $
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.amount }} шт.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.total_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="result__block">
-            <common-input
-              label="Итого"
-              class="result__input"
-              :value="result.total_expenses"
-              :view-only="true"
-            />
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.total_equipments_expenses }} руб.</span>
+          </p>
+        </div>
+        <div class="result__section">
+          <div class="result__subtitle">Дополнительные услуги</div>
+          <div class="result__grid">
+            <div class="result__grid-wrapper">
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div class="result__row" v-for="(item, index) of result.additional_services" :key="index">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.additional_service.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.total_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="result__block">
-            <common-input
-              label="Общие расходы на аренду"
-              class="result__input"
-              :value="result.total_rent_expenses"
-              :view-only="true"
-            />
-          </div>
-          <div class="result__block">
-            <common-input
-              label="Общие расходы по налогам"
-              class="result__input"
-              :value="result.total_taxes_expenses"
-              :view-only="true"
-            />
-          </div>
-          <div class="result__block">
-            <common-input
-              label="Фамилия"
-              class="result__input"
-              :view-only="true"
-            />
-          </div>
+          <p class="result__section-sum">
+            Итого расходы: <span class="result__section-sumval">{{ result.total_additional_services_expenses }} руб.</span>
+          </p>
+        </div>
+        <div class="result__bottom">
+          <div class="result__main-block">
+          <p class="result__main-title">Бухгалтерский учет:</p>
+          <p class="result__main-value">{{ result.accounting_services_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title">Налогообложение:</p>
+          <p class="result__main-value">{{ result.total_taxes_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title">Оборудование:</p>
+          <p class="result__main-value">{{ result.total_equipments_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title">Здания:</p>
+          <p class="result__main-value">{{ result.total_buildings_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title">Персонал:</p>
+          <p class="result__main-value">{{ result.total_employee_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title">Дополнительные услуги:</p>
+          <p class="result__main-value">{{ result.total_additional_services_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title">Территория:</p>
+          <p class="result__main-value">{{ result.total_rent_expenses }} руб.</p>
+        </div>
+        <div class="result__main-block">
+          <p class="result__main-title result__main-title--big">ОБЩИЙ ИТОГ:</p>
+          <p class="result__main-value result__main-value--big">{{ result.total_expenses }} руб.</p>
         </div>
       </div>
+      </main>
     </div>
   </div>
 </template>
@@ -139,26 +331,142 @@ defineProps({
   width: 100%;
   height: 100%;
   background-color: #ffffff;
+  margin-bottom: 10000px;
+  &__bottom {
+    padding: 20px;
+  }
+  &__section {
+    border-bottom: 1px dashed $accent-purple;
+    padding-bottom: 11px;
+    &-sum {
+      @include create-font(22px, 600, normal);
+      padding-left: 20px;
+      padding-top: 10px;
+    }
+    &-sumval {
+      margin-left: 10px;
+      @include create-font(16px, 600, normal);
+      color: $accent-purple;
+    }
+  }
+  &__grid {
+    display: grid;
+    &-wrapper {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      border-bottom: 1px dashed #d8d8d8;
+      padding-bottom: 10px;
+    }
+    &-title {
+      @include create-font(18px, 500, normal);
+      color: #8c9aab;
+    }
+    &-value {
+      @include create-font(16px, 600, normal);
+    }
+  }
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-left: 20px;
+    &--4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  &__subtitle {
+    @include create-font(20px, 600, normal);
+    padding: 20px 0 20px 20px;
+    border-bottom: 1px dashed #d8d8d8;
+    margin-bottom: 10px;
+  }
+  &__main {
+    // padding: 20px;
+    &-list {
+      position: relative;
+      padding-left: 50px;
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+    &-subtitle {
+      margin-right: 18px;
+      font-weight: 700;
+      &--gray {
+        color: #a8a8a8;
+      }
+    }
+    &-item {
+      display: flex;
+      &:not(:last-child) {
+        margin-bottom: 10px;
+      }
+      &::before {
+        content: '';
+        width: 5px;
+        height: 5px;
+        background-color: #454545;
+        border-radius: 50%;
+        position: absolute;
+        left: 33px;
+        // top: 5px;
+      }
+    }
+    &-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-right: 20px;
+      color: #454545;
+      &--big {
+        font-size: 30px;
+      }
+    }
+    &-value {
+      &--big {
+        font-size: 20px;
+      }
+    }
+    &-block {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 20px;
+      &--multiply {
+        flex-direction: column;
+        .result__main-block {
+          margin-bottom: 10px;
+          padding-left: 20px;
+        }
+        .result__main-title {
+          margin-bottom: 20px;
+        }
+      }
+    }
+  }
   &__content {
     background-color: #ffffff;
   }
   &__wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 20px 0;
+    padding: 20px;
   }
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 41px 32px 41px 0;
+    // border-bottom: 2px dashed $accent-purple;
   }
   &__form {
     padding: 0 32px;
     max-width: 500px;
   }
   &__block {
+    border-bottom: 1px solid #d8d8d8;
+    padding: 0 0 15px 10px;
     &:not(:last-child) {
-      margin-bottom: 12px;
+      // margin-bottom: 12px;
     }
   }
   &__title {
