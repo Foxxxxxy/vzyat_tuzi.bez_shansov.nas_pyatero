@@ -8,3 +8,6 @@ class DistrictCreationSchema(BaseModel):
 
 class DistrictSchema(DistrictCreationSchema):
     id: int
+
+    class Config:
+        orm_mode = True

@@ -7,3 +7,6 @@ class IndustryCreationSchema(BaseModel):
 
 class IndustrySchema(IndustryCreationSchema):
     id: int
+
+    class Config:
+        orm_mode = True
