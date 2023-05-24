@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
+from app.src.common import round_floats
 from app.src.database.common import get_db
 from app.src.pieces.calculation import service
 from app.src.pieces.calculation.models import RequestModel
@@ -27,7 +28,9 @@ router = APIRouter(
 
 @router.post("/create", response_model=CalculationPreparedDataSchema)
 async def create_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db)):
-    return service.handle_calculation(form, db)
+    result = service.handle_calculation(form, db)
+    round_floats(result)
+    return result
 
 
 @router.get("/{req_id}/download-pdf", response_class=FileResponse)
