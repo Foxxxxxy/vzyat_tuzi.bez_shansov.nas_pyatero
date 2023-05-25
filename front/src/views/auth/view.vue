@@ -58,7 +58,11 @@ const login = async () => {
 
   setUserStore(form.email, form.password, level, user_id, access_token);
   createCache(store.$state.user);
-  router.push('/');
+  if (route.query.back) {
+      router.push('/' + route.query.back);
+    } else {
+      router.push('/');
+    }
 };
 
 const signup = async () => {
@@ -73,7 +77,11 @@ const signup = async () => {
 
     setUserStore(form.email, form.password, level, user_id, access_token);
     createCache(store.$state.user);
-    router.push('/');
+    if (route.query.back) {
+      router.push('/' + route.query.back);
+    } else {
+      router.push('/');
+    }
   }
 };
 

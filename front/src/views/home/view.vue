@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, watch } from 'vue';
 import {
   CommonButton,
   CommonInput,
@@ -11,27 +11,19 @@ import { get_building_suggestion } from '~/api/route.building';
 import { get_industry_suggestion } from '~/api/route.industry';
 import { create_calculation } from '~/api/route.calculation';
 import { useStore } from '~/stores/stores.main';
-import { ResultView } from './'
+import router from '~/router';
 
 const step = ref(1);
-const store = useStore()
+const store = useStore();
 
-const next = () => {
-  step.value += 1;
-};
-
-const back = () => {
-  step.value -= 1;
-};
-
-const result = ref(null)
+const result = ref(null);
 
 const form = reactive({
   industry: {
     input_type: 'suggestion',
     type: 'industry',
     value: '',
-    chosen_id: 0,
+    chosen_id: null,
     route: get_equipment_suggestion,
     suggestions: [],
   },
@@ -47,7 +39,7 @@ const form = reactive({
       input_type: 'suggestion',
       type: 'equipment',
       value: '',
-      chosen_id: 0,
+      chosen_id: null,
       route: get_equipment_suggestion,
       suggestions: [],
       count: 1,
@@ -58,7 +50,7 @@ const form = reactive({
       input_type: 'suggestion',
       type: 'buildings',
       value: '',
-      chosen_id: 0,
+      chosen_id: null,
       route: get_building_suggestion,
       suggestions: [],
       count: 1,
@@ -87,7 +79,7 @@ const form = reactive({
     input_type: 'org_type',
     type: 'org_type',
     value: '',
-    chosen_id: 0,
+    chosen_id: null,
     route: get_equipment_suggestion,
     suggestions: [
       {
@@ -102,6 +94,68 @@ const form = reactive({
     count: 1,
   },
 });
+
+const isValidStep = ref(false);
+
+const validateMultiBlock = (block) => {
+  if (block.value.length && block.chosen_id !== null) {
+    return true;
+  }
+  return false;
+};
+
+const validateSimpleBlock = (block) => {
+  if (block.value.length) {
+    return true;
+  }
+  return false;
+};
+
+const validateMultiArrayBlock = (block) => {
+  for (let i = 0; i < block.length; i++) {
+    if (!block[i].value.length || block[i].value.chosen_id === null) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const validate = (step) => {
+  if (
+    step === 1 &&
+    (!validateMultiBlock(form.industry) ||
+      !validateSimpleBlock(form.employee_amount) ||
+      !validateSimpleBlock(form.land_area_size) ||
+      !validateSimpleBlock(form.building_area_size))
+  ) {
+    return false;
+  }
+  if (
+    step === 2 &&
+    (!validateMultiArrayBlock(form.equipment) ||
+      !validateMultiArrayBlock(form.buildings) ||
+      !validateMultiBlock(form.org_type))
+  ) {
+    return false;
+  }
+  if (step === 3 && !validateSimpleBlock(form.predicted_income_per_year_rub)) {
+    return false;
+  }
+  return true;
+};
+
+watch(form, () => {
+  isValidStep.value = validate(step.value);
+});
+
+const next = () => {
+  step.value += 1;
+  isValidStep.value = validate(step.value);
+};
+
+const back = () => {
+  step.value -= 1;
+};
 
 const getAllSuggestions = async () => {
   for (let key in form) {
@@ -150,6 +204,7 @@ const addMore = async (key, route) => {
     count: 1,
   };
   block.push(newItem);
+  isValidStep.value = validate(step.value);
 };
 
 const deleteItem = (key, idx) => {
@@ -157,6 +212,7 @@ const deleteItem = (key, idx) => {
   if (form[key].length > 1) {
     form[key] = form[key].filter((item, itemIndex) => itemIndex !== idx);
   }
+  isValidStep.value = validate(step.value);
 };
 
 const submit = async () => {
@@ -187,13 +243,21 @@ const submit = async () => {
 
     legal_entity_type: form.org_type.chosen_id,
     accounting_services_documents_amount: +form.org_type.count,
-    predicted_income_per_year_rub: +form.predicted_income_per_year_rub.value
+    predicted_income_per_year_rub: +form.predicted_income_per_year_rub.value,
   };
 
-  const resultData = await create_calculation({...data});
+  const resultData = await create_calculation({ ...data });
   console.log(resultData);
-  result.value = {...resultData}
-  store.$state.result = {...resultData}
+  result.value = { ...resultData };
+  store.$state.result = { ...resultData };
+
+  router.push('/review')
+};
+
+const isOpenedMap = ref(false);
+
+const openMap = () => {
+  isOpenedMap.value = true;
 };
 
 onMounted(async () => {
@@ -202,7 +266,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="!result" class="home">
+  <div class="home">
+    <div v-if="isOpenedMap" class="modal">
+      <div class="modal__content"></div>
+    </div>
     <div class="home-modal">
       <p class="home-modal__steps">{{ step }}/3 шаг</p>
       <h1 class="home-modal__title">
@@ -224,7 +291,7 @@ onMounted(async () => {
           </div>
           <div class="home-modal__block">
             <common-input
-              v-model.number="form.employee_amount.value"
+              v-model="form.employee_amount.value"
               :value="form.employee_amount.value"
               class="home-modal__input"
               label="Штатная численность сотрудников:"
@@ -232,7 +299,7 @@ onMounted(async () => {
           </div>
           <div class="home-modal__block">
             <common-input
-              v-model.number="form.land_area_size.value"
+              v-model="form.land_area_size.value"
               :value="form.land_area_size.value"
               class="home-modal__input"
               label="Предполагаемая площадь земельного участка для расположения промышленного производства (в квадратных метрах)"
@@ -240,7 +307,7 @@ onMounted(async () => {
           </div>
           <div class="home-modal__block">
             <common-input
-              v-model.number="form.building_area_size.value"
+              v-model="form.building_area_size.value"
               :value="form.building_area_size.value"
               class="home-modal__input"
               label="Планируемая площадь объектов капитального строительства"
@@ -280,7 +347,7 @@ onMounted(async () => {
               @set-item="(item) => setSuggestions(item, 'org_type')"
             />
             <common-input
-              v-model.number="form.org_type.count"
+              v-model="form.org_type.count"
               :value="form.org_type.count"
               class="home-modal__input"
               label="Количество документов"
@@ -290,11 +357,20 @@ onMounted(async () => {
         <div class="home-modal__step" v-show="step === 3">
           <div class="home-modal__block">
             <common-input
-              v-model.number="form.predicted_income_per_year_rub.value"
+              v-model="form.predicted_income_per_year_rub.value"
               :value="form.predicted_income_per_year_rub.value"
               class="home-modal__input"
               label="Предполагаемый доход в год, руб"
             />
+          </div>
+          <div class="home-modal__block home-modal__block--fluid">
+            <common-input
+              value="Не выбран"
+              class="home-modal__input"
+              label="Округ"
+              :view-only="true"
+            />
+            <common-button @click="openMap">Выбрать округ</common-button>
           </div>
         </div>
       </div>
@@ -302,11 +378,17 @@ onMounted(async () => {
         <common-button
           v-if="step !== 3"
           @click="next"
+          :disabled="!isValidStep"
           class="home-modal__button"
         >
           Далее
         </common-button>
-        <common-button v-else @click="submit" class="home-modal__button">
+        <common-button
+          v-else
+          :disabled="!isValidStep"
+          @click="submit"
+          class="home-modal__button"
+        >
           Отправить
         </common-button>
         <common-button
@@ -320,10 +402,27 @@ onMounted(async () => {
       </div>
     </div>
   </div>
-  <result-view :result="result" v-else />
 </template>
 
 <style scoped lang="scss">
+.modal {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  &__content {
+    background: #ffffff;
+    padding: 20px;
+  }
+  z-index: 1000;
+}
 .home {
   display: flex;
   justify-content: center;
@@ -389,6 +488,7 @@ onMounted(async () => {
       margin-bottom: 24px;
     }
     &__block {
+      text-align: left;
       &--fluid {
         display: flex;
         align-items: flex-end;

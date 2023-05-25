@@ -14,8 +14,4 @@ export default async ({ to, from, next, redirect }) => {
     store.$state.user.token = user.token
     redirect('/')
   }
-
-  if (!isFirstTime && !user) {
-    redirect('/auth')
-  }
 }

@@ -7,7 +7,8 @@ export const useStore = defineStore('main', {
       password: null,
       token: null,
       level: null,
-      user_id: null
+      user_id: null,
+      name: null
     },
     result: null
   }),

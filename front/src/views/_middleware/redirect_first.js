@@ -2,6 +2,7 @@ import { get_token } from '~/api/route.auth';
 import { useStore } from '~/stores/stores.main';
 
 export default async ({ to, from, next, redirect }) => {
+  // console.log(from, "FROM");
   const store = useStore();
 
   const isFirstTime = localStorage.getItem('popup_shown');
@@ -10,21 +11,15 @@ export default async ({ to, from, next, redirect }) => {
     : null;
 
   if (user) {
-    const data = await get_token(user.email, user.password);
-    if (data) {
-      store.$state.user.email = user.email;
-      store.$state.user.password = user.password;
-      store.$state.user.level = user.level;
-      store.$state.user.user_id = user.user_id;
-      store.$state.user.token = user.token;
-      localStorage.setItem('user', JSON.stringify(store.$state.user));
-    } else {
-      localStorage.removeItem('user');
-      redirect('/auth');
-    }
+    store.$state.user.email = user.email;
+    store.$state.user.password = user.password;
+    store.$state.user.level = user.level;
+    store.$state.user.user_id = user.user_id;
+    store.$state.user.token = user.token;
   }
 
   if (!isFirstTime && !user) {
+    // localStorage.removeItem('user');
     redirect('/auth');
   }
 

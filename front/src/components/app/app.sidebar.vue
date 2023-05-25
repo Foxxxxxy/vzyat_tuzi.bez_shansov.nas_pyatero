@@ -1,9 +1,9 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { IconHome, IconTeam, IconSetup } from '~/components/icons'
-import { useStore } from '~/stores/stores.main'
+import { computed, onMounted, ref } from 'vue';
+import { IconHome, IconTeam, IconSetup } from '~/components/icons';
+import { useStore } from '~/stores/stores.main';
 
-const store = useStore()
+const store = useStore();
 
 const navs = [
   {
@@ -13,9 +13,21 @@ const navs = [
     level: 1,
   },
   {
+    name: 'Просмотр отчета',
+    icon: IconHome,
+    to: '/review',
+    level: 1,
+  },
+  {
     name: 'Профиль',
     icon: IconTeam,
     to: '/profile',
+    level: 1,
+  },
+  {
+    name: 'Список оборудования',
+    icon: IconTeam,
+    to: '/equipments',
     level: 1,
   },
   // {
@@ -30,29 +42,29 @@ const navs = [
   //   to: '/team',
   //   level: 3,
   // },
-]
+];
 
 const navs_moderator = computed(() => {
-  return navs.filter((item) => item.level <= 2)
-})
+  return navs.filter((item) => item.level <= 2);
+});
 
 const navs_user = computed(() => {
-  return navs.filter((item) => item.level <= 1)
-})
+  return navs.filter((item) => item.level <= 1);
+});
 
 const user_level = computed(() => {
-  return store.$state.level
-})
+  return store.$state.level;
+});
 
 const return_navs = computed(() => {
   if (user_level.value == 3) {
-    return navs
+    return navs;
   } else if (user_level.value == 2) {
-    return navs_moderator.value
+    return navs_moderator.value;
   } else {
-    return navs_user.value
+    return navs_user.value;
   }
-})
+});
 </script>
 
 <template>
@@ -62,7 +74,7 @@ const return_navs = computed(() => {
     </div>
     <nav class="nav">
       <div class="nav__item" v-for="(nav, idx) of return_navs" :key="idx">
-        <router-link :to="nav.to" class="nav__link" router-link-active="active">
+        <router-link :to="nav.to" class="nav__link">
           <icon-wrapper class="nav__icon" width="20" height="20">
             <component :is="nav.icon" class="nav__icon" />
           </icon-wrapper>
@@ -128,5 +140,15 @@ const return_navs = computed(() => {
     @include tg-h6-medium;
     text-align: center;
   }
+}
+
+.router-link-exact-active {
+  background: linear-gradient(
+    89.95deg,
+    #ece2ff 0.04%,
+    rgba(240, 252, 247, 0) 120.25%
+  );
+  color: $accent-purple;
+  border-left: 3px solid $accent-purple;
 }
 </style>

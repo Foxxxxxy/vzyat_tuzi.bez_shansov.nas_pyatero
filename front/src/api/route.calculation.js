@@ -34,3 +34,29 @@ export function create_calculation({
     { token: null }
   );
 }
+
+export function download_file(req_id, token) {
+  let filename = ''
+  const url = `${SERVER_ENDPOINT}/calculation/${req_id}/download-pdf`
+  fetch(url, {
+    headers: {
+      Authorization: 'Bearer ' + token,
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    },
+    method: 'GET'
+  })
+    .then((res) => {
+      return res.blob()
+    })
+    .then((blob) => {
+      var url = window.URL.createObjectURL(blob)
+      var a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a) // append the element to the dom
+      a.click()
+      a.remove() // afterwards, remove the element
+      emit('submit')
+    })
+}

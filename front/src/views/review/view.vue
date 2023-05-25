@@ -1,16 +1,36 @@
 <script setup>
+import { computed } from 'vue';
 import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
+import { useStore } from '~/stores/stores.main';
+import { download_file } from '~/api/route.calculation';
 
-defineProps({
-  result: [Object, null],
-});
+const store = useStore()
+const isLoggedIn = computed(() => !!store.$state.user.token)
+
+const result = computed(() => store.$state.result)
+
+const download = () => {
+  console.log('download', isLoggedIn.value);
+  download_file(result.value.request_id, store.$state.user.token)
+}
+
+const returnLegal = (legal) => {
+  if (legal === "OOO_AO") {
+    return "ООО"
+  }
+  return "ИП"
+}
 </script>
 
 <template>
   <div class="result">
-    <div class="result__content">
+    <div class="result__content" v-if="result">
       <header class="result__header">
         <h1 class="result__title">Предпросмотр отчета</h1>
+        <common-button v-if="isLoggedIn" @click="download" variant="outlined" class="result__button">СКАЧАТЬ ОТЧЕТ</common-button>
+        <router-link to="/auth?back=review" v-else>
+          <common-button variant="outlined" class="result__button">Войдите, чтобы скачать отчет</common-button>
+        </router-link>
       </header>
       <main class="result__main">
         <div class="result__section">
@@ -40,7 +60,10 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.accounting_services_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.accounting_services_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__section">
@@ -55,7 +78,9 @@ defineProps({
                   <p class="result__grid-title">Налог</p>
                 </div>
                 <div class="result__column">
-                  <p class="result__grid-title">Предоставление бухгалтерских услуг</p>
+                  <p class="result__grid-title">
+                    Предоставление бухгалтерских услуг
+                  </p>
                 </div>
                 <div class="result__column">
                   <p class="result__grid-title">Отрасль</p>
@@ -74,7 +99,7 @@ defineProps({
                 </div>
                 <div class="result__column">
                   <p class="result__grid-value">
-                    {{ result.legal_entity_type }}
+                    {{ returnLegal(result.legal_entity_type) }}
                   </p>
                 </div>
                 <div class="result__column">
@@ -86,7 +111,10 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.total_taxes_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_taxes_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__section">
@@ -116,7 +144,10 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.total_employee_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_employee_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__section">
@@ -131,7 +162,9 @@ defineProps({
                   <p class="result__grid-title">Площадь земельного участка</p>
                 </div>
                 <div class="result__column">
-                  <p class="result__grid-title">Площадь объектов капитального строительства</p>
+                  <p class="result__grid-title">
+                    Площадь объектов капитального строительства
+                  </p>
                 </div>
                 <div class="result__column">
                   <p class="result__grid-title">Стоимость</p>
@@ -162,7 +195,10 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.total_rent_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_rent_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__section">
@@ -183,7 +219,11 @@ defineProps({
                   <p class="result__grid-title">Стоимость</p>
                 </div>
               </div>
-              <div v-for="(item, index) of result.buildings" :key="index" class="result__row result__row--4">
+              <div
+                v-for="(item, index) of result.buildings"
+                :key="index"
+                class="result__row result__row--4"
+              >
                 <div class="result__column">
                   <p class="result__grid-value">
                     {{ item.building.name }}
@@ -195,9 +235,7 @@ defineProps({
                   </p>
                 </div>
                 <div class="result__column">
-                  <p class="result__grid-value">
-                    {{ item.area }} м2
-                  </p>
+                  <p class="result__grid-value">{{ item.area }} м2</p>
                 </div>
                 <div class="result__column">
                   <p class="result__grid-value">
@@ -208,7 +246,10 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.total_buildings_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_buildings_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__section">
@@ -229,7 +270,11 @@ defineProps({
                   <p class="result__grid-title">Стоимость</p>
                 </div>
               </div>
-              <div v-for="(item, index) of result.equipments" :key="index" class="result__row result__row--4">
+              <div
+                v-for="(item, index) of result.equipments"
+                :key="index"
+                class="result__row result__row--4"
+              >
                 <div class="result__column">
                   <p class="result__grid-value">
                     {{ item.equipment.name }}
@@ -241,9 +286,7 @@ defineProps({
                   </p>
                 </div>
                 <div class="result__column">
-                  <p class="result__grid-value">
-                    {{ item.amount }} шт.
-                  </p>
+                  <p class="result__grid-value">{{ item.amount }} шт.</p>
                 </div>
                 <div class="result__column">
                   <p class="result__grid-value">
@@ -254,7 +297,10 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.total_equipments_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_equipments_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__section">
@@ -269,7 +315,11 @@ defineProps({
                   <p class="result__grid-title">Стоимость</p>
                 </div>
               </div>
-              <div class="result__row" v-for="(item, index) of result.additional_services" :key="index">
+              <div
+                class="result__row"
+                v-for="(item, index) of result.additional_services"
+                :key="index"
+              >
                 <div class="result__column">
                   <p class="result__grid-value">
                     {{ item.additional_service.name }}
@@ -284,44 +334,70 @@ defineProps({
             </div>
           </div>
           <p class="result__section-sum">
-            Итого расходы: <span class="result__section-sumval">{{ result.total_additional_services_expenses }} руб.</span>
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_additional_services_expenses }} руб.</span
+            >
           </p>
         </div>
         <div class="result__bottom">
           <div class="result__main-block">
-          <p class="result__main-title">Бухгалтерский учет:</p>
-          <p class="result__main-value">{{ result.accounting_services_expenses }} руб.</p>
+            <p class="result__main-title">Бухгалтерский учет:</p>
+            <p class="result__main-value">
+              {{ result.accounting_services_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title">Налогообложение:</p>
+            <p class="result__main-value">
+              {{ result.total_taxes_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title">Оборудование:</p>
+            <p class="result__main-value">
+              {{ result.total_equipments_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title">Здания:</p>
+            <p class="result__main-value">
+              {{ result.total_buildings_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title">Персонал:</p>
+            <p class="result__main-value">
+              {{ result.total_employee_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title">Дополнительные услуги:</p>
+            <p class="result__main-value">
+              {{ result.total_additional_services_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title">Территория:</p>
+            <p class="result__main-value">
+              {{ result.total_rent_expenses }} руб.
+            </p>
+          </div>
+          <div class="result__main-block">
+            <p class="result__main-title result__main-title--big">
+              ОБЩИЙ ИТОГ:
+            </p>
+            <p class="result__main-value result__main-value--big">
+              {{ result.total_expenses }} руб.
+            </p>
+          </div>
         </div>
-        <div class="result__main-block">
-          <p class="result__main-title">Налогообложение:</p>
-          <p class="result__main-value">{{ result.total_taxes_expenses }} руб.</p>
-        </div>
-        <div class="result__main-block">
-          <p class="result__main-title">Оборудование:</p>
-          <p class="result__main-value">{{ result.total_equipments_expenses }} руб.</p>
-        </div>
-        <div class="result__main-block">
-          <p class="result__main-title">Здания:</p>
-          <p class="result__main-value">{{ result.total_buildings_expenses }} руб.</p>
-        </div>
-        <div class="result__main-block">
-          <p class="result__main-title">Персонал:</p>
-          <p class="result__main-value">{{ result.total_employee_expenses }} руб.</p>
-        </div>
-        <div class="result__main-block">
-          <p class="result__main-title">Дополнительные услуги:</p>
-          <p class="result__main-value">{{ result.total_additional_services_expenses }} руб.</p>
-        </div>
-        <div class="result__main-block">
-          <p class="result__main-title">Территория:</p>
-          <p class="result__main-value">{{ result.total_rent_expenses }} руб.</p>
-        </div>
-        <div class="result__main-block">
-          <p class="result__main-title result__main-title--big">ОБЩИЙ ИТОГ:</p>
-          <p class="result__main-value result__main-value--big">{{ result.total_expenses }} руб.</p>
-        </div>
-      </div>
       </main>
+    </div>
+    <div class="result__content result__content--empty" v-else>
+      <router-link to="/">
+        <common-button>Создать новый отчет</common-button>
+      </router-link>
     </div>
   </div>
 </template>
@@ -444,6 +520,12 @@ defineProps({
   }
   &__content {
     background-color: #ffffff;
+    &--empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
   }
   &__wrapper {
     display: grid;
@@ -455,8 +537,8 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 41px 32px 41px 0;
-    // border-bottom: 2px dashed $accent-purple;
   }
   &__form {
     padding: 0 32px;

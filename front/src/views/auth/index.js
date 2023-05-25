@@ -7,7 +7,7 @@ export default [
     name: 'Auth',
     meta: {
       layout: 'empty',
-      middlewares: [test_auth],
+      middlewares: [],
     },
     component: View,
   },
