@@ -17,6 +17,7 @@ pypdf2 = "*"
 pypdf = "*"
 python-crontab = "*"
 requests = "*"
+python-multipart = "*"
 
 [dev-packages]
 

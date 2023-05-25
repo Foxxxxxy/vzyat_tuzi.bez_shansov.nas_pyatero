@@ -1,4 +1,7 @@
-from sqlalchemy import func
+import io
+from tempfile import SpooledTemporaryFile
+
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -11,6 +14,10 @@ from openpyxl import load_workbook
 from sqlalchemy.orm import Session
 
 from app.src.pieces.building.schemas import BuildingCreationSchema
+
+
+def refresh_table(db: Session):
+    db.execute(text("TRUNCATE TABLE building"))
 
 
 def get_building_by_id(db: Session, user_id: int) -> BuildingModel:
@@ -51,6 +58,20 @@ def delete_building(db: Session, id: int, ) -> BuildingModel:
     db.delete(building)
     db.commit()
     return building
+
+
+async def upload_building_excel_to_db(file: SpooledTemporaryFile, refresh: bool, db: Session):
+    if refresh:
+        refresh_table(db)
+
+    f = await file.read()
+    xlsx = io.BytesIO(f)
+    workbook = load_workbook(xlsx, data_only=True)
+    worksheet = workbook.worksheets[0]
+
+    for row in worksheet.iter_rows(min_row=2):
+        schema = BuildingCreationSchema(name=row[0].value, average_price_rub=float(row[1].value))
+        add_building(db, schema)
 
 
 def parse_buildings(filename: str, db: Session, only_first: Union[int, None] = None):
