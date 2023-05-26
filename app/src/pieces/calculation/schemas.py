@@ -1,6 +1,6 @@
 from fastapi import Depends
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Union
 
 from sqlalchemy.orm import Session
 
@@ -92,6 +92,7 @@ class CalculationCreateRequestSchema(CalculationCreateFormSchema):
     orm wrapper for RequestModel
     """
     id: int  # RequestModel id
+    user_id: Union[int, None]
 
     class Config:
         orm_mode = True
