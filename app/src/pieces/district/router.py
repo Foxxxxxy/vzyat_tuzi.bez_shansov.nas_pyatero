@@ -21,14 +21,16 @@ router = APIRouter(
     tags=["district"],
 )
 
+
 @router.get("/excel-template", response_class=FileResponse)
-async def get_excel_template():
+async def get_excel_template(user: UserModel = Depends(auth_admin)):
     headers = {'Content-Disposition': 'attachment; filename="template.xlsx"'}
     return FileResponse(path=excel_template_filename, filename=f"template.xlsx", headers=headers)
 
 
 @router.post("/excel")
-async def post_excel(file: UploadFile, refresh: bool = False, db: Session = Depends(get_db)):
+async def post_excel(file: UploadFile, refresh: bool = False, db: Session = Depends(get_db),
+                     user: UserModel = Depends(auth_admin)):
     await district_service.upload_district_excel_to_db(file, refresh, db)
 
 
