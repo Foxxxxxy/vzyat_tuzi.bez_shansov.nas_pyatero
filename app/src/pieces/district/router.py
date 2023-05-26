@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
@@ -8,10 +12,26 @@ from app.src.pieces.district.schemas import DistrictSchema, DistrictCreationSche
 from app.src.pieces.user.models import UserModel
 from app.src.security import auth_user, auth_admin
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+parent_dir = Path(script_dir).resolve().parents[0]
+excel_template_filename = f"{parent_dir}/excel/excel_templates/district_template.xlsx"
+
 router = APIRouter(
     prefix="/district",
     tags=["district"],
 )
+
+
+@router.get("/excel-template", response_class=FileResponse)
+async def get_excel_template(user: UserModel = Depends(auth_admin)):
+    headers = {'Content-Disposition': 'attachment; filename="template.xlsx"'}
+    return FileResponse(path=excel_template_filename, filename=f"template.xlsx", headers=headers)
+
+
+@router.post("/excel")
+async def post_excel(file: UploadFile, refresh: bool = False, db: Session = Depends(get_db),
+                     user: UserModel = Depends(auth_admin)):
+    await district_service.upload_district_excel_to_db(file, refresh, db)
 
 
 @router.get("/suggestions", response_model=list[DistrictSchema])

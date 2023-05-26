@@ -111,7 +111,7 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
         lambda equipment_request, equipment_model: {
             'equipment': equipment_model,
             'amount': equipment_request.amount,
-            'total_expenses': equipment_model.average_price_dollar * RUBS_FOR_DOLLAR * equipment_request.amount,
+            'total_expenses': equipment_model.average_price_dollar * get_rubs_for_dollar(db) * equipment_request.amount,
         },
         db
     )
@@ -139,7 +139,7 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
         form.additional_services, AdditionalServiceModel, AdditionalServiceCalculationResponseSchema,
         lambda additional_service_request, additional_service_model: {
             'additional_service': additional_service_model,
-            'total_expenses': additional_service_model.average_price_dollar * RUBS_FOR_DOLLAR
+            'total_expenses': additional_service_model.average_price_dollar * get_rubs_for_dollar(db)
         },
         db
     )

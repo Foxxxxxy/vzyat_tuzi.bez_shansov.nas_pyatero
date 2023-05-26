@@ -1,4 +1,7 @@
-from sqlalchemy import func
+import io
+from tempfile import SpooledTemporaryFile
+
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -11,6 +14,10 @@ from openpyxl import load_workbook
 from sqlalchemy.orm import Session
 
 from app.src.pieces.equipment.schemas import EquipmentCreationSchema
+
+
+def refresh_table(db: Session):
+    db.execute(text("TRUNCATE TABLE equipment"))
 
 
 def get_equipment_by_id(db: Session, equipment_id: int) -> EquipmentModel:
@@ -51,6 +58,20 @@ def delete_equipment(db: Session, id: int, ) -> EquipmentModel:
     db.delete(equipment)
     db.commit()
     return equipment
+
+
+async def upload_equipment_excel_to_db(file: SpooledTemporaryFile, refresh: bool, db: Session):
+    if refresh:
+        refresh_table(db)
+
+    f = await file.read()
+    xlsx = io.BytesIO(f)
+    workbook = load_workbook(xlsx, data_only=True)
+    worksheet = workbook.worksheets[0]
+
+    for row in worksheet.iter_rows(min_row=2):
+        schema = EquipmentCreationSchema(name=row[0].value, average_price_dollar=float(row[1].value))
+        add_equipment(db, schema)
 
 
 def parse_stanki(filename: str, db: Session, only_first: Union[int, None] = None):

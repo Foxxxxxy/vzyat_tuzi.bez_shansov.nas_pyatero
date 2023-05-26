@@ -1,8 +1,16 @@
-from sqlalchemy import func
+import io
+from tempfile import SpooledTemporaryFile
+
+from openpyxl.reader.excel import load_workbook
+from sqlalchemy import func, text
 
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.additional_service.schemas import AdditionalServiceCreationSchema
 from sqlalchemy.orm import Session
+
+
+def refresh_table(db: Session):
+    db.execute(text("TRUNCATE TABLE additional_service"))
 
 
 def get_additional_service_by_id(db: Session, additional_service_id: int) -> AdditionalServiceModel:
@@ -47,3 +55,17 @@ def delete_additional_service(db: Session, id: int,) -> AdditionalServiceModel:
     db.delete(additional_service)
     db.commit()
     return additional_service
+
+
+async def upload_additional_services_excel_to_db(file: SpooledTemporaryFile, refresh: bool, db: Session):
+    if refresh:
+        refresh_table(db)
+
+    f = await file.read()
+    xlsx = io.BytesIO(f)
+    workbook = load_workbook(xlsx, data_only=True)
+    worksheet = workbook.worksheets[0]
+
+    for row in worksheet.iter_rows(min_row=2):
+        schema = AdditionalServiceCreationSchema(name=row[0].value, average_price_dollar=float(row[1].value))
+        add_additional_service(db, schema)

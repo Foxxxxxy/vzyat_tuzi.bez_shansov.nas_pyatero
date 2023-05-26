@@ -1,4 +1,7 @@
-from sqlalchemy import func
+import io
+from tempfile import SpooledTemporaryFile
+
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
@@ -9,6 +12,10 @@ from typing import Union
 
 from openpyxl import load_workbook
 from sqlalchemy.orm import Session
+
+
+def refresh_table(db: Session):
+    db.execute(text("TRUNCATE TABLE district"))
 
 
 def get_district_by_id(db: Session, additional_service_id: int) -> DistrictModel:
@@ -52,6 +59,20 @@ def delete_district(db: Session, id: int, ) -> DistrictModel:
     db.delete(district)
     db.commit()
     return district
+
+
+async def upload_district_excel_to_db(file: SpooledTemporaryFile, refresh: bool, db: Session):
+    if refresh:
+        refresh_table(db)
+
+    f = await file.read()
+    xlsx = io.BytesIO(f)
+    workbook = load_workbook(xlsx, data_only=True)
+    worksheet = workbook.worksheets[0]
+
+    for row in worksheet.iter_rows(min_row=2):
+        schema = DistrictCreationSchema(name=row[0].value, average_price_per_m2_rub=float(row[1].value))
+        add_district(db, schema)
 
 
 def parse_district(filename: str, db: Session, only_first: Union[int, None] = None):
