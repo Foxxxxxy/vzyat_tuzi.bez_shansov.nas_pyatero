@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { IconHome, IconTeam, IconSetup } from '~/components/icons';
 import { useStore } from '~/stores/stores.main';
+import { CommonHamburger } from '~/components/common';
 
 const store = useStore();
 
@@ -68,7 +69,13 @@ const navs = [
   // },
 ];
 
-const isShowedSidebar = ref(false)
+const isShowedSidebar = ref(false);
+const activateBurger = ref(false);
+
+const openSidebar = () => {
+  isShowedSidebar.value = !isShowedSidebar.value
+  activateBurger.value = !activateBurger.value
+}
 
 const navs_moderator = computed(() => {
   return navs.filter((item) => item.level <= 2);
@@ -94,22 +101,30 @@ const return_navs = computed(() => {
 </script>
 
 <template>
-  <aside class="sidebar" :class="{active: isShowedSidebar}">
-    <div class="bg" :class="{active: isShowedSidebar}"></div>
+  <aside class="sidebar" :class="{ active: isShowedSidebar }">
+    <!-- <div class="bg" :class="{ active: isShowedSidebar }"></div> -->
     <div class="sidebar__wrapper">
       <div class="sidebar__header">
-      <h1 class="sidebar__title">Smetaverse</h1>
-    </div>
-    <nav class="nav">
-      <div class="nav__item" v-for="(nav, idx) of return_navs" :key="idx">
-        <router-link :to="nav.to" class="nav__link">
-          <icon-wrapper class="nav__icon" width="20" height="20">
-            <component :is="nav.icon" class="nav__icon" />
-          </icon-wrapper>
-          {{ nav.name }}
-        </router-link>
+        <h1 class="sidebar__title">Smetaverse</h1>
+        <common-hamburger
+          @click="openSidebar"
+          :isActive="activateBurger"
+          class="sidebar__burger"
+          width="20"
+          height="18"
+          background="#905cff"
+        />
       </div>
-    </nav>
+      <nav class="nav">
+        <div class="nav__item" v-for="(nav, idx) of return_navs" :key="idx">
+          <router-link :to="nav.to" class="nav__link">
+            <icon-wrapper class="nav__icon" width="20" height="20">
+              <component :is="nav.icon" class="nav__icon" />
+            </icon-wrapper>
+            {{ nav.name }}
+          </router-link>
+        </div>
+      </nav>
     </div>
   </aside>
 </template>
@@ -138,28 +153,49 @@ const return_navs = computed(() => {
   background-color: $primary-white;
   box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.05);
   transition: width 0.3s ease;
-  @include md {
+  @include lg {
     border-right: 1px solid #f6f6f8;
+  }
+  @include lg {
+    width: 55px;
+    &.active {
+      width: 300px;
+    }
+  }
+  @include md {
+    width: 0;
   }
   &__wrapper {
     overflow: hidden;
+    overflow-y: scroll;
+    max-height: 100vh;
   }
-  @include md {
-    width: 55px;
-    // width: 300px;
-    &.active {
-      width: 300px;
+  &__burger {
+    display: none;
+    @include lg {
+      display: flex;
+      margin: 0 17px;
     }
   }
   &__header {
     margin-bottom: 100px;
     padding: 29px 0;
     border-bottom: 1px solid rgba(160, 160, 160, 0.4);
+    min-height: 94px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include lg {
+      justify-content: flex-start;
+    }
   }
   &__title {
     @include tg-h5-bold;
     text-align: center;
     color: $accent-purple;
+    @include lg {
+      display: none;
+    }
   }
 }
 
@@ -212,3 +248,4 @@ const return_navs = computed(() => {
   border-left: 3px solid $accent-purple;
 }
 </style>
+

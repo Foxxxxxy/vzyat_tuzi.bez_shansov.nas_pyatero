@@ -1,18 +1,14 @@
 <script setup>
 import { PageListWrapper } from '~/components/page';
 import {
-  get_equipments,
-  delete_equipment,
-  get_current_equipment,
-  edit_current_equipment,
-  add_new_equipment,
-} from '~/api/route.equipment';
+  get_calculations,
+} from '~/api/route.calculation';
 import { ref } from 'vue';
 
 const editableInputs = ref([
   {
-    name: 'Тип оборудования',
-    key: 'name',
+    name: 'Отрасль',
+    key: 'industry',
     value: '',
     mark: '',
   },
@@ -28,12 +24,9 @@ const editableInputs = ref([
 <template>
   <div>
     <page-list-wrapper
-      :get-all-action="get_equipments"
-      :get-current-action="get_current_equipment"
-      :delete-action="delete_equipment"
-      :edit-action="edit_current_equipment"
-      :add-action="add_new_equipment"
+      :get-all-action="get_calculations"
       :config-inputs="editableInputs"
+      :view-only="true"
       page-title="Список оборудования"
       add-title="Создать оборудования"
     />

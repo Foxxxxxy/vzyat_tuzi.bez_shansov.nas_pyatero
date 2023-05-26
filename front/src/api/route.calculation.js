@@ -60,3 +60,7 @@ export function download_file(req_id, token) {
       emit('submit')
     })
 }
+
+export function get_calculations({ token } = {}) {
+  return xfetch.$get(`${SERVER_ENDPOINT}/calculation`, { token });
+}

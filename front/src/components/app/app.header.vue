@@ -34,6 +34,7 @@ onMounted(async () => {
 <template>
   <header class="header">
     <h1 class="header__title">Сервис для обработки смет</h1>
+    <h1 class="header__title header__title--md">Smetaverse</h1>
     <div class="user" v-if="name">
       <h3 class="user__name">{{ name }}</h3>
       <div @click="logout" class="user__logout">
@@ -55,9 +56,25 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 95px;
+  @include md {
+    height: 50px;
+  }
   &__title {
     margin-left: 50px;
     @include tg-18-normal;
+    @include md {
+      display: none;
+    }
+    &--md {
+      display: none;
+      @include md {
+        display: block;
+        @include tg-h5-bold;
+        text-align: center;
+        color: $accent-purple;
+      }
+    }
   }
   &__button {
     padding: 37px 50px;

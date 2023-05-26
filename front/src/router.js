@@ -8,6 +8,7 @@ import BuildingsView from '~/views/buildings';
 import IndustryView from '~/views/industry';
 import AdditionalView from '~/views/additional';
 import UsersView from '~/views/users';
+import HistoryView from '~/views/history';
 
 export default createRouter({
   history: createWebHistory(),
@@ -20,6 +21,7 @@ export default createRouter({
     ...BuildingsView,
     ...IndustryView,
     ...AdditionalView,
-    ...UsersView
+    ...UsersView,
+    ...HistoryView
   ],
 });

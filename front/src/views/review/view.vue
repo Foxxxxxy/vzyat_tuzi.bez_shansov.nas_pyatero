@@ -433,6 +433,10 @@ const returnLegal = (legal) => {
       gap: 8px;
       border-bottom: 1px dashed #d8d8d8;
       padding-bottom: 10px;
+      @include md {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: none
+      }
     }
     &-title {
       @include create-font(18px, 500, normal);
@@ -448,6 +452,11 @@ const returnLegal = (legal) => {
     padding-left: 20px;
     &--4 {
       grid-template-columns: repeat(4, 1fr);
+    }
+    @include md {
+      grid-template-columns: none;
+      align-items: flex-end;
+      gap: 10px;
     }
   }
   &__subtitle {
@@ -539,6 +548,10 @@ const returnLegal = (legal) => {
     justify-content: space-between;
     align-items: center;
     padding: 41px 32px 41px 0;
+    @include md {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
   &__form {
     padding: 0 32px;
@@ -547,14 +560,14 @@ const returnLegal = (legal) => {
   &__block {
     border-bottom: 1px solid #d8d8d8;
     padding: 0 0 15px 10px;
-    &:not(:last-child) {
-      // margin-bottom: 12px;
-    }
   }
   &__title {
     position: relative;
     @include create-font(26px, 600, 23px);
     padding-left: 32px;
+    @include md {
+      margin-bottom: 30px;
+    }
     &::before {
       content: '';
       height: calc(100% + 10px);
@@ -564,6 +577,11 @@ const returnLegal = (legal) => {
       border-radius: 4px;
       background-color: $accent-purple;
       left: 0;
+    }
+  }
+  &__button {
+    @include md {
+      margin-left: 10px;
     }
   }
 }

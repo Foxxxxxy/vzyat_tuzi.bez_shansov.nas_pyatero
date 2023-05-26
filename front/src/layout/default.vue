@@ -1,5 +1,5 @@
 <script setup>
-import { AppSidebar, AppHeader } from '~/components/app';
+import { AppSidebar, AppHeader, AppFooter } from '~/components/app';
 </script>
 
 <template>
@@ -9,6 +9,7 @@ import { AppSidebar, AppHeader } from '~/components/app';
     <div class="content">
       <slot />
     </div>
+    <app-footer class="footer" />
   </div>
 </template>
 
@@ -20,6 +21,14 @@ import { AppSidebar, AppHeader } from '~/components/app';
   grid-template-areas:
     'sidebar header'
     'sidebar content';
+  @include md {
+    height: 100vh;
+    grid-template-columns: auto;
+    grid-template-areas:
+    'header'
+    'content';
+    grid-template-rows: 50px auto;
+  }
 }
 
 .header {
@@ -28,6 +37,19 @@ import { AppSidebar, AppHeader } from '~/components/app';
 
 .sidebar {
   grid-area: sidebar;
+  @include md {
+    display: none;
+  }
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  display: none;
+  overflow-x: auto;
+  @include md {
+    display: block;
+  }
 }
 
 .content {
@@ -40,6 +62,8 @@ import { AppSidebar, AppHeader } from '~/components/app';
   padding-bottom: 150px;
   @include md {
     padding: 50px 0;
+    height: 100%;
+    min-height: unset;
   }
 }
 </style>

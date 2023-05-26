@@ -35,6 +35,9 @@ const computedButtonTitle = computed(() => {
 })
 
 const computedTitle = computed(() => {
+  if (props.viewOnly) {
+    return "Просмотр"
+  }
   if (props.action === 'edit') {
     return 'Редактирование'
   }
@@ -62,7 +65,7 @@ const action = async () => {
     <div class="edit__header">
       <h1 class="edit__title">{{ computedTitle }}</h1>
       <div class="edit__buttons">
-        <common-button @click="action" class="edit__button"> {{ computedButtonTitle }} </common-button>
+        <common-button v-if="!viewOnly" @click="action" class="edit__button"> {{ computedButtonTitle }} </common-button>
         <router-link :to="backUrl">
           <common-button variant="outlined" class="edit__button">
             Назад

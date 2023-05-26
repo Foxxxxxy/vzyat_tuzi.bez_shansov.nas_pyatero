@@ -9,10 +9,29 @@ export function get_user_info(token) {
   return xfetch.$get(`${SERVER_ENDPOINT}/user/me`, { token });
 }
 
-export function get_users() {
-  return xfetch.$get(`${SERVER_ENDPOINT}/user`);
+export function get_users({ token } = {}) {
+  return xfetch.$get(`${SERVER_ENDPOINT}/user`, { token });
 }
 
-export function get_current_user(id) {
-  return xfetch.$get(`${SERVER_ENDPOINT}/user/${id}`);
+export function get_current_user(id, { token } = {}) {
+  return xfetch.$get(`${SERVER_ENDPOINT}/user/${id}`, { token });
+}
+
+export function edit_current_user(
+  id,
+  { email, name, last_name, organisation_name, inn, web_site } = {},
+  token
+) {
+  return xfetch.$patch(
+    `${SERVER_ENDPOINT}/user/${id}`,
+    {
+      email,
+      name,
+      last_name,
+      organisation_name,
+      inn,
+      web_site,
+    },
+    { token }
+  );
 }

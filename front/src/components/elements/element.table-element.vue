@@ -7,15 +7,15 @@ const props = defineProps({
   item: Object,
 });
 
-const emit = defineEmits(['edit', 'remove'])
+const emit = defineEmits(['edit', 'remove']);
 
 const edit = () => {
-  emit('edit', props.item)
-}
+  emit('edit', props.item);
+};
 
 const remove = () => {
-  emit('remove', props.item)
-}
+  emit('remove', props.item);
+};
 </script>
 
 <template>
@@ -48,11 +48,12 @@ const remove = () => {
   &:hover {
     border: 1px solid $accent-purple;
   }
-  &__edit, &__delete {
+  &__edit,
+  &__delete {
     cursor: pointer;
     color: $accent-purple;
     &:hover {
-      opacity: 0.6
+      opacity: 0.6;
     }
   }
   &__name {
