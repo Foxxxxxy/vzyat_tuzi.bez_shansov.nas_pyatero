@@ -13,6 +13,7 @@ import re
 from app.src.pieces.calculation.schemas import CalculationCreateRequestSchema
 from app.src.pieces.user.models import UserModel
 from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema, EUserLevel
+from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema, UserUpdateSchema, EUserLevel
 from app.src.pieces.user import service as user_service
 from app.src.security import auth_user, auth_admin
 from app.src.pieces.calculation import service as calculation_service
@@ -109,6 +110,15 @@ async def get_user(id: int, db: Session = Depends(get_db), user: UserModel = Dep
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
     return result
+
+
+@router.patch("/{id}", response_model=UserOutputSchema)
+async def update_user(id: int, user_update: UserUpdateSchema, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+
+    if user_update.level is not None and user.level < EUserLevel.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="you are not admin, you can not change level of user")
+
+    return user_service.update_user(db, id, user_update)
 
 
 @router.get("/", response_model=list[UserOutputSchema])

@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -35,3 +36,14 @@ class UserOutputSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserUpdateSchema(BaseModel):
+    level: Optional[int] = None
+
+    email: Optional[str] = None
+    name: Optional[str] = None
+    last_name: Optional[str] = None
+    organisation_name: Optional[str] = None
+    inn: Optional[str] = None
+    web_site: Optional[str] = None
