@@ -20,6 +20,7 @@ class RequestModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     industry_id = Column(Integer, ForeignKey("industry.id"))
     district_id = Column(Integer, ForeignKey("district.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     employee_amount = Column(Integer)
     building_area_size = Column(Float)
     land_area_size = Column(Float)

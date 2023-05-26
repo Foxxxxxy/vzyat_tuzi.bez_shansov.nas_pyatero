@@ -1,4 +1,6 @@
 # todo здесь будет тяжелая логика с pdf
+from typing import Union
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -14,6 +16,7 @@ from app.src.pieces.currency.currency import Currency
 from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
 from app.src.pieces.industry.models import IndustryModel
+from app.src.pieces.user.models import UserModel
 
 RUBS_FOR_DOLLAR = 71
 
@@ -37,6 +40,17 @@ def calculate_accounting_services_expenses(accounting_services_documents_amount:
     return accounting_services_documents_amount * 1000.0  # todo
 
 
+def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> list[CalculationCreateRequestSchema]:
+    db_models: list[RequestModel] = db.query(RequestModel).offset(skip).limit(limit).all()
+    return [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db) for db_request in db_models]
+
+
+def get_calculation_request_by_id(db: Session, calculation_request_id: int) -> CalculationCreateRequestSchema:
+    db_model = db.query(RequestModel) \
+        .filter(RequestModel.id == calculation_request_id).first()
+    return CalculationCreateRequestSchema.from_request_model(request_model=db_model, db=db)
+
+
 def join_request_with_model(request_list, model_class, schema_class, update_strategy, db: Session):
     request_list.sort(key=lambda x: x.id)
     model_list: list[model_class] = db.query(model_class).filter(
@@ -51,8 +65,11 @@ def join_request_with_model(request_list, model_class, schema_class, update_stra
     return responses
 
 
-def create_request(request: CalculationCreateFormSchema, db: Session) -> RequestModel:
-    request = RequestModel(**request.as_request_model_dict())
+def create_request(request: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> RequestModel:
+    data = request.as_request_model_dict()
+    if user is not None:
+        data['user_id'] = user.id
+    request = RequestModel(**data)
     db.add(request)
     db.commit()
     db.refresh(request)
@@ -153,9 +170,9 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
     return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
-def handle_calculation(form: CalculationCreateFormSchema, db: Session) -> CalculationPreparedDataSchema:
+def handle_calculation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> CalculationPreparedDataSchema:
     # save request to db
-    request_model = create_request(form, db)
+    request_model = create_request(form, db, user)
     # todo - better make converter from CalculationCreateFormSchema to CalculationCreateRequestSchema
     calculation_create_request_schema = CalculationCreateRequestSchema.from_request_model(request_model, db)
     return _handle_calculation(calculation_create_request_schema, db)
