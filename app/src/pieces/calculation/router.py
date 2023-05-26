@@ -29,24 +29,6 @@ router = APIRouter(
 )
 
 
-@router.get("/{id}", response_model=CalculationCreateRequestSchema)
-async def get_calculation_request(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
-    result = calculation_service.get_calculation_request_by_id(db, id)
-    if result is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No request with such id!")
-
-    if user.level == EUserLevel.admin:
-        return result
-
-    if result.user_id is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This is anonymus request!")
-
-    if result.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not the owner of this request!")
-
-    return result
-
-
 @router.get("/", response_model=list[CalculationCreateRequestSchema])
 async def get_calculation_requests(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
     result = calculation_service.get_calculation_requests(db, skip, limit)
@@ -68,3 +50,20 @@ async def download_calculated_report(req_id: int, db: Session = Depends(get_db),
     headers = {'Content-Disposition': 'attachment; filename="out.pdf"'}
     return FileResponse(path=pdf_filename, filename=f"out.pdf", headers=headers)
 
+
+@router.get("/{id}", response_model=CalculationCreateRequestSchema)
+async def get_calculation_request(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+    result = calculation_service.get_calculation_request_by_id(db, id)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No request with such id!")
+
+    if user.level == EUserLevel.admin:
+        return result
+
+    if result.user_id is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This is anonymus request!")
+
+    if result.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not the owner of this request!")
+
+    return result

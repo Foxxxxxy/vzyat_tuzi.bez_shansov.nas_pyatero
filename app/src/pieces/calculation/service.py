@@ -45,6 +45,11 @@ def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> li
     return [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db) for db_request in db_models]
 
 
+def get_user_calculation_requests(user_id: int, db: Session, skip: int = 0, limit: int = 100) -> list[CalculationCreateRequestSchema]:
+    db_models: list[RequestModel] = db.query(RequestModel).filter(RequestModel.user_id == user_id).offset(skip).limit(limit).all()
+    return [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db) for db_request in db_models]
+
+
 def get_calculation_request_by_id(db: Session, calculation_request_id: int) -> CalculationCreateRequestSchema:
     db_model = db.query(RequestModel) \
         .filter(RequestModel.id == calculation_request_id).first()

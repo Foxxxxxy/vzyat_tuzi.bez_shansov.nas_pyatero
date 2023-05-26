@@ -10,11 +10,12 @@ from datetime import datetime, timedelta
 from jose import jwt
 import re
 
-
+from app.src.pieces.calculation.schemas import CalculationCreateRequestSchema
 from app.src.pieces.user.models import UserModel
-from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema
+from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema, EUserLevel
 from app.src.pieces.user import service as user_service
-from app.src.security import auth_user
+from app.src.security import auth_user, auth_admin
+from app.src.pieces.calculation import service as calculation_service
 
 router = APIRouter(
     prefix="/user",
@@ -91,8 +92,19 @@ async def get_me(user: UserModel = Depends(auth_user)):
     return user
 
 
+@router.get("/{id}/requests", response_model=list[CalculationCreateRequestSchema])
+async def get_calculation_requests(id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+    if id != user.id and user.level < EUserLevel.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You need to be at least admin")
+
+    result = calculation_service.get_user_calculation_requests(id, db, skip, limit)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No requests!")
+    return result
+
+
 @router.get("/{id}", response_model=UserOutputSchema)
-async def get_user(id: int, db: Session = Depends(get_db)):
+async def get_user(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
     result = user_service.get_user_by_id(db, id)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
@@ -100,8 +112,10 @@ async def get_user(id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[UserOutputSchema])
-async def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
     result = user_service.get_users(db, skip, limit)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no such user")
     return result
+
+
