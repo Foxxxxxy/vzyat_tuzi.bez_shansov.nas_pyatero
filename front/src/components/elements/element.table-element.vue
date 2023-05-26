@@ -1,8 +1,7 @@
 <script setup>
 import { IconEdit, IconDelete } from '../icons';
-import { CommonButton } from '../common';
 
-defineProps({
+const props = defineProps({
   titles: Array,
   idx: Number,
   item: Object,
@@ -11,11 +10,11 @@ defineProps({
 const emit = defineEmits(['edit', 'remove'])
 
 const edit = () => {
-  emit('edit', item)
+  emit('edit', props.item)
 }
 
 const remove = () => {
-  emit('remove', item)
+  emit('remove', props.item)
 }
 </script>
 
@@ -45,6 +44,7 @@ const remove = () => {
   border-radius: 5px;
   border: 1px solid transparent;
   align-items: center;
+  cursor: pointer;
   &:hover {
     border: 1px solid $accent-purple;
   }

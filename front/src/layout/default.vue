@@ -16,7 +16,7 @@ import { AppSidebar, AppHeader } from '~/components/app';
 .layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: auto 4fr;
   grid-template-areas:
     'sidebar header'
     'sidebar content';
@@ -38,5 +38,8 @@ import { AppSidebar, AppHeader } from '~/components/app';
   background-color: #f6f6f8;
   padding: 50px;
   padding-bottom: 150px;
+  @include md {
+    padding: 50px 0;
+  }
 }
 </style>

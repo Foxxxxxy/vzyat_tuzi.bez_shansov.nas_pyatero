@@ -30,6 +30,30 @@ const navs = [
     to: '/equipments',
     level: 1,
   },
+  {
+    name: 'Список зданий',
+    icon: IconTeam,
+    to: '/buildings',
+    level: 1,
+  },
+  {
+    name: 'Список отраслей',
+    icon: IconTeam,
+    to: '/industry',
+    level: 1,
+  },
+  {
+    name: 'Разное',
+    icon: IconTeam,
+    to: '/additional',
+    level: 1,
+  },
+  {
+    name: 'Список пользователей',
+    icon: IconTeam,
+    to: '/users',
+    level: 1,
+  },
   // {
   //   name: 'Редактирование справочников',
   //   icon: IconSetup,
@@ -43,6 +67,8 @@ const navs = [
   //   level: 3,
   // },
 ];
+
+const isShowedSidebar = ref(false)
 
 const navs_moderator = computed(() => {
   return navs.filter((item) => item.level <= 2);
@@ -68,8 +94,10 @@ const return_navs = computed(() => {
 </script>
 
 <template>
-  <aside class="sidebar">
-    <div class="sidebar__header">
+  <aside class="sidebar" :class="{active: isShowedSidebar}">
+    <div class="bg" :class="{active: isShowedSidebar}"></div>
+    <div class="sidebar__wrapper">
+      <div class="sidebar__header">
       <h1 class="sidebar__title">Smetaverse</h1>
     </div>
     <nav class="nav">
@@ -82,15 +110,47 @@ const return_navs = computed(() => {
         </router-link>
       </div>
     </nav>
+    </div>
   </aside>
 </template>
 
 <style lang="scss" scoped>
-.sidebar {
-  height: 100%;
+.bg {
+  position: absolute;
+  right: -100%;
   width: 100%;
+  height: 100%;
+  background-color: #f6f6f8;
+  z-index: -1;
+  opacity: 1;
+  pointer-events: none;
+  touch-action: none;
+  transition: opacity 0.3s ease;
+  &.active {
+    z-index: 1000;
+    opacity: 1;
+  }
+}
+.sidebar {
+  position: relative;
+  height: 100%;
+  width: calc(150px + 10vw);
   background-color: $primary-white;
   box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.05);
+  transition: width 0.3s ease;
+  @include md {
+    border-right: 1px solid #f6f6f8;
+  }
+  &__wrapper {
+    overflow: hidden;
+  }
+  @include md {
+    width: 55px;
+    // width: 300px;
+    &.active {
+      width: 300px;
+    }
+  }
   &__header {
     margin-bottom: 100px;
     padding: 29px 0;

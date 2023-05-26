@@ -28,6 +28,7 @@ defineProps({
   justify-content: center;
   padding: 12px 22px;
   border-radius: 4px;
+  border: 1px solid $accent-purple;
   @include create-font(16px, 600, 20px);
   &-no-wrap {
     white-space: nowrap;

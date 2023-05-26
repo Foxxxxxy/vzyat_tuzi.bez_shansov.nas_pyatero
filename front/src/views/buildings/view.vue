@@ -2,18 +2,18 @@
 import { CommonPopup, CommonButton } from '~/components/common';
 import { ElementTableTitle, ElementTableElement } from '~/components/elements';
 import {
-  get_equipments,
-  delete_equipment,
-  get_current_equipment,
-  edit_current_equipment,
-  add_new_equipment,
-} from '~/api/route.equipment';
+  get_buildings,
+  delete_building,
+  get_current_building,
+  edit_current_building,
+  add_new_building,
+} from '~/api/route.building';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from '~/stores/stores.main';
 import { useRouter, useRoute } from 'vue-router';
 import { PageEdit } from '~/components/page';
 
-const equipments = ref(null);
+const buildings = ref(null);
 const router = useRouter();
 const route = useRoute();
 
@@ -29,33 +29,41 @@ const isCreateAction = computed(() => !!route.query.create)
 
 const currentAction = ref('edit');
 
+const currentActionUrl = computed(() => {
+  if (currentAction.value === 'edit') {
+    return edit_current_building;
+  }
+  return add_new_building;
+});
+
 const editableInputs = ref([
   {
-    name: 'Тип оборудования',
+    name: 'Тип здания',
     key: 'name',
     value: '',
     mark: ''
   },
   {
-    name: 'Средняя стоимость, в долл',
-    key: 'average_price_dollar',
+    name: 'Средняя стоимость, в руб',
+    key: 'average_price_rub',
     value: '',
-    mark: ' $'
+    mark: ' руб.'
   },
 ]);
 
 const titles = editableInputs.value.map(el => el.name);
 
-const currentActionUrl = computed(() => {
-  if (currentAction.value === 'edit') {
-    return edit_current_equipment;
-  }
-  return add_new_equipment;
-});
-
 const createTitle = (item) => {
   return editableInputs.value.map(el => item[el.key])
 };
+
+const createPopupDesc = () => {
+  let str = ''
+  editableInputs.value.forEach(el => {
+    str += `${el.name}: ${el.value} ${el.mark}`
+  })
+  return str
+}
 
 const edit = (item) => {
   router.push(`${route.path}?id=${item.id}`);
@@ -64,8 +72,8 @@ const edit = (item) => {
 };
 
 const remove = async () => {
-  await delete_equipment(currentItem.value.id, token.value);
-  equipments.value = equipments.value.filter(
+  await delete_building(currentItem.value.id, token.value);
+  buildings.value = buildings.value.filter(
     (item) => item.id !== currentItem.value.id
   );
   isShowDeletePopup.value = false;
@@ -90,7 +98,7 @@ watch(currentItem, () => {
 
 const updateCurrentItem = async () => {
   if (currentRouteId.value && currentRouteId.value.length) {
-    const data = await get_current_equipment(currentRouteId.value);
+    const data = await get_current_building(currentRouteId.value);
     currentItem.value = { ...data };
   }
 };
@@ -103,17 +111,9 @@ const createNew = () => {
   })
 }
 
-const createPopupDesc = () => {
-  let str = ''
-  editableInputs.value.forEach(el => {
-    str += `${el.name}: ${el.value} ${el.mark}`
-  })
-  return str
-}
-
 watch(() => route.query, async () => {
   if (Object.keys(route.query).length === 0) {
-    equipments.value = await get_equipments();
+    buildings.value = await get_buildings();
   }
 })
 
@@ -122,7 +122,7 @@ watch(currentRouteId, async () => {
 });
 
 onMounted(async () => {
-  equipments.value = await get_equipments();
+  buildings.value = await get_buildings();
   await updateCurrentItem();
   if (isCreateAction.value) {
     currentAction.value = 'create'
@@ -131,11 +131,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="!isCreateAction && !currentRouteId" class="equipments">
+    <div v-if="!isCreateAction && !currentRouteId" class="buildings">
       <common-popup
         :is-active="isShowDeletePopup"
         class="popup"
-        title="Вы действительно хотите удалить?"
+        title="Вы действительно хотите удалить данное оборудование?"
         :desc="createPopupDesc()"
       >
         <common-button
@@ -149,18 +149,18 @@ onMounted(async () => {
           Да
         </common-button>
       </common-popup>
-      <div class="equipments__header">
-        <h1 class="equipments__title">Список оборудования</h1>
-        <div class="equipments__buttons">
-          <common-button @click="createNew" class="equipments__button">
-            Создать оборудование
+      <div class="buildings__header">
+        <h1 class="buildings__title">Список зданий</h1>
+        <div class="buildings__buttons">
+          <common-button @click="createNew" class="buildings__button">
+            Создать здание
           </common-button>
         </div>
       </div>
-      <div class="equipments__content">
+      <div class="buildings__content">
         <element-table-title :titles="titles" />
         <element-table-element
-          v-for="(item, idx) of equipments"
+          v-for="(item, idx) of buildings"
           :idx="idx"
           :titles="createTitle(item)"
           :item="item"
@@ -192,7 +192,7 @@ onMounted(async () => {
     }
   }
 }
-.equipments {
+.buildings {
   background-color: $primary-white;
   min-height: 100%;
   &__content {

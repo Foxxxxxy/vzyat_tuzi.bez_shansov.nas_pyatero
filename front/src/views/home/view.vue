@@ -24,7 +24,7 @@ const form = reactive({
     type: 'industry',
     value: '',
     chosen_id: null,
-    route: get_equipment_suggestion,
+    route: get_industry_suggestion,
     suggestions: [],
   },
 
@@ -439,6 +439,9 @@ onMounted(async () => {
     border-radius: 5px;
     text-align: center;
     position: relative;
+    @include md {
+      border-radius: 0;
+    }
     &__actions {
       display: flex;
       justify-content: space-between;
@@ -515,6 +518,10 @@ onMounted(async () => {
     &__title {
       @include create-font(26px, 600, 30px);
       margin-bottom: 30px;
+      @include md {
+        @include create-font(20px, 600, 30px);
+        margin-bottom: 15px
+      }
     }
     &__desc {
       @include create-font(16px, 400, 22px);

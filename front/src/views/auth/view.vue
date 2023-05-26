@@ -449,10 +449,17 @@ onMounted(() => {
     &__title {
       @include create-font(26px, 600, 30px);
       margin-bottom: 30px;
+      @include sm {
+        @include create-font(20px, 600, 30px);
+        margin-bottom: 10px;
+      }
     }
     &__desc {
       @include create-font(16px, 400, 22px);
       margin-bottom: 24px;
+      @include sm {
+        @include create-font(14px, 400, 22px);
+      }
     }
     &__hint {
       @include create-font(16px, 400, 22px);

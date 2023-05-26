@@ -1,19 +1,15 @@
 <script setup>
-import { CommonPopup, CommonButton } from '~/components/common';
 import { ElementTableTitle, ElementTableElement } from '~/components/elements';
 import {
-  get_equipments,
-  delete_equipment,
-  get_current_equipment,
-  edit_current_equipment,
-  add_new_equipment,
-} from '~/api/route.equipment';
+  get_users,
+  get_current_user
+} from '~/api/route.user';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from '~/stores/stores.main';
 import { useRouter, useRoute } from 'vue-router';
 import { PageEdit } from '~/components/page';
 
-const equipments = ref(null);
+const users = ref(null);
 const router = useRouter();
 const route = useRoute();
 
@@ -29,33 +25,59 @@ const isCreateAction = computed(() => !!route.query.create)
 
 const currentAction = ref('edit');
 
+const currentActionUrl = computed(() => {
+  if (currentAction.value === 'edit') {
+    return () => {};
+  }
+  return () => {};
+});
+
 const editableInputs = ref([
   {
-    name: 'Тип оборудования',
+    name: 'Фамилия',
+    key: 'last_name',
+    value: '',
+    mark: ''
+  },
+  {
+    name: 'Имя',
     key: 'name',
     value: '',
     mark: ''
   },
   {
-    name: 'Средняя стоимость, в долл',
-    key: 'average_price_dollar',
+    name: 'ИНН',
+    key: 'inn',
     value: '',
-    mark: ' $'
+    mark: ' руб.'
+  },
+  {
+    name: 'Наименование организации',
+    key: 'organisation_name',
+    value: '',
+    mark: ''
+  },
+  {
+    name: 'Веб-сайт организации',
+    key: 'web_site',
+    value: '',
+    mark: ''
   },
 ]);
 
 const titles = editableInputs.value.map(el => el.name);
 
-const currentActionUrl = computed(() => {
-  if (currentAction.value === 'edit') {
-    return edit_current_equipment;
-  }
-  return add_new_equipment;
-});
-
 const createTitle = (item) => {
   return editableInputs.value.map(el => item[el.key])
 };
+
+const createPopupDesc = () => {
+  let str = ''
+  editableInputs.value.forEach(el => {
+    str += `${el.name}: ${el.value} ${el.mark}`
+  })
+  return str
+}
 
 const edit = (item) => {
   router.push(`${route.path}?id=${item.id}`);
@@ -64,8 +86,8 @@ const edit = (item) => {
 };
 
 const remove = async () => {
-  await delete_equipment(currentItem.value.id, token.value);
-  equipments.value = equipments.value.filter(
+  await delete_user(currentItem.value.id, token.value);
+  users.value = users.value.filter(
     (item) => item.id !== currentItem.value.id
   );
   isShowDeletePopup.value = false;
@@ -90,7 +112,7 @@ watch(currentItem, () => {
 
 const updateCurrentItem = async () => {
   if (currentRouteId.value && currentRouteId.value.length) {
-    const data = await get_current_equipment(currentRouteId.value);
+    const data = await get_current_user(currentRouteId.value);
     currentItem.value = { ...data };
   }
 };
@@ -103,17 +125,9 @@ const createNew = () => {
   })
 }
 
-const createPopupDesc = () => {
-  let str = ''
-  editableInputs.value.forEach(el => {
-    str += `${el.name}: ${el.value} ${el.mark}`
-  })
-  return str
-}
-
 watch(() => route.query, async () => {
   if (Object.keys(route.query).length === 0) {
-    equipments.value = await get_equipments();
+    users.value = await get_users();
   }
 })
 
@@ -122,7 +136,7 @@ watch(currentRouteId, async () => {
 });
 
 onMounted(async () => {
-  equipments.value = await get_equipments();
+  users.value = await get_users();
   await updateCurrentItem();
   if (isCreateAction.value) {
     currentAction.value = 'create'
@@ -131,46 +145,25 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="!isCreateAction && !currentRouteId" class="equipments">
-      <common-popup
-        :is-active="isShowDeletePopup"
-        class="popup"
-        title="Вы действительно хотите удалить?"
-        :desc="createPopupDesc()"
-      >
-        <common-button
-          @click="closePopup"
-          class="popup__button"
-          variant="outlined"
-        >
-          Нет
-        </common-button>
-        <common-button @click="remove" class="popup__button">
-          Да
-        </common-button>
-      </common-popup>
-      <div class="equipments__header">
-        <h1 class="equipments__title">Список оборудования</h1>
-        <div class="equipments__buttons">
-          <common-button @click="createNew" class="equipments__button">
-            Создать оборудование
-          </common-button>
-        </div>
+    <div v-if="!isCreateAction && !currentRouteId" class="users">
+      <div class="users__header">
+        <h1 class="users__title">Список пользователей</h1>
       </div>
-      <div class="equipments__content">
+      <div class="users__content">
         <element-table-title :titles="titles" />
         <element-table-element
-          v-for="(item, idx) of equipments"
+          class="users__row"
+          v-for="(item, idx) of users"
           :idx="idx"
           :titles="createTitle(item)"
           :item="item"
           @edit="edit(item)"
-          @remove="handleRemove"
         />
       </div>
     </div>
     <page-edit
       v-else
+      :view-only="true"
       :blocks="editableInputs"
       :item="currentItem"
       :backUrl="route.path"
@@ -192,9 +185,14 @@ onMounted(async () => {
     }
   }
 }
-.equipments {
+.users {
   background-color: $primary-white;
   min-height: 100%;
+  &__row {
+    &::v-deep(.row__delete) {
+      display: none;
+    }
+  }
   &__content {
     padding: 32px;
   }
