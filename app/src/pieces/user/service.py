@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.src.pieces.user.models import UserModel
-from app.src.pieces.user.schemas import SignUpSchema, EUserLevel
+from app.src.pieces.user.schemas import SignUpSchema, EUserLevel, UserUpdateSchema
 
 
 def get_user_by_id(db: Session, user_id: int) -> UserModel:
@@ -35,3 +35,13 @@ def check_user_level(level):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="no such user level")
     return level
+
+
+def update_user(db: Session, id: int, user_update: UserUpdateSchema):
+    user = db.query(UserModel) \
+        .filter(UserModel.id == id).first()
+    for field_name, field_value in user_update:
+        if field_value is not None:
+            setattr(user, field_name, field_value)
+    db.commit()
+    return user
