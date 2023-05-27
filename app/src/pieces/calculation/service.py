@@ -84,7 +84,6 @@ def create_request(request: CalculationCreateFormSchema, db: Session, user: Unio
         data['user_id'] = user.id
 
     request = RequestModel(**data)
-    request.user_id = user.id
     request.timestamp = datetime.now()
 
     db.add(request)
