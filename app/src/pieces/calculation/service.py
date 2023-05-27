@@ -1,4 +1,6 @@
 # todo здесь будет тяжелая логика с pdf
+import os
+from os.path import basename
 from typing import Union
 
 from fastapi import Depends
@@ -17,6 +19,10 @@ from app.src.pieces.district.models import DistrictModel
 from app.src.pieces.equipment.models import EquipmentModel
 from app.src.pieces.industry.models import IndustryModel
 from app.src.pieces.user.models import UserModel
+
+from zipfile import ZipFile
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 RUBS_FOR_DOLLAR = 71
 
@@ -202,3 +208,18 @@ def download_calculation(req_id: int, db: Session):
     pdf_creator = PdfCreator(response, req_id)
 
     return pdf_creator.get_output_pdf_filename()
+
+
+def download_calculation_zip(req_id: int, db: Session):
+    db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
+    request = CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
+
+    response = _handle_calculation(request, db)
+    pdf_creator = PdfCreator(response, req_id)
+
+    files = pdf_creator.get_output_files_for_zip()
+    zip_file_name = f"{script_dir}/zip_reports/report{req_id}.zip"
+    with ZipFile(zip_file_name, "w") as zip_file:
+        for file in files:
+            zip_file.write(file, basename(file))
+    return zip_file_name

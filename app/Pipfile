@@ -18,6 +18,7 @@ pypdf = "*"
 python-crontab = "*"
 requests = "*"
 python-multipart = "*"
+flatdict = "*"
 
 [dev-packages]
 

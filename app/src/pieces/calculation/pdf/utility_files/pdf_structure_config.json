@@ -1,37 +1,215 @@
 {
   "business_info_page": {
+    "title": "**Результат**",
+    "texts": [
+      "business_info.txt"
+    ],
     "tables": [
         {
-          "table_name": "Информация о бизнесе",
+          "table_name": "**Информация о бизнесе**",
           "fields": {
             "industry_name": "Отрасль бизнеса",
             "legal_entity_type": "Вид бизнеса",
             "district": "Расположение бизнеса",
             "employee_amount": "Количество сотрудников"
-          }
+          },
+          "rub_fields": []
         },
         {
-          "table_name": "Общие затраты",
+          "table_name": "**Общие затраты**",
           "fields": {
-            "total_employee_expenses": "Персонал",
-            "total_rent_expenses": "Аренда недвижимости",
-            "total_taxes_expenses": "Налоги",
+            "accounting_services_expenses": "Бухгалтерский учёт",
+            "total_taxes_expenses": "Налогообложение",
             "total_equipments_expenses": "Оборудование",
+            "total_buildings_expenses": "Здания",
+            "total_employee_expenses": "Персонал",
+            "total_rent_expenses": "Аренда территории",
             "total_additional_services_expenses": "Дополнительные услуги",
-            "total_expenses": "Итого"
-          }
+            "total_additional_needs_expenses": "Иное",
+            "total_expenses": "Итого, руб."
+          },
+          "rub_fields": [
+            "total_employee_expenses",
+            "total_rent_expenses",
+            "total_taxes_expenses",
+            "total_equipments_expenses",
+            "total_additional_services_expenses",
+            "total_buildings_expenses",
+            "total_additional_needs_expenses",
+            "accounting_services_expenses"
+          ]
         }
-      ]
+      ],
+    "external_files": [
+
+    ]
   },
-  "employee_page": {
+  "accounting_services_page": {
+    "title": "**Бухгалтерский учёт**",
+    "texts": [
+      "accounting_service.txt"
+    ],
     "tables": [
       {
-        "table_name": "Детальные затраты на персонал",
-          "fields": {
-            "employee_amount": "Количество сотрудников",
-            "total_employee_expenses": "Итого"
-          }
+        "table_name": "**Детальные затраты на бух. учёт**",
+        "fields": {
+          "accounting_services_documents_amount": "Количество документов, шт.",
+          "accounting_services_expenses": "Расходы, руб."
+        },
+        "rub_fields": []
       }
+    ],
+    "external_files": [
+
+    ]
+  },
+  "taxes_page": {
+    "title": "**Налогообложение**",
+    "texts": [
+      "taxes.txt"
+    ],
+    "tables": [
+      {
+        "table_name": "**Детальные затраты налогообложения**",
+        "fields": {
+          "predicted_income_per_year_rub": "Предполагаемый доход в год, руб.",
+          "total_taxes_expenses": "Налог, руб."
+        },
+        "rub_fields": []
+      }
+    ],
+    "external_files": [
+
+    ]
+  },
+  "equipment_page": {
+    "title": "**Оборудование**",
+    "texts": [
+      "equipment.txt"
+    ],
+    "tables": [
+      {
+        "table_name": "**Затраты на оборудование**",
+        "fields": {
+          "total_equipments_expenses": "Суммарные затраты"
+        },
+        "rub_fields": ["total_equipments_expenses"]
+      }
+    ],
+    "external_files": [
+      {
+        "filename": "detailed_equipment",
+        "title": "Оборудование",
+        "intro_text_file": "detailed_equipment_intro.txt",
+        "data_source_field": "equipments",
+        "excluded_fields": ["equipment:id"],
+        "tables":[
+          {
+            "table_name": "**Детальные затраты на оборудование**",
+            "headers": ["Тип", "Средняя стоимость, USD", "Количество", "Итоговая стоимость"]
+          }
+        ]
+      }
+    ]
+  },
+  "buildings_page": {
+    "title": "**Постройки**",
+    "texts": [
+      "buildings.txt"
+    ],
+    "tables": [
+      {
+        "table_name": "**Затраты на постройки**",
+        "fields": {
+          "total_buildings_expenses": "Суммарные затраты"
+        },
+        "rub_fields": ["total_buildings_expenses"]
+      }
+    ],
+    "external_files": [
+      {
+        "filename": "detailed_buildings",
+        "title": "Постройки",
+        "intro_text_file": "detailed_buildings_intro.txt",
+        "data_source_field": "buildings",
+        "excluded_fields": ["building:id"],
+        "tables": [
+          {
+            "table_name": "**Детальные затраты на постройки**",
+            "headers": ["Тип", "Средняя стоимость, руб", "Площадь, м2", "Стоимость"]
+          }
+        ]
+      }
+    ]
+  },
+  "employee_page": {
+    "title": "**Персонал**",
+    "texts": [
+      "employee.txt"
+    ],
+    "tables": [
+      {
+        "table_name": "**Детальные затраты на персонал**",
+        "fields": {
+          "employee_amount": "Количество сотрудников, чел.",
+          "total_employee_expenses": "Итого, руб."
+        },
+        "rub_fields": []
+      }
+    ],
+    "external_files": [
+
+    ]
+  },
+  "additional_services_page": {
+    "title": "**Доп услуги**",
+    "texts": [
+      "additional_service.txt"
+    ],
+    "tables": [
+      {
+        "table_name": "**Дополнительные услуги**",
+        "fields": {
+          "total_additional_services_expenses": "Суммарные затраты"
+        },
+        "rub_fields": ["total_additional_services_expenses"]
+      }
+    ],
+    "external_files": [
+      {
+        "filename": "detailed_additional_services",
+        "title": "Дополнительные услуги",
+        "intro_text_file": "detailed_additional_services_intro.txt",
+        "data_source_field": "additional_services",
+        "excluded_fields": ["additional_service:id", "additional_service:average_price_dollar"],
+        "tables": [
+          {
+            "table_name": "**Дополнительные услуги детально**",
+            "headers": ["Тип", "Стоимость, руб"]
+          }
+        ]
+      }
+    ]
+  },
+  "rent_page": {
+    "title": "**Аренда**",
+    "texts": [
+      "rent.txt"
+    ],
+    "tables": [
+      {
+        "table_name": "**Информация об аренде**",
+        "fields": {
+          "district": "Округ",
+          "land_area_size": "Площадь земельного участка",
+          "building_area_size": "Площадь объектов капитального строительства, м2",
+          "total_rent_expenses": "Стоимость аренды, руб."
+        },
+        "rub_fields": []
+      }
+    ],
+    "external_files": [
+
     ]
   }
 }
