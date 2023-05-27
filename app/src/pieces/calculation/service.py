@@ -170,12 +170,18 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
     calculation_prepared_data["total_additional_services_expenses"] = \
         sum(it.total_expenses for it in additional_services)
 
+    # additional needs
+    additional_needs = form.additional_needs
+    calculation_prepared_data["additional_needs"] = additional_needs
+    calculation_prepared_data["total_additional_needs_expenses"] = sum(it.price for it in additional_needs)
+
     calculation_prepared_data["total_expenses"] = 0.0
 
     return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
-def handle_calculation_creation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> CalculationPreparedDataSchema:
+def handle_calculation_creation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> \
+        CalculationPreparedDataSchema:
     # save request to db
     request_model = create_request(form, db, user)
     # todo - better make converter from CalculationCreateFormSchema to CalculationCreateRequestSchema
