@@ -175,11 +175,16 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
     return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
-def handle_calculation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> CalculationPreparedDataSchema:
+def handle_calculation_creation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> CalculationPreparedDataSchema:
     # save request to db
     request_model = create_request(form, db, user)
     # todo - better make converter from CalculationCreateFormSchema to CalculationCreateRequestSchema
     calculation_create_request_schema = CalculationCreateRequestSchema.from_request_model(request_model, db)
+    return _handle_calculation(calculation_create_request_schema, db)
+
+
+def handle_calculation(id: int, db: Session) -> CalculationPreparedDataSchema:
+    calculation_create_request_schema = get_calculation_request_by_id(db, id)
     return _handle_calculation(calculation_create_request_schema, db)
 
 
