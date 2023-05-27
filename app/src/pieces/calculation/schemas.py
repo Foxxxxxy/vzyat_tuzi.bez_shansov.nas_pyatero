@@ -51,7 +51,7 @@ class AdditionalServiceCalculationResponseSchema(BaseModel):
 # additional needs
 class AdditionalNeedCalculationSchema(BaseModel):
     name: str
-    price: float
+    price: int
 
 
 class CalculationCreateFormSchema(BaseModel):
@@ -77,7 +77,7 @@ class CalculationCreateFormSchema(BaseModel):
     # todo
     # данные для рассчета бухгалтерского калькулятора
 
-    additional_needs = list[AdditionalNeedCalculationSchema]
+    additional_needs: list[AdditionalNeedCalculationSchema]
 
     def as_request_model_dict(self):
         result_dict = self.dict()
@@ -90,8 +90,8 @@ class CalculationCreateFormSchema(BaseModel):
 
         result_dict['additional_services'] = [el['id'] for el in result_dict['additional_services']]
 
-        result_dict["additional_needs"] = [el["name"] for el in result_dict["additional_needs"]]
         result_dict["additional_needs_prices"] = [el["price"] for el in result_dict["additional_needs"]]
+        result_dict["additional_needs"] = [el["name"] for el in result_dict["additional_needs"]]
         return result_dict
 
 

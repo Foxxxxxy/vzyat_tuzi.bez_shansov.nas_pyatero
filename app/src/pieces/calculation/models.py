@@ -38,7 +38,7 @@ class RequestModel(Base):
     accounting_services_documents_amount = Column(Integer)
 
     additional_needs = Column(ARRAY(String))
-    additional_needs_prices = Column(ARRAY(Float))
+    additional_needs_prices = Column(ARRAY(Integer))
 
     industry = relationship("IndustryModel")
     district = relationship("DistrictModel")
