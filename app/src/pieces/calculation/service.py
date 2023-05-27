@@ -50,7 +50,7 @@ def calculate_accounting_services_expenses(accounting_services_documents_amount:
 
 
 def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> \
-        Tuple[list[CalculationCreateRequestSchema], UserOutputSchema]:
+        list[Tuple[CalculationCreateRequestSchema], UserOutputSchema]:
     db_models: list[RequestModel] = db.query(RequestModel).offset(skip).limit(limit).all()
     requests = [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
                 for db_request in db_models]
@@ -58,7 +58,6 @@ def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> \
              for it in requests]
 
     return list(it for it in zip(requests, users))
-
 
 
 def get_user_calculation_requests(user_id: int, db: Session, skip: int = 0, limit: int = 100) -> \
