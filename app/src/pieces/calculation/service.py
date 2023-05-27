@@ -2,7 +2,7 @@
 import os
 from os.path import basename
 from datetime import datetime
-from typing import Union
+from typing import Union, Tuple
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -22,6 +22,8 @@ from app.src.pieces.industry.models import IndustryModel
 from app.src.pieces.user.models import UserModel
 
 from zipfile import ZipFile
+
+from app.src.pieces.user.schemas import UserOutputSchema
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -47,9 +49,16 @@ def calculate_accounting_services_expenses(accounting_services_documents_amount:
     return accounting_services_documents_amount * 1000.0  # todo
 
 
-def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> list[CalculationCreateRequestSchema]:
+def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> \
+        Tuple[list[CalculationCreateRequestSchema], UserOutputSchema]:
     db_models: list[RequestModel] = db.query(RequestModel).offset(skip).limit(limit).all()
-    return [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db) for db_request in db_models]
+    requests = [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
+                for db_request in db_models]
+    users = [UserOutputSchema.from_orm(db.query(UserModel).filter(UserModel.id == it.user_id).first())
+             for it in requests]
+
+    return list(it for it in zip(requests, users))
+
 
 
 def get_user_calculation_requests(user_id: int, db: Session, skip: int = 0, limit: int = 100) -> \

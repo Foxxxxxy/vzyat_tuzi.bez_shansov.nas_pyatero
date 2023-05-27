@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.responses import FileResponse
@@ -17,7 +17,7 @@ from app.src.pieces.equipment.models import EquipmentModel
 from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, CalculationPreparedDataSchema
 from app.src.pieces.user.models import UserModel
-from app.src.pieces.user.schemas import EUserLevel
+from app.src.pieces.user.schemas import EUserLevel, UserOutputSchema
 from app.src.security import auth_user, maybe_auth_user, auth_admin
 from app.src.pieces.calculation import service as calculation_service
 
@@ -29,7 +29,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[CalculationCreateRequestSchema])
+@router.get("/", response_model=list[Tuple[CalculationCreateRequestSchema, UserOutputSchema]])
 async def get_calculation_requests(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
     result = calculation_service.get_calculation_requests(db, skip, limit)
     if result is None:
