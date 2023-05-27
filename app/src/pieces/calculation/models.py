@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, ARRAY, Enum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, ARRAY, Enum, DateTime
 from sqlalchemy.orm import relationship
 
 from app.src.database.database import Base
@@ -18,6 +18,7 @@ class RequestModel(Base):
     __tablename__ = "requests"
 
     id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, nullable=False)
     industry_id = Column(Integer, ForeignKey("industry.id"))
     district_id = Column(Integer, ForeignKey("district.id"))
     user_id = Column(Integer, ForeignKey("users.id"))

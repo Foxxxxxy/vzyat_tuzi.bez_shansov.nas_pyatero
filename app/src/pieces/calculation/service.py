@@ -1,6 +1,7 @@
 # todo здесь будет тяжелая логика с pdf
 import os
 from os.path import basename
+from datetime import datetime
 from typing import Union
 
 from fastapi import Depends
@@ -51,7 +52,8 @@ def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> li
     return [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db) for db_request in db_models]
 
 
-def get_user_calculation_requests(user_id: int, db: Session, skip: int = 0, limit: int = 100) -> list[CalculationCreateRequestSchema]:
+def get_user_calculation_requests(user_id: int, db: Session, skip: int = 0, limit: int = 100) -> \
+        list[CalculationCreateRequestSchema]:
     db_models: list[RequestModel] = db.query(RequestModel).filter(RequestModel.user_id == user_id).offset(skip).limit(limit).all()
     return [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db) for db_request in db_models]
 
@@ -80,7 +82,11 @@ def create_request(request: CalculationCreateFormSchema, db: Session, user: Unio
     data = request.as_request_model_dict()
     if user is not None:
         data['user_id'] = user.id
+
     request = RequestModel(**data)
+    request.user_id = user.id
+    request.timestamp = datetime.now()
+
     db.add(request)
     db.commit()
     db.refresh(request)
@@ -188,7 +194,6 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
 
 def handle_calculation_creation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> \
         CalculationPreparedDataSchema:
-    # save request to db
     request_model = create_request(form, db, user)
     # todo - better make converter from CalculationCreateFormSchema to CalculationCreateRequestSchema
     calculation_create_request_schema = CalculationCreateRequestSchema.from_request_model(request_model, db)
