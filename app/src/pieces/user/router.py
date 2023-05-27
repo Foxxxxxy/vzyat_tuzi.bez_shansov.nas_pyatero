@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.src.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 from app.src.database.common import get_db
-from typing import Union
+from typing import Union, Tuple
 from datetime import datetime, timedelta
 from jose import jwt
 import re
@@ -93,15 +93,16 @@ async def get_me(user: UserModel = Depends(auth_user)):
     return user
 
 
-@router.get("/{id}/requests", response_model=list[CalculationCreateRequestSchema])
-async def get_calculation_requests(id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+@router.get("/{id}/requests", response_model=Tuple[list[CalculationCreateRequestSchema], UserOutputSchema])
+async def get_calculation_requests(id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
+                                   user: UserModel = Depends(auth_user)):
     if id != user.id and user.level < EUserLevel.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You need to be at least admin")
 
     result = calculation_service.get_user_calculation_requests(id, db, skip, limit)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No requests!")
-    return result
+    return result, UserOutputSchema.from_orm(user)
 
 
 @router.get("/{id}", response_model=UserOutputSchema)

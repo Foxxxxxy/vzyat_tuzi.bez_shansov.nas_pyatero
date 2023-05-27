@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import Depends
 from pydantic import BaseModel
 from typing import Optional, Union
@@ -101,12 +103,15 @@ class CalculationCreateRequestSchema(CalculationCreateFormSchema):
     """
     id: int  # RequestModel id
     user_id: Union[int, None]
+    timestamp: datetime.datetime
 
     class Config:
         orm_mode = True
+
     @staticmethod
     def from_request_model(request_model: RequestModel, db):
         request_dict = request_model.__dict__
+        request_dict["timestamp"] = request_model.timestamp
         equipment_ids = request_dict["equipment"]
         building_ids = request_dict["buildings"]
         additional_services_ids = request_dict["additional_services"]
