@@ -101,10 +101,10 @@
         "filename": "detailed_equipment",
         "title": "Оборудование",
         "intro_text_file": "detailed_equipment_intro.txt",
-        "data_source_field": "equipments",
-        "excluded_fields": ["equipment:id"],
         "tables":[
           {
+            "data_source_field": "equipments",
+            "excluded_fields": ["equipment:id"],
             "table_name": "**Детальные затраты на оборудование**",
             "headers": ["Тип", "Средняя стоимость, USD", "Количество", "Итоговая стоимость"]
           }
@@ -131,10 +131,10 @@
         "filename": "detailed_buildings",
         "title": "Постройки",
         "intro_text_file": "detailed_buildings_intro.txt",
-        "data_source_field": "buildings",
-        "excluded_fields": ["building:id"],
         "tables": [
           {
+            "data_source_field": "buildings",
+            "excluded_fields": ["building:id"],
             "table_name": "**Детальные затраты на постройки**",
             "headers": ["Тип", "Средняя стоимость, руб", "Площадь, м2", "Стоимость"]
           }
@@ -170,9 +170,12 @@
       {
         "table_name": "**Дополнительные услуги**",
         "fields": {
-          "total_additional_services_expenses": "Суммарные затраты"
+          "total_additional_services_expenses": "Суммарные затраты на доп. услуги",
+          "total_additional_needs_expenses": "Суммарные затраты на иные услуги",
+          "total_additional_expenses": "Итого, руб."
+
         },
-        "rub_fields": ["total_additional_services_expenses"]
+        "rub_fields": ["total_additional_services_expenses", "total_additional_needs_expenses"]
       }
     ],
     "external_files": [
@@ -180,12 +183,18 @@
         "filename": "detailed_additional_services",
         "title": "Дополнительные услуги",
         "intro_text_file": "detailed_additional_services_intro.txt",
-        "data_source_field": "additional_services",
-        "excluded_fields": ["additional_service:id", "additional_service:average_price_dollar"],
         "tables": [
           {
+            "data_source_field": "additional_services",
+            "excluded_fields": ["additional_service:id", "additional_service:average_price_dollar"],
             "table_name": "**Дополнительные услуги детально**",
             "headers": ["Тип", "Стоимость, руб"]
+          },
+          {
+            "data_source_field": "additional_needs",
+            "excluded_fields": [],
+            "table_name": "**Иные услуги детально**",
+            "headers": ["Название", "Стоимость, руб"]
           }
         ]
       }

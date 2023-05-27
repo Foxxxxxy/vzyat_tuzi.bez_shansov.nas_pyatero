@@ -85,7 +85,7 @@ class PdfCreator:
             self.__construct_text_for_page(self.constructed_pdf, text_file)
 
         for table_config in page_config["tables"]:
-            self.__construct_table_for_page(self.constructed_pdf, self.calculation_report, table_config)
+            self.__construct_table_for_page(self.constructed_pdf, table_config)
 
         for file_config in page_config["external_files"]:
             self.__construct_external_files_for_page(file_config)
@@ -103,7 +103,7 @@ class PdfCreator:
             pdf_file.multi_cell(w=130, txt=text, align='CENTER', markdown=True)
         pdf_file.ln(2)
 
-    def __construct_table_for_page(self, pdf_file: FPDF, data_source, table_config, horizontal_table=False):
+    def __construct_table_for_page(self, pdf_file: FPDF, table_config, horizontal_table=False):
         pdf_file.ln(2)
         pdf_file.multi_cell(0, txt=table_config["table_name"], align='CENTER', markdown=True)
         pdf_file.ln(2)
@@ -112,7 +112,7 @@ class PdfCreator:
                                 first_row_as_headings=False) as table:
                 for k, v in table_config["fields"].items():
                     row = table.row()
-                    row_value = str(getattr(data_source, k))
+                    row_value = str(getattr(self.calculation_report, k))
                     if str(k) in table_config["rub_fields"]:
                         row_value += ", руб."
                     row.cell(str(v))
@@ -120,6 +120,8 @@ class PdfCreator:
         else:
             with pdf_file.table(text_align='CENTER', width=190,
                                 first_row_as_headings=True) as table:
+                data_source = self.__get_data_source_for_table(table_config["data_source_field"],
+                                                               table_config["excluded_fields"])
                 h_row = table.row()
                 for h in table_config["headers"]:
                     h_row.cell(h)
@@ -140,21 +142,22 @@ class PdfCreator:
         self.__set_page_title(external_file, file_config["title"])
         self.__construct_text_for_page(external_file, file_config["intro_text_file"])
 
-        data_source_list = getattr(self.calculation_report, file_config["data_source_field"])
-        data_source = [flatdict.FlatDict(it.dict()) for it in data_source_list]
-
-        for it in data_source:
-            for excluded_field in file_config["excluded_fields"]:
-                del it[excluded_field]
-
         for table_config in file_config["tables"]:
-            self.__construct_table_for_page(external_file, data_source,
-                                            table_config, horizontal_table=True)
+            self.__construct_table_for_page(external_file, table_config, horizontal_table=True)
 
         filename = f"{self.output_dir}/{file_config['filename']}{self.req_id}.pdf"
 
         external_file.output(filename)
         self.constructed_files.append(filename)
+
+    def __get_data_source_for_table(self, data_source_field, excluded_fields):
+        data_source_list = getattr(self.calculation_report, data_source_field)
+        data_source = [flatdict.FlatDict(it.dict()) for it in data_source_list]
+
+        for it in data_source:
+            for excluded_field in excluded_fields:
+                del it[excluded_field]
+        return data_source
 
     def __add_font_for_russian_language(self, pdf_file: FPDF):
         pdf_file.add_font("Golos", "", f'{self.util_files_dir}/golos-text_regular.ttf', uni=True)
