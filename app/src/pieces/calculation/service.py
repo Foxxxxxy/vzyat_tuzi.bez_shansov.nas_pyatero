@@ -180,7 +180,7 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
     return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
-def handle_calculation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> \
+def handle_calculation_creation(form: CalculationCreateFormSchema, db: Session, user: Union[UserModel, None]) -> \
         CalculationPreparedDataSchema:
     # save request to db
     request_model = create_request(form, db, user)
