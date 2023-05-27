@@ -1,5 +1,6 @@
 import { xfetch } from '~/core/fetch-system';
 import { SERVER_ENDPOINT } from './_global';
+import { download_file } from './route.common';
 
 export function create_calculation({
   industry_id,
@@ -13,8 +14,9 @@ export function create_calculation({
   legal_entity_type,
   predicted_income_per_year_rub,
   accounting_services_documents_amount,
-  buildings
-} = {}) {
+  buildings,
+  additional_needs
+} = {}, { token } = {}) {
   return xfetch.$post(
     `${SERVER_ENDPOINT}/calculation/create`,
     {
@@ -29,38 +31,24 @@ export function create_calculation({
       additional_services,
       legal_entity_type,
       predicted_income_per_year_rub,
-      accounting_services_documents_amount
+      accounting_services_documents_amount,
+      additional_needs
     },
-    { token: null }
+    { token: token }
   );
 }
 
-export function download_file(req_id, token) {
-  let filename = ''
-  const url = `${SERVER_ENDPOINT}/calculation/${req_id}/download-pdf`
-  fetch(url, {
-    headers: {
-      Authorization: 'Bearer ' + token,
-      Accept: '*/*',
-      'Content-Type': 'application/json',
-    },
-    method: 'GET'
+export function download_pdf(req_id, token) {
+  return new Promise((resolve, reject) => {
+    const url = `${SERVER_ENDPOINT}/calculation/${req_id}/download-pdf`
+    download_file(url, token, (status) => resolve(status))
   })
-    .then((res) => {
-      return res.blob()
-    })
-    .then((blob) => {
-      var url = window.URL.createObjectURL(blob)
-      var a = document.createElement('a')
-      a.href = url
-      a.download = filename
-      document.body.appendChild(a) // append the element to the dom
-      a.click()
-      a.remove() // afterwards, remove the element
-      emit('submit')
-    })
 }
 
 export function get_calculations({ token } = {}) {
   return xfetch.$get(`${SERVER_ENDPOINT}/calculation`, { token });
+}
+
+export function get_calculation_preview(id, token) {
+  return xfetch.$get(`${SERVER_ENDPOINT}/calculation/${id}/preview`, { token });
 }

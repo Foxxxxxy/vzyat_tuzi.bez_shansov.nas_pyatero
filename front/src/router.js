@@ -9,6 +9,7 @@ import IndustryView from '~/views/industry';
 import AdditionalView from '~/views/additional';
 import UsersView from '~/views/users';
 import HistoryView from '~/views/history';
+import AllRequestsView from '~/views/all-requests';
 
 export default createRouter({
   history: createWebHistory(),
@@ -22,6 +23,7 @@ export default createRouter({
     ...IndustryView,
     ...AdditionalView,
     ...UsersView,
-    ...HistoryView
+    ...HistoryView,
+    ...AllRequestsView
   ],
 });

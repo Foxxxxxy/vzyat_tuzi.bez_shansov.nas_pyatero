@@ -1,23 +1,51 @@
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
     validator: function (value) {
-      return ['outlined', 'grey', 'primary', 'red'].indexOf(value) !== -1
+      return ['outlined', 'grey', 'primary', 'red'].indexOf(value) !== -1;
     },
+  },
+  btnType: {
+    type: String,
+    default: () => '',
   },
   wrap: {
     type: String,
     default: 'no-wrap',
   },
-})
+});
+
+const emit = defineEmits(['add-file']);
+
+const isFile = computed(() => props.btnType === 'file');
+
+const changeFile = (e) => {
+  emit('add-file', e);
+};
 </script>
 
 <template>
-  <button class="el" type="button" :class="[`el-${variant}`, `el-${wrap}`]">
+  <button
+    v-if="!isFile"
+    class="el"
+    type="button"
+    :class="[`el-${variant}`, `el-${wrap}`]"
+  >
     <slot />
   </button>
+  <label
+    class="el"
+    type="button"
+    :class="[`el-${variant}`, `el-${wrap}`]"
+    v-else
+  >
+    <input v-if="isFile" type="file" class="el__file" @change="changeFile" />
+    <slot />
+  </label>
 </template>
 
 <style scoped lang="scss">
@@ -30,6 +58,11 @@ defineProps({
   border-radius: 4px;
   border: 1px solid $accent-purple;
   @include create-font(16px, 600, 20px);
+  cursor: pointer;
+  &__file {
+    position: absolute;
+    left: -9999px;
+  }
   &-no-wrap {
     white-space: nowrap;
   }

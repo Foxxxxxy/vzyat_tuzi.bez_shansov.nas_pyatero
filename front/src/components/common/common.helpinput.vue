@@ -20,6 +20,7 @@ const props = defineProps({
   },
   isMultiply: Boolean,
   isErrored: Boolean,
+  noSelect: Boolean
 });
 
 const emit = defineEmits(['update:modelValue', 'set-item']);
@@ -65,7 +66,7 @@ const setItem = (item) => {
       @blur="blur"
       @focus="focus"
     />
-    <div class="suggestions" v-show="isActiveLabel">
+    <div class="suggestions" v-show="isActiveLabel && !noSelect">
       <div class="suggestions__item">
         <p class="suggestions__text">Выберите из списка:</p>
       </div>

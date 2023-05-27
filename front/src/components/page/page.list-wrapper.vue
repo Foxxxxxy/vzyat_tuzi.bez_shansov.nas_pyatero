@@ -12,6 +12,8 @@ import { PageEdit } from '~/components/page';
 
 const props = defineProps({
   listData: Array,
+  sendFileAction: Function,
+  getXlsxAction: Function,
   getAllAction: Function,
   getCurrentAction: Function,
   deleteAction: Function,
@@ -19,9 +21,19 @@ const props = defineProps({
   addAction: Function,
   configInputs: Array,
   pageTitle: String,
-  addTitle: String,
   viewOnly: Boolean,
+  refresh: Boolean,
+  variant: {
+    type: String,
+    default: () => 'default',
+  },
+  addTitle: {
+    type: String,
+    default: () => '',
+  },
 });
+
+const emit = defineEmits(['revert-calculation']);
 
 const listData = ref(null);
 const router = useRouter();
@@ -33,6 +45,8 @@ const token = computed(() => store.$state.user.token);
 
 const isShowDeletePopup = ref(false);
 const currentItem = ref({});
+
+const isCalculation = computed(() => props.variant === 'calculation');
 
 const currentRouteId = computed(() => route.query.id);
 const isCreateAction = computed(() => !!route.query.create);
@@ -59,6 +73,10 @@ const createAdaptiveTitle = (item) => {
 };
 
 const edit = (item) => {
+  if (isCalculation.value) {
+    emit('revert-calculation', item);
+    return;
+  }
   router.push(`${route.path}?id=${item.id}`);
   currentItem.value = { ...item };
   currentAction.value = 'edit';
@@ -114,6 +132,10 @@ const createPopupDesc = () => {
   return str;
 };
 
+const downloadTemplate = () => {
+  props.getXlsxAction(token.value);
+};
+
 watch(
   () => route.query,
   async () => {
@@ -122,6 +144,10 @@ watch(
     }
   }
 );
+
+watch(() => props.refresh, async () => {
+  listData.value = await props.getAllAction({ token: token.value });
+})
 
 watch(currentRouteId, async () => {
   await updateCurrentItem();
@@ -142,7 +168,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="!isCreateAction && !currentRouteId" class="pages">
+  <div
+    v-if="(!isCreateAction && !currentRouteId) || isCalculation"
+    class="pages"
+  >
     <common-popup
       v-if="!viewOnly"
       :is-active="isShowDeletePopup"
@@ -162,6 +191,15 @@ onMounted(async () => {
     <div class="pages__header" :class="{ view: viewOnly }">
       <h1 class="pages__title">{{ pageTitle }}</h1>
       <div class="pages__buttons" v-if="!viewOnly">
+        <common-button
+          @click="downloadTemplate"
+          class="pages__button"
+          variant="outlined"
+          >Скачать образец xlsx</common-button
+        >
+        <common-button class="pages__button" btn-type="file" variant="outlined" @add-file="sendFileAction"
+          >Отправить xlsx</common-button
+        >
         <common-button @click="createNew" class="pages__button">
           {{ addTitle }}
         </common-button>
@@ -231,6 +269,12 @@ onMounted(async () => {
     padding: 32px;
     @include sm {
       padding: 0 0 32px 0;
+    }
+  }
+  &__button {
+    width: 100%;
+    &:not(:last-child) {
+      margin-bottom: 5px;
     }
   }
   &__buttons {

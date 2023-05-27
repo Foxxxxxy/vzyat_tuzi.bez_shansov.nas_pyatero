@@ -13,6 +13,10 @@ export function get_users({ token } = {}) {
   return xfetch.$get(`${SERVER_ENDPOINT}/user`, { token });
 }
 
+export function get_user_review(id, { token } = {}) {
+  return xfetch.$get(`${SERVER_ENDPOINT}/user/${id}/requests`, { token });
+}
+
 export function get_current_user(id, { token } = {}) {
   return xfetch.$get(`${SERVER_ENDPOINT}/user/${id}`, { token });
 }

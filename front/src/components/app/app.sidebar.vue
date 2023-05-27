@@ -26,6 +26,18 @@ const navs = [
     level: 1,
   },
   {
+    name: 'История',
+    icon: IconTeam,
+    to: '/history',
+    level: 1,
+  },
+  {
+    name: 'Все запросы',
+    icon: IconTeam,
+    to: '/all-requests',
+    level: 1,
+  },
+  {
     name: 'Список оборудования',
     icon: IconTeam,
     to: '/equipments',

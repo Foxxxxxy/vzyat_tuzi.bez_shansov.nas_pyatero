@@ -93,6 +93,17 @@ const form = reactive({
     ],
     count: 1,
   },
+  additional_needs: [
+    {
+      input_type: 'suggestion',
+      type: 'additional_needs',
+      value: '',
+      chosen_id: null,
+      route: () => [],
+      suggestions: [],
+      count: 1,
+    },
+  ],
 });
 
 const isValidStep = ref(false);
@@ -208,7 +219,6 @@ const addMore = async (key, route) => {
 };
 
 const deleteItem = (key, idx) => {
-  console.log(key, idx);
   if (form[key].length > 1) {
     form[key] = form[key].filter((item, itemIndex) => itemIndex !== idx);
   }
@@ -244,10 +254,15 @@ const submit = async () => {
     legal_entity_type: form.org_type.chosen_id,
     accounting_services_documents_amount: +form.org_type.count,
     predicted_income_per_year_rub: +form.predicted_income_per_year_rub.value,
+    additional_needs: form.additional_needs.map((item) => {
+      return {
+        name: item.value,
+        price: +item.count,
+      };
+    }),
   };
 
-  const resultData = await create_calculation({ ...data });
-  console.log(resultData);
+  const resultData = await create_calculation({ ...data }, { token: store.$state.user.token });
   result.value = { ...resultData };
   store.$state.result = { ...resultData };
 
@@ -371,6 +386,19 @@ onMounted(async () => {
               :view-only="true"
             />
             <common-button @click="openMap">Выбрать округ</common-button>
+          </div>
+          <div class="home-modal__block">
+            <common-multiply-input
+              :no-select="true"
+              label-main="Пользовательские дополнительные услуги"
+              label-count="Стоимость, руб."
+              suggestion-key="additional_needs"
+              :block="form.additional_needs"
+              @add="addMore"
+              @delete="deleteItem"
+              @update-suggestion="updateSuggestion"
+              @set-suggestions="setSuggestions"
+            />
           </div>
         </div>
       </div>

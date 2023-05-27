@@ -1,5 +1,6 @@
 import { xfetch } from '~/core/fetch-system';
 import { SERVER_ENDPOINT } from './_global';
+import { download_file, changeFiles } from './route.common';
 
 /**
  * @param {string} username
@@ -41,4 +42,16 @@ export function add_new_industry({ name, average_price_rub } = {}, token) {
 
 export function delete_industry(id, token) {
   return xfetch.$delete(`${SERVER_ENDPOINT}/industry/${id}`, null, { token });
+}
+
+export function get_xlsx_template(token) {
+  return new Promise((resolve, reject) => {
+    const url = `${SERVER_ENDPOINT}/industry/excel-template`
+    download_file(url, token, (status) => resolve(status))
+  })
+}
+
+export async function send_glsx_template(e, token) {
+  const url = `${SERVER_ENDPOINT}/industry/excel`
+  return changeFiles(url, e, token)
 }

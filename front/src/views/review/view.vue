@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
 import { useStore } from '~/stores/stores.main';
-import { download_file } from '~/api/route.calculation';
+import { download_pdf } from '~/api/route.calculation';
 
 const store = useStore()
 const isLoggedIn = computed(() => !!store.$state.user.token)
@@ -10,8 +10,7 @@ const isLoggedIn = computed(() => !!store.$state.user.token)
 const result = computed(() => store.$state.result)
 
 const download = () => {
-  console.log('download', isLoggedIn.value);
-  download_file(result.value.request_id, store.$state.user.token)
+  download_pdf(result.value.request_id, store.$state.user.token)
 }
 
 const returnLegal = (legal) => {

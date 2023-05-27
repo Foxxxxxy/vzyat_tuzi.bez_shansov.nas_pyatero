@@ -95,6 +95,9 @@ const action = async () => {
   min-height: 100%;
   &__buttons {
     display: flex;
+    @include md {
+      margin-left: 10px;
+    }
   }
   &__button {
     &:not(:last-child) {
@@ -118,11 +121,18 @@ const action = async () => {
     justify-content: space-between;
     align-items: center;
     padding: 41px 32px 41px 0;
+    @include md {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
   &__title {
     position: relative;
     @include create-font(26px, 600, 23px);
     padding-left: 32px;
+    @include md {
+      margin-bottom: 30px;
+    }
     &::before {
       content: '';
       height: calc(100% + 10px);

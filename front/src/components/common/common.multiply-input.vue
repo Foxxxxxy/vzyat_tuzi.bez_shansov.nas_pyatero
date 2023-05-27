@@ -9,7 +9,8 @@ const props = defineProps({
   suggestionKey: String,
   block: Array,
   labelMain: String,
-  labelCount: String
+  labelCount: String,
+  noSelect: Boolean
 })
 
 const emit = defineEmits(['add', 'delete', 'updateSuggestion', 'setSuggestions'])
@@ -41,6 +42,7 @@ const setSuggestions = (item, type, index) => {
     >
       <common-helpinput
         v-model="item.value"
+        :no-select="noSelect"
         class="home-modal__input"
         :label="index > 0 ? '' : labelMain"
         :value="item.value"
