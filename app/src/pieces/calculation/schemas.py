@@ -176,6 +176,7 @@ class CalculationPreparedDataSchema(BaseModel):
     equipments: list[EquipmentCalculationResponseSchema]
     total_equipments_expenses: float
 
+    # buildings
     buildings: list[BuildingCalculationResponseSchema]
     total_buildings_expenses: float
 
