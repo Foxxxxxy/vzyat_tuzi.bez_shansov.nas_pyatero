@@ -39,7 +39,7 @@ async def get_calculation_requests(skip: int = 0, limit: int = 100, db: Session 
 
 @router.post("/create", response_model=CalculationPreparedDataSchema)
 async def create_calculation(form: CalculationCreateFormSchema, db: Session = Depends(get_db), user: Union[UserModel, None] = Depends(maybe_auth_user)):
-    result = service.handle_calculation(form, db, user)
+    result = service.handle_calculation_creation(form, db, user)
     round_floats(result)
     return result
 
@@ -51,8 +51,23 @@ async def download_calculated_report(req_id: int, db: Session = Depends(get_db),
     return FileResponse(path=pdf_filename, filename=f"out.pdf", headers=headers)
 
 
+@router.get("/{id}/preview", response_model=CalculationPreparedDataSchema)
+async def get_calculation_preview(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+    result = calculation_service.get_calculation_request_by_id(db, id)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No request with such id!")
+
+    if result.user_id is None and user.level < EUserLevel.admin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This is anonymus request!")
+
+    if result.user_id != user.id and user.level < EUserLevel.admin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You are not the owner of this request!")
+    return calculation_service.handle_calculation(id, db)
+
+
 @router.get("/{id}", response_model=CalculationCreateRequestSchema)
 async def get_calculation_request(id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
+    print('hello world')
     result = calculation_service.get_calculation_request_by_id(db, id)
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No request with such id!")
