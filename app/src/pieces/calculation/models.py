@@ -37,5 +37,8 @@ class RequestModel(Base):
     predicted_income_per_year_rub = Column(Float)
     accounting_services_documents_amount = Column(Integer)
 
+    additional_needs = Column(ARRAY(String))
+    additional_needs_prices = Column(ARRAY(Float))
+
     industry = relationship("IndustryModel")
     district = relationship("DistrictModel")

@@ -48,6 +48,12 @@ class AdditionalServiceCalculationResponseSchema(BaseModel):
     total_expenses: float
 
 
+# additional needs
+class AdditionalNeedCalculationSchema(BaseModel):
+    name: str
+    price: float
+
+
 class CalculationCreateFormSchema(BaseModel):
     industry_id: int  # id сферы хоз деятельности todo таблица сфер хоз деятельности
 
@@ -71,8 +77,7 @@ class CalculationCreateFormSchema(BaseModel):
     # todo
     # данные для рассчета бухгалтерского калькулятора
 
-    # todo
-    # иные потребности List[Потребность]
+    additional_needs = list[AdditionalNeedCalculationSchema]
 
     def as_request_model_dict(self):
         result_dict = self.dict()
@@ -84,6 +89,9 @@ class CalculationCreateFormSchema(BaseModel):
         result_dict['buildings'] = [el['id'] for el in result_dict['buildings']]
 
         result_dict['additional_services'] = [el['id'] for el in result_dict['additional_services']]
+
+        result_dict["additional_needs"] = [el["name"] for el in result_dict["additional_needs"]]
+        result_dict["additional_needs_prices"] = [el["price"] for el in result_dict["additional_needs"]]
         return result_dict
 
 
@@ -121,9 +129,15 @@ class CalculationCreateRequestSchema(CalculationCreateFormSchema):
 
         additional_services_schemas = [AdditionalServiceSchema.from_orm(it) for it in additional_services_models]
 
+        additional_needs_schemas = [
+            AdditionalNeedCalculationSchema(name=name, price=price) for name, price in
+            zip(request_dict["additional_needs"], request_dict["additional_needs_prices"])
+        ]
+
         request_dict["equipment"] = equipment_calculation_request_schemas
         request_dict["buildings"] = building_calculation_request_schemas
         request_dict["additional_services"] = additional_services_schemas
+        request_dict["additional_needs"] = additional_needs_schemas
 
         return CalculationCreateRequestSchema(**request_dict)
 
@@ -168,3 +182,7 @@ class CalculationPreparedDataSchema(BaseModel):
     # additional services
     additional_services: list[AdditionalServiceCalculationResponseSchema]
     total_additional_services_expenses: float
+
+    # additional needs
+    additional_needs: list[AdditionalNeedCalculationSchema]
+    total_additional_needs_expenses: float

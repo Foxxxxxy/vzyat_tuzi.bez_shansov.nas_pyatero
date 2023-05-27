@@ -166,6 +166,11 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
         db
     )
 
+    # additional needs
+    additional_needs = form.additional_needs
+    calculation_prepared_data["additional_needs"] = additional_needs
+    calculation_prepared_data["total_additional_needs_expenses"] = sum(it.price for it in additional_needs)
+
     calculation_prepared_data['additional_services'] = additional_services
     calculation_prepared_data["total_additional_services_expenses"] = \
         sum(it.total_expenses for it in additional_services)
