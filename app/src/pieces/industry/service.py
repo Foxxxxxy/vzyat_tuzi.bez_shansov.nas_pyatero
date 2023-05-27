@@ -46,6 +46,7 @@ def update_industry(db: Session, id: int,
     industry = db.query(IndustryModel) \
         .filter(IndustryModel.id == id).first()
     industry.name = schema.name
+    industry.avg_salary = schema.avg_salary
     db.commit()
     return industry
 
@@ -81,14 +82,22 @@ def parse_industry(filename: str, db: Session, only_first: Union[int, None] = No
     workbook = load_workbook(file_path, data_only=True)
     worksheet = workbook.active
 
+    salary_dict = dict()
+
     for row in worksheet.iter_rows(min_row=2, max_row=only_first, max_col=6, values_only=True):
         if db.query(IndustryModel).filter(IndustryModel.name == row[1]).first():
             continue
 
-        schema = IndustryCreationSchema(name=row[1])  # , average_price_per_m2_rub=float(row[2]))
+        schema = IndustryCreationSchema(name=row[1], avg_salary=0.0)
+
+        if not str(row[1]) in salary_dict:
+            salary_dict[row[1]] = []
+        salary_dict[row[1]].append(float(row[5]))
+
         res = add_industry(db, schema)
-        # print(row[5])
-        # print('eq created')
-        # print(res.average_price_per_m2_rub)
-        # print(res.name)
-        # print(res.id)
+
+    for industry_name, salaries in salary_dict.items():
+        avg = sum(salaries) / len(salaries)
+        industry = db.query(IndustryModel).filter(IndustryModel.name == industry_name).first()
+        industry.avg_salary = avg
+        db.commit()
