@@ -4,6 +4,7 @@ from os.path import basename
 from datetime import datetime
 from typing import Union, Tuple
 
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.src.common import round_floats
@@ -50,7 +51,8 @@ def calculate_accounting_services_expenses(accounting_services_documents_amount:
 
 def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> \
         list[Tuple[CalculationCreateRequestSchema], UserOutputSchema]:
-    db_models: list[RequestModel] = db.query(RequestModel).offset(skip).limit(limit).all()
+    db_models: list[RequestModel] = db.query(RequestModel).order_by(desc(RequestModel.timestamp))\
+        .offset(skip).limit(limit).all()
     requests = [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
                 for db_request in db_models if db_request.user_id is not None]
     users = [UserOutputSchema.from_orm(db.query(UserModel).filter(UserModel.id == it.user_id).first())
