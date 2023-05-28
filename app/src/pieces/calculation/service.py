@@ -54,7 +54,7 @@ def get_calculation_requests(db: Session, skip: int = 0, limit: int = 100) -> \
         list[Tuple[CalculationCreateRequestSchema], UserOutputSchema]:
     db_models: list[RequestModel] = db.query(RequestModel).offset(skip).limit(limit).all()
     requests = [CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
-                for db_request in db_models]
+                for db_request in db_models if db_request.user_id is not None]
     users = [UserOutputSchema.from_orm(db.query(UserModel).filter(UserModel.id == it.user_id).first())
              for it in requests]
 
@@ -219,8 +219,11 @@ def handle_calculation(id: int, db: Session) -> CalculationPreparedDataSchema:
     return _handle_calculation(calculation_create_request_schema, db)
 
 
-def download_calculation(req_id: int, db: Session):
+def download_calculation(req_id: int, db: Session, user: UserModel):
     db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
+    if db_request.user_id is None:
+        db_request.user_id = user.id
+        db.commit()
     request = CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
 
     response = _handle_calculation(request, db)
@@ -230,8 +233,11 @@ def download_calculation(req_id: int, db: Session):
     return pdf_creator.get_output_pdf_filename()
 
 
-def download_calculation_zip(req_id: int, db: Session):
+def download_calculation_zip(req_id: int, db: Session, user: UserModel):
     db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
+    if db_request.user_id is None:
+        db_request.user_id = user.id
+        db.commit()
     request = CalculationCreateRequestSchema.from_request_model(request_model=db_request, db=db)
 
     response = _handle_calculation(request, db)

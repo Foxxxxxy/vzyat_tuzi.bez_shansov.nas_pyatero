@@ -4,5 +4,4 @@ app/__pycache__/
 .*.idea
 **/__pycache__/
 app/src/pieces/calculation/pdf/brochures
-app/src/pieces/calculation/zip_reports
 app/src/pieces/calculation/pdf/utility_files/constructed.pdf

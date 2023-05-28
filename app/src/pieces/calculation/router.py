@@ -46,7 +46,7 @@ async def create_calculation(form: CalculationCreateFormSchema, db: Session = De
 
 @router.get("/{req_id}/download-pdf", response_class=FileResponse)
 async def download_calculated_report(req_id: int, db: Session = Depends(get_db), user: UserModel = Depends(auth_user)):
-    pdf_filename = service.download_calculation(req_id, db)
+    pdf_filename = service.download_calculation(req_id, db, user)
     headers = {'Content-Disposition': 'attachment; filename="brochure.pdf"'}
     return FileResponse(path=pdf_filename, filename=f"brochure.pdf", headers=headers)
 
@@ -54,7 +54,7 @@ async def download_calculated_report(req_id: int, db: Session = Depends(get_db),
 @router.get("/{req_id}/download-zip", response_class=FileResponse)
 async def download_calculated_report_zip(req_id: int, db: Session = Depends(get_db),
                                          user: UserModel = Depends(auth_user)):
-    zip_filename = service.download_calculation_zip(req_id, db)
+    zip_filename = service.download_calculation_zip(req_id, db, user)
     headers = {'Content-Disposition': 'attachment; filename="report.zip"'}
     return FileResponse(path=zip_filename, filename=f"report.zip", headers=headers)
 
