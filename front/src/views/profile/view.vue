@@ -1,39 +1,102 @@
 <script setup>
-import { CommonButton, CommonInput } from '~/components/common';
+import {
+  CommonButton,
+  CommonInput,
+  CommonHelpinput,
+  CommonPopup
+} from '~/components/common';
 import { get_user_info, edit_current_user } from '~/api/route.user';
 import { computed, onMounted, ref } from 'vue';
 import { useStore } from '~/stores/stores.main';
+import { get_industry_suggestion, get_current_industry } from '~/api/route.industry';
 
 const form = ref(null);
 const store = useStore();
 
+const isShowPopup = ref(false)
+
 const token = computed(() => store.$state.user.token);
 
 const save = async () => {
-  const { email, name, last_name, organisation_name, inn, web_site } =
-    form.value;
-  await edit_current_user(
+  const {
+    email,
+    name,
+    last_name,
+    organisation_name,
+    fathers_name,
+    inn,
+    web_site,
+    country,
+    city,
+    position,
+  } = form.value;
+  const res = await edit_current_user(
     form.value.id,
     {
       email,
       name,
       last_name,
       organisation_name,
+      fathers_name,
       inn,
       web_site,
+      country,
+      city,
+      position,
+      industry_id: form.value.industry.chosen_id,
     },
     token.value
   );
+  if (res.statue !== 'error') {
+    isShowPopup.value = true
+  }
+};
+
+const setSuggestions = (suggestion, key, index) => {
+  if (index >= 0) {
+    return (form.value[key][index].chosen_id = suggestion.id);
+  }
+  form.value[key].chosen_id = suggestion.id;
+};
+
+const getAllSuggestions = async () => {
+  for (let key in form.value) {
+    const block = form.value[key];
+    if (block.input_type === 'suggestion' && block.type !== 'org_type') {
+      block.suggestions = [...(await block.route(block.value, 0, 100))];
+    }
+  }
 };
 
 onMounted(async () => {
   const data = await get_user_info(token.value);
-  form.value = { ...data };
+  form.value = {
+    ...data,
+    industry: {
+      input_type: 'suggestion',
+      type: 'industry',
+      value: '',
+      chosen_id: null,
+      route: get_industry_suggestion,
+      suggestions: [],
+    },
+  };
+
+  await getAllSuggestions();
+  const industry = await get_current_industry(form.value.industry_id)
+  form.value.industry.value = industry.name
 });
 </script>
 
 <template>
   <div class="profile" v-if="form">
+    <common-popup
+      :is-active="isShowPopup"
+      class="popup"
+      title="Вы успешно изменили информацию о себе!"
+    >
+      <common-button @click="isShowPopup = false" class="popup__button"> Закрыть </common-button>
+    </common-popup>
     <div class="profile__content">
       <header class="profile__header">
         <h1 class="profile__title">Настройки пользователя</h1>
@@ -43,7 +106,7 @@ onMounted(async () => {
       </header>
       <div class="profile__wrapper">
         <div class="profile__form">
-          <div class="profile__block" v-if="form.last_name">
+          <div class="profile__block">
             <common-input
               v-model="form.last_name"
               :value="form.last_name"
@@ -51,7 +114,7 @@ onMounted(async () => {
               class="profile__input"
             />
           </div>
-          <div class="profile__block" v-if="form.name">
+          <div class="profile__block">
             <common-input
               v-model="form.name"
               :value="form.name"
@@ -59,10 +122,15 @@ onMounted(async () => {
               class="profile__input"
             />
           </div>
-          <div class="profile__block" v-if="form.p">
-            <common-input label="Отчество" class="profile__input" />
+          <div class="profile__block">
+            <common-input
+              v-model="form.fathers_name"
+              :value="form.fathers_name"
+              label="Отчество"
+              class="profile__input"
+            />
           </div>
-          <div class="profile__block" v-if="form.email">
+          <div class="profile__block">
             <common-input
               v-model="form.email"
               :value="form.email"
@@ -70,7 +138,7 @@ onMounted(async () => {
               class="profile__input"
             />
           </div>
-          <div class="profile__block" v-if="form.organisation_name">
+          <div class="profile__block">
             <common-input
               v-model="form.organisation_name"
               :value="form.organisation_name"
@@ -80,7 +148,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="profile__form">
-          <div class="profile__block" v-if="form.inn">
+          <div class="profile__block">
             <common-input
               v-model="form.inn"
               :value="form.inn"
@@ -88,7 +156,7 @@ onMounted(async () => {
               class="profile__input"
             />
           </div>
-          <div class="profile__block" v-if="form.web_site">
+          <div class="profile__block">
             <common-input
               v-model="form.web_site"
               :value="form.web_site"
@@ -96,23 +164,41 @@ onMounted(async () => {
               class="profile__input"
             />
           </div>
-          <div class="profile__block" v-if="form.industry">
-            <common-input
-              v-model="form.industry"
-              :value="form.industry"
-              label="Отрасль ведения хозяйственной деятельности"
+          <div class="profile__block">
+            <common-helpinput
+              v-model="form.industry.value"
               class="profile__input"
+              label="Отрасль ведения хозяйственной деятельности"
+              :value="form.industry.value"
+              :suggestions="form.industry.suggestions"
+              @input="updateSuggestion('industry')"
+              @set-item="(item) => setSuggestions(item, 'industry')"
             />
           </div>
 
-          <div class="profile__block" v-if="form.country">
-            <common-input label="Страна" class="profile__input" />
+          <div class="profile__block">
+            <common-input
+              v-model="form.country"
+              :value="form.country"
+              label="Страна"
+              class="profile__input"
+            />
           </div>
-          <div class="profile__block" v-if="form.city">
-            <common-input label="Город" class="profile__input" />
+          <div class="profile__block">
+            <common-input
+              v-model="form.city"
+              :value="form.city"
+              label="Город"
+              class="profile__input"
+            />
           </div>
-          <div class="profile__block" v-if="form.work">
-            <common-input label="Должность" class="profile__input" />
+          <div class="profile__block">
+            <common-input
+              v-model="form.position"
+              :value="form.position"
+              label="Должность"
+              class="profile__input"
+            />
           </div>
         </div>
       </div>
@@ -121,6 +207,13 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
+
+.popup {
+  z-index: 1000;
+  &__button {
+    width: 100%;
+  }
+}
 .profile {
   width: 100%;
   height: 100%;
@@ -133,6 +226,7 @@ onMounted(async () => {
     grid-template-columns: 1fr 1fr;
     @include lg {
       grid-template-columns: 1fr;
+      padding-bottom: 100px;
     }
   }
   &__button {
@@ -153,7 +247,7 @@ onMounted(async () => {
   &__form {
     padding: 0 32px;
     max-width: 500px;
-    @include md {
+    @include lg {
       padding: 0 10px;
       margin-bottom: 20px;
     }

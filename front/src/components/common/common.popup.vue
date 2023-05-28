@@ -47,7 +47,7 @@ defineProps({
     margin: 0 auto;
   }
   &__title {
-    @include create-font(20px, 600, 22px);
+    @include create-font(20px, 600, 28px);
     margin-bottom: 20px;
   }
   &__desc {

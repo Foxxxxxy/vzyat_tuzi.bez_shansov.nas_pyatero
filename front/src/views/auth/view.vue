@@ -82,7 +82,7 @@ const login = async () => {
 const signup = async () => {
   const res = await register({
     ...registrationForm,
-    industry_id: registrationForm.industry.chosen_id,
+    industry_id: form.industry.chosen_id,
   });
   if (res.status === 'error') return;
 

@@ -23,7 +23,19 @@ export function get_current_user(id, { token } = {}) {
 
 export function edit_current_user(
   id,
-  { email, name, last_name, organisation_name, inn, web_site } = {},
+  {
+    email,
+    name,
+    last_name,
+    organisation_name,
+    fathers_name,
+    inn,
+    web_site,
+    industry_id,
+    country,
+    city,
+    position,
+  } = {},
   token
 ) {
   return xfetch.$patch(
@@ -33,8 +45,13 @@ export function edit_current_user(
       name,
       last_name,
       organisation_name,
+      fathers_name,
       inn,
       web_site,
+      industry_id,
+      country,
+      city,
+      position,
     },
     { token }
   );
