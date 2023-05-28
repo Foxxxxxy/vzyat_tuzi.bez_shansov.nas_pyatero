@@ -115,8 +115,8 @@ const form = reactive({
       route: get_additional_suggestion,
       suggestions: [],
       count: 1,
-    }
-  ]
+    },
+  ],
 });
 
 const isValidStep = ref(false);
@@ -260,7 +260,7 @@ const submit = async () => {
     }),
     additional_services: form.additional_services.map((item) => {
       return {
-        id: +item.chosen_id
+        id: +item.chosen_id,
       };
     }),
 
@@ -268,18 +268,25 @@ const submit = async () => {
     accounting_services_documents_amount: +form.org_type.count,
     predicted_income_per_year_rub: +form.predicted_income_per_year_rub.value,
     additional_needs: form.additional_needs.map((item) => {
-      return {
-        name: item.value,
-        price: +item.count,
-      };
+      if (item.value.length) {
+        return {
+          name: item.value,
+          price: +item.count,
+        };
+      }
     }),
   };
 
-  const resultData = await create_calculation({ ...data }, { token: store.$state.user.token });
+  data.additional_needs = data.additional_needs.filter(item => item)
+
+  const resultData = await create_calculation(
+    { ...data },
+    { token: store.$state.user.token }
+  );
   result.value = { ...resultData };
   store.$state.result = { ...resultData };
 
-  router.push('/review')
+  router.push('/review');
 };
 
 const isOpenedMap = ref(false);
@@ -467,11 +474,11 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .continent {
-    fill: none;
-    stroke: #5c443e;
-    stroke-width: 3px;
-    cursor: pointer;
-    pointer-events: all;
+  fill: none;
+  stroke: #5c443e;
+  stroke-width: 3px;
+  cursor: pointer;
+  pointer-events: all;
 }
 .modal {
   position: fixed;
@@ -592,7 +599,7 @@ onMounted(async () => {
       margin-bottom: 30px;
       @include md {
         @include create-font(20px, 600, 30px);
-        margin-bottom: 15px
+        margin-bottom: 15px;
       }
     }
     &__desc {

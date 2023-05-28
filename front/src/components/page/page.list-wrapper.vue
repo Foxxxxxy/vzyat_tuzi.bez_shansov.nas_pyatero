@@ -81,6 +81,13 @@ const createTitle = (item) => {
 
 const createAdaptiveTitle = (item) => {
   return props.configInputs.map((el) => {
+    if (el.key === 'level') {
+      return { name: el.name, value: getUserStatus(item[el.key]) };
+    }
+    if (el.key === 'timestamp') {
+      const date = new Date(item[el.key])
+      return { name: el.name, value: date.getHours() + ":" + date.getMinutes() + ", "+ date.toDateString()};
+    }
     return { name: el.name, value: item[el.key] };
   });
 };

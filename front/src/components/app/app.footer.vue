@@ -138,7 +138,7 @@ const return_navs = computed(() => {
 
 .nav {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   &__icon {
     margin-bottom: 5px;
   }

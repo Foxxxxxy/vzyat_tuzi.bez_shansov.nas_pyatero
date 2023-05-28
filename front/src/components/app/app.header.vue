@@ -23,7 +23,7 @@ const logout = () => {
   localStorage.removeItem('user');
 
   if (route.path !== '/' || route.path !== '/review') {
-    router.push('/')
+    router.push('/');
   }
 };
 
@@ -61,7 +61,9 @@ onMounted(async () => {
         Экономика Москвы
       </p>
     </h1>
-    <h1 class="header__title header__title--md">Smetaverse</h1>
+    <h1 class="header__title header__title--md">
+      <router-link to="/">Smetaverse</router-link>
+    </h1>
     <div class="user" v-if="name">
       <h3 class="user__name" v-if="name">
         <router-link to="/profile">{{ name }}</router-link>
@@ -106,7 +108,7 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       margin-left: 5px;
-      font-size: 14px
+      font-size: 14px;
     }
     &--md {
       display: none;
@@ -121,6 +123,9 @@ onMounted(async () => {
   &__button {
     padding: 37px 50px;
     border-radius: 0;
+    @include md {
+      padding: 14px 50px;
+    }
   }
 }
 .user {
