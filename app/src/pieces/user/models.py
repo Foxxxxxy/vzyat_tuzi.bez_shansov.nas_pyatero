@@ -19,7 +19,7 @@ class UserModel(Base):
     web_site = Column(String)
 
     fathers_name = Column(String)
-    industry_id = Column(Integer, ForeignKey("industry.id"))
+    industry_id = Column(Integer, ForeignKey("industry.id"), nullable=True)
     country = Column(String)
     city = Column(String)
     position = Column(String)
