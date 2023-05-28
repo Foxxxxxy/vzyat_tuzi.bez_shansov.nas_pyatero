@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.responses import FileResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
@@ -58,7 +59,10 @@ async def get_equipments(skip: int = 0, limit: int = 100, db: Session = Depends(
 @router.post("/", response_model=EquipmentSchema)
 async def add_equipment(schema: EquipmentCreationSchema, db: Session = Depends(get_db),
                         user: UserModel = Depends(auth_admin)):
-    return equipment_service.add_equipment(db, schema)
+    try:
+        return equipment_service.add_equipment(db, schema)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Оборудование с таким названием уже существует!")
 
 
 @router.put("/{id}", response_model=EquipmentSchema)

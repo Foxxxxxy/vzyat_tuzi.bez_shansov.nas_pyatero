@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.responses import FileResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
@@ -58,7 +59,10 @@ async def get_industries(skip: int = 0, limit: int = 100, db: Session = Depends(
 @router.post("/", response_model=IndustrySchema)
 async def add_industry(schema: IndustryCreationSchema,
                        db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
-    return industry_service.add_industry(db, schema)
+    try:
+        return industry_service.add_industry(db, schema)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отрасль с таким названием уже существует!")
 
 
 @router.put("/{id}", response_model=IndustrySchema)

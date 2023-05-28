@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.responses import FileResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
@@ -59,7 +60,10 @@ async def get_districts(skip: int = 0, limit: int = 100, db: Session = Depends(g
 @router.post("/", response_model=DistrictSchema)
 async def add_district(schema: DistrictCreationSchema, db: Session = Depends(get_db),
                        user: UserModel = Depends(auth_admin)):
-    return district_service.add_district(db, schema)
+    try:
+        return district_service.add_district(db, schema)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Район с таким именем уже существует!")
 
 
 @router.put("/{id}", response_model=DistrictSchema)

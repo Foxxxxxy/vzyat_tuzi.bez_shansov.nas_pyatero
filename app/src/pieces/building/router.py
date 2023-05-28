@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.responses import FileResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
@@ -59,7 +60,10 @@ async def get_buildings(skip: int = 0, limit: int = 100, db: Session = Depends(g
 @router.post("/", response_model=BuildingSchema)
 async def add_building(schema: BuildingCreationSchema, db: Session = Depends(get_db),
                        user: UserModel = Depends(auth_admin)):
-    return building_service.add_building(db, schema)
+    try:
+        return building_service.add_building(db, schema)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Постройка с таким названием уже существует!")
 
 
 @router.put("/{id}", response_model=BuildingSchema)
