@@ -1,20 +1,14 @@
 import os
 from typing import Union, Tuple
 
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.src.common import round_floats
 from app.src.database.common import get_db
 from app.src.pieces.calculation import service
-from app.src.pieces.calculation.models import RequestModel
-from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, CalculationPreparedDataSchema, \
-    EquipmentCalculationResponseSchema, CalculationCreateRequestSchema
-from app.src.pieces.calculation.service import join_request_with_model
-from app.src.pieces.district.models import DistrictModel
-from app.src.pieces.equipment.models import EquipmentModel
-from app.src.pieces.calculation.pdf.PdfCreator import PdfCreator
+from app.src.pieces.calculation.schemas import CalculationCreateRequestSchema
 from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, CalculationPreparedDataSchema
 from app.src.pieces.user.models import UserModel
 from app.src.pieces.user.schemas import EUserLevel, UserOutputSchema

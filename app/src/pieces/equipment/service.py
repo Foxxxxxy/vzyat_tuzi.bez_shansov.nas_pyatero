@@ -2,11 +2,9 @@ import io
 from tempfile import SpooledTemporaryFile
 
 from sqlalchemy import func, text
-from sqlalchemy.orm import Session
 
 from app.src.config import DATA_FOLDER_PATH
 from app.src.pieces.equipment.models import EquipmentModel
-from app.src.pieces.equipment.schemas import EquipmentCreationSchema
 import os
 from typing import Union
 

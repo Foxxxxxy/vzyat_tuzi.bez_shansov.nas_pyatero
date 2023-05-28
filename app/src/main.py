@@ -6,7 +6,12 @@ from app.src.database.database import engine, SessionLocal
 from app.src.database import models
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.src.pieces.additional_service.service import parse_additional_services
 from app.src.pieces.building.service import parse_buildings
+from app.src.pieces.calculation.models import LegalEntityType
+from app.src.pieces.calculation.schemas import CalculationCreateFormSchema, EquipmentCalculationRequestSchema, \
+    BuildingCalculationRequestSchema, AdditionalServiceCalculationRequestSchema, AdditionalNeedCalculationSchema
+from app.src.pieces.calculation.service import create_request
 from app.src.pieces.district.service import parse_district
 from app.src.pieces.industry.service import parse_industry
 from app.src.pieces.patent.service import parse_patents
@@ -76,11 +81,26 @@ def create_template_user_schema(level: EUserLevel):
                           level=level)
 
 
+def create_request_schema(industry_id, district_id, equipment_ids, additional_services_ids,
+                          buildings_ids, legal_entity_type):
+    return CalculationCreateFormSchema(
+        industry_id=industry_id,
+        district_id=district_id,
+        employee_amount=10,
+        building_area_size=200,
+        land_area_size=400,
+        equipment=[EquipmentCalculationRequestSchema(id=it, amount=1) for it in equipment_ids],
+        additional_services=[AdditionalServiceCalculationRequestSchema(id=it) for it in additional_services_ids],
+        buildings=[BuildingCalculationRequestSchema(id=it, area=100) for it in buildings_ids],
+        legal_entity_type=legal_entity_type,
+        predicted_income_per_year_rub=1000000,
+        accounting_services_documents_amount=1000,
+        additional_needs=[AdditionalNeedCalculationSchema(name="Отделка интерьера", price=1000),
+                          AdditionalNeedCalculationSchema(name="Отделка экстерьера", price=2000)]
+    )
+
+
 def fill_db(head_only: bool = False):
-    with SessionLocal() as db:
-        create_user(db, create_template_user_schema(EUserLevel.user))
-        create_user(db, create_template_user_schema(EUserLevel.admin))
-        print('users created')
     only_first = 50 if head_only else None
     data = [
         (parse_district, 'srednyaa_kadastr_stoimost_po_okrugam.xlsx'),
@@ -88,6 +108,7 @@ def fill_db(head_only: bool = False):
         (parse_patents, 'patentirovanie_potencialniy_dohod_moskva.xlsx'),
         (parse_industry, 'obezlichenie_dannie.xlsm'),
         (parse_buildings, 'building_dataset.xlsx'),
+        (parse_additional_services, 'additional_services_dataset.xlsx'),
     ]
 
     errors = 0
@@ -106,6 +127,15 @@ def fill_db(head_only: bool = False):
         print('all datasets downloaded successfully')
     else:
         print(f'WARNING: some datasets WERE NOT downloaded successfully: {len(data) - errors}/{len(data)}')
+
+    with SessionLocal() as db:
+        user = create_user(db, create_template_user_schema(EUserLevel.user))
+        admin = create_user(db, create_template_user_schema(EUserLevel.admin))
+        create_request(create_request_schema(1, 1, [1, 2], [1], [1, 2], LegalEntityType.IP), db, None)
+        create_request(create_request_schema(2, 2, [3, 4], [2], [3, 4], LegalEntityType.OOO_AO), db, user)
+        create_request(create_request_schema(3, 3, [5, 6], [1, 2], [5, 6], LegalEntityType.IP), db, user)
+        create_request(create_request_schema(4, 4, [7, 8], [2, 3], [7, 8], LegalEntityType.OOO_AO), db, admin)
+        print('users and requests created')
 
     # scheduled currency update for dollar course
     schedule_currency_update("RUB")

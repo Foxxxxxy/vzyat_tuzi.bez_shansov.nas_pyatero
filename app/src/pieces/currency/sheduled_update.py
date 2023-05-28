@@ -2,9 +2,6 @@ import json
 import os
 
 import requests
-from fastapi import Depends
-from sqlalchemy import select, update
-from sqlalchemy.orm import Session
 from crontab import CronTab
 
 from app.src.database.common import get_db

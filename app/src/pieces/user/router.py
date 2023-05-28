@@ -12,7 +12,6 @@ import re
 
 from app.src.pieces.calculation.schemas import CalculationCreateRequestSchema
 from app.src.pieces.user.models import UserModel
-from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema, EUserLevel
 from app.src.pieces.user.schemas import SignUpSchema, UserOutputSchema, UserUpdateSchema, EUserLevel
 from app.src.pieces.user import service as user_service
 from app.src.security import auth_user, auth_admin

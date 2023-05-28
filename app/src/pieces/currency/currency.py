@@ -1,7 +1,5 @@
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.src.database.common import get_db
 from app.src.pieces.currency.models import CurrencyModel
 
 

@@ -5,9 +5,6 @@ from sqlalchemy.orm import relationship
 
 from app.src.database.database import Base
 
-from app.src.pieces.industry.models import IndustryModel
-from app.src.pieces.district.models import DistrictModel
-
 
 class LegalEntityType(str, enum.Enum):
     OOO_AO = 'OOO_AO'
