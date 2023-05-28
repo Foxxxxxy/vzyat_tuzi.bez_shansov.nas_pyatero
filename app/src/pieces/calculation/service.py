@@ -227,6 +227,8 @@ def handle_calculation(id: int, db: Session) -> CalculationPreparedDataSchema:
 
 def download_calculation(req_id: int, db: Session, user: UserModel):
     db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
+    # Potential security problem: logged-in user can modify url so that he is trying to
+    # download request with user_id = null, and this request will be assigned to him
     if db_request.user_id is None:
         db_request.user_id = user.id
         db.commit()
@@ -241,6 +243,8 @@ def download_calculation(req_id: int, db: Session, user: UserModel):
 
 def download_calculation_zip(req_id: int, db: Session, user: UserModel):
     db_request: RequestModel = db.query(RequestModel).filter(RequestModel.id == req_id).first()
+    # Potential security problem: logged-in user can modify url so that he is trying to
+    # download request with user_id = null, and this request will be assigned to him
     if db_request.user_id is None:
         db_request.user_id = user.id
         db.commit()
