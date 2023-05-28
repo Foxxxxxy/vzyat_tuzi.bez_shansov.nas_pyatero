@@ -16,7 +16,6 @@ from app.src.pieces.district.service import parse_district
 from app.src.pieces.industry.service import parse_industry
 from app.src.pieces.patent.service import parse_patents
 
-
 from app.src.pieces.user.router import router as auth_router, get_password_hash
 from app.src.pieces.calculation.router import router as calculation_router
 from app.src.pieces.equipment.router import router as equipment_router
@@ -61,24 +60,35 @@ app.include_router(additional_service_router)
 app.include_router(currency_router)
 app.include_router(district_router)
 
-
 level_to_name = {
     EUserLevel.user: 'user',
     EUserLevel.moderator: 'moderator',
     EUserLevel.admin: 'admin',
 }
 
+level_to_industry = {
+    EUserLevel.user: 1,
+    EUserLevel.moderator: 2,
+    EUserLevel.admin: 3,
+}
+
 
 def create_template_user_schema(level: EUserLevel):
     name = level_to_name[level]
+    industry_id = level_to_industry[level]
     return SignUpSchema(password=get_password_hash('12345678'),
-                          email=name,
-                          name=name,
-                          last_name=name,
-                          organisation_name=name,
-                          inn='123321',
-                          web_site='https://site.ru',
-                          level=level)
+                        email=name,
+                        name=name,
+                        last_name=name,
+                        fathers_name=name,
+                        organisation_name=name,
+                        industry_id=industry_id,
+                        country="Russia",
+                        city="Moscow",
+                        position="position",
+                        inn='123321',
+                        web_site='https://site.ru',
+                        level=level)
 
 
 def create_request_schema(industry_id, district_id, equipment_ids, additional_services_ids,
@@ -141,7 +151,6 @@ def fill_db(head_only: bool = False):
     schedule_currency_update("RUB")
 
 
-
 @app.on_event("startup")
 async def startup_event():
     """
@@ -155,6 +164,8 @@ async def startup_event():
 
 
 from app.src.pieces.equipment.service import parse_stanki
+
+
 @app.post("/parse")
 async def parse(db: Session = Depends(get_db)):
     parse_patents('patentirovanie_potencialniy_dohod_moskva.xlsx', db)
