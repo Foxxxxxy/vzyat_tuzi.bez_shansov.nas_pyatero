@@ -26,15 +26,16 @@ from app.src.pieces.currency.sheduled_update import schedule_currency_update
 from app.src.pieces.user.schemas import SignUpSchema, EUserLevel
 from app.src.pieces.user.service import create_user
 
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:8000",
-    "http://localhost:8080",
-    "http://176.59.54.18",
-    "http://176.59.54.18:80",
-    "http://176.59.54.18:443",
-]
+prefixes = ['http://', '', 'https://']
+bodies = ['localhost', 'smetaverse.ru', 'www.smetaverse.ru', '176.59.54.18']
+ports = [':80', ':443', ':3000', ':3030', ':8000', ':8080', '']
+
+origins = []
+
+for prefix in prefixes:
+    for body in bodies:
+        for port in ports:
+            origins.append(prefix + body + port)
 
 app = FastAPI()
 
