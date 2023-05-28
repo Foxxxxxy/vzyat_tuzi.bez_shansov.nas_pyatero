@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String
 from app.src.database.database import Base
 
 
-# todo nullable = True
 class UserModel(Base):
     __tablename__ = "users"
 

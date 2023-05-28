@@ -1,15 +1,10 @@
-from sqlalchemy.orm import Session
-
 from app.src.config import DATA_FOLDER_PATH
-from app.src.pieces.equipment.models import EquipmentModel
-from app.src.pieces.equipment.schemas import EquipmentCreationSchema
 import os
 from typing import Union
 
 from openpyxl import load_workbook
 from sqlalchemy.orm import Session
 
-from app.src.pieces.equipment.schemas import EquipmentCreationSchema
 from app.src.pieces.patent.models import PatentModel
 from app.src.pieces.patent.schemas import PatentCreationSchema
 
