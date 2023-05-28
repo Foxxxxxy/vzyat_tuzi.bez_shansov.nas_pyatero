@@ -39,7 +39,6 @@ const registrationStep = ref(1);
 const isValidStep = ref(false);
 
 const createCache = (user) => {
-  console.log("MAKE", user);
   localStorage.setItem('user', JSON.stringify(user));
 };
 
@@ -60,29 +59,28 @@ const login = async () => {
   setUserStore(form.email, form.password, level, user_id, access_token);
   createCache(store.$state.user);
   if (route.query.back) {
-      router.push('/' + route.query.back);
-    } else {
-      router.push('/');
-    }
+    router.push('/' + route.query.back);
+  } else {
+    router.push('/');
+  }
 };
 
 const signup = async () => {
-  //TODO ДОБАВИТЬ ПРОВЕРКУ ПО СТАТУСУ ЗАПРОСА
   const res = await register({ ...registrationForm });
+  if (res.status === 'error') return;
 
-  if (!res.detail) {
-    const { access_token, level, user_id } = await get_token(
-      res.email,
-      registrationForm.password
-    );
+  const tokenData = await get_token(res.email, registrationForm.password);
 
-    setUserStore(form.email, form.password, level, user_id, access_token);
+  if (tokenData.status !== 'error') {
+    const { email, level, user_id, access_token} = tokenData
+    setUserStore(email, registrationForm.password, level, user_id, access_token);
     createCache(store.$state.user);
-    if (route.query.back) {
-      router.push('/' + route.query.back);
-    } else {
-      router.push('/');
-    }
+  }
+
+  if (route.query.back) {
+    router.push('/' + route.query.back);
+  } else {
+    router.push('/');
   }
 };
 
@@ -109,7 +107,6 @@ const validate = (step) => {
     return false;
   }
   if (step === 2 && !registrationForm.inn.length) {
-
     return false;
   }
   if (

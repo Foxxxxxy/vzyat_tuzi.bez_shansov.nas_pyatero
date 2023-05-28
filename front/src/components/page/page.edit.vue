@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { CommonInput, CommonButton } from '../common';
 import { useStore } from '~/stores/stores.main';
 import { useRouter } from 'vue-router';
+import { getUserStatus } from '~/utils';
 
 const store = useStore();
 const router = useRouter();
@@ -65,6 +66,15 @@ const action = async () => {
     router.push(props.backUrl);
   }
 };
+
+const filterKey = computed(() => {
+  return props.blocks.filter(el => {
+    if (el.key === 'level') {
+      el.value = getUserStatus(el.value)
+    }
+    return el
+  })
+})
 </script>
 
 <template>
@@ -84,7 +94,7 @@ const action = async () => {
     </div>
     <div class="edit__content">
       <div class="edit__form">
-        <div class="edit__block" v-for="(block, index) of blocks" :key="index">
+        <div class="edit__block" v-for="(block, index) of filterKey" :key="index">
           <common-input
             :view-only="viewOnly"
             :label="block.name"

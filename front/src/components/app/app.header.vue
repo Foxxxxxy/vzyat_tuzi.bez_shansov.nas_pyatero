@@ -5,11 +5,12 @@ import { useStore } from '~/stores/stores.main';
 import { get_user_info } from '~/api/route.user';
 import { get_token } from '~/api/route.auth';
 
-import { useRouter } from 'vue-router';
-import { computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { computed, onMounted, onBeforeMount } from 'vue';
 
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
 
 const logout = () => {
   store.$state.user.token = null;
@@ -20,6 +21,10 @@ const logout = () => {
   store.$state.user.name = null;
 
   localStorage.removeItem('user');
+
+  if (route.path !== '/' || route.path !== '/review') {
+    router.push('/')
+  }
 };
 
 const name = computed(() => store.$state.user.name);
@@ -30,15 +35,14 @@ onMounted(async () => {
     : null;
   if (!user) return;
   const tokenData = await get_token(user.email, user.password);
-  if (tokenData.status !== 'error' && user) {
-    store.$state.user.email = user.email;
-    store.$state.user.password = user.password;
-    store.$state.user.level = user.level;
-    store.$state.user.user_id = user.user_id;
-    store.$state.user.token = user.token;
-  } else {
-    localStorage.removeItem('user');
+  if (tokenData.status !== 'error') {
+    store.$state.user.email = tokenData.email;
+    store.$state.user.password = tokenData.password;
+    store.$state.user.level = tokenData.level;
+    store.$state.user.user_id = tokenData.user_id;
+    store.$state.user.token = tokenData.access_token;
   }
+
   const data = await get_user_info(store.$state.user.token);
   if (data.status !== 'error') {
     store.$state.user.name = data.name;

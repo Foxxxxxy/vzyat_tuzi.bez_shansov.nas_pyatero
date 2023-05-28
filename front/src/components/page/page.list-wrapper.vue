@@ -9,6 +9,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from '~/stores/stores.main';
 import { useRouter, useRoute } from 'vue-router';
 import { PageEdit } from '~/components/page';
+import { getUserStatus } from '~/utils';
 
 const props = defineProps({
   listData: Array,
@@ -41,7 +42,9 @@ const route = useRoute();
 
 const store = useStore();
 
-const token = computed(() => store.$state.user.token);
+const token = computed(() => {
+  return store.$state.user.token
+});
 
 const isShowDeletePopup = ref(false);
 const currentItem = ref({});
@@ -63,7 +66,12 @@ const currentActionUrl = computed(() => {
 });
 
 const createTitle = (item) => {
-  return props.configInputs.map((el) => item[el.key]);
+  return props.configInputs.map((el) => {
+    if (el.key === 'level') {
+      return getUserStatus(item[el.key])
+    }
+    return item[el.key]
+  });
 };
 
 const createAdaptiveTitle = (item) => {

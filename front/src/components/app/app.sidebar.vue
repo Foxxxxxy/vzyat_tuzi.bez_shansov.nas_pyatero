@@ -106,7 +106,7 @@ const notauth_user = computed(() => {
   return navs.filter((item) => item.auth === false);
 });
 
-const isAuth = computed(() => store.$state.user.token)
+const isAuth = computed(() => !!store.$state.user.token)
 
 const return_navs = computed(() => {
   if (!isAuth.value) return notauth_user.value
