@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi.responses import FileResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.src.database.common import get_db
@@ -59,7 +60,10 @@ async def get_additional_services(skip: int = 0, limit: int = 100, db: Session =
 @router.post("/", response_model=AdditionalServiceSchema)
 async def add_additional_service(schema: AdditionalServiceCreationSchema,
                                  db: Session = Depends(get_db), user: UserModel = Depends(auth_admin)):
-    return additional_services_service.add_additional_service(db, schema)
+    try:
+        return additional_services_service.add_additional_service(db, schema)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Услуга с таким именем уже существует!")
 
 
 @router.put("/{id}", response_model=AdditionalServiceSchema)
