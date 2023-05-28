@@ -1,7 +1,7 @@
 import json
 import os
 
-from fpdf import FPDF
+from fpdf import FPDF, XPos, YPos
 from pypdf import PdfMerger, PdfReader
 import flatdict
 
@@ -27,11 +27,11 @@ class PdfCreator:
 
         self.constructed_pages = ["business_info_page",
                                   "employee_page",
-                                  "equipment_page",
-                                  "buildings_page",
                                   "rent_page",
                                   "taxes_page",
                                   "accounting_services_page",
+                                  "equipment_page",
+                                  "buildings_page",
                                   "additional_services_page"]
         self.pdfs_to_merge = [f"{self.util_files_dir}/title.pdf",
                               f"{self.util_files_dir}/greetings.pdf",
@@ -100,8 +100,10 @@ class PdfCreator:
         pdf_file.ln(2)
         with open(f"{self.text_files_dir}/{text_file_name}") as f:
             text = "\n".join(f.readlines())
-            pdf_file.multi_cell(w=130, txt=text, align='CENTER', markdown=True)
-        pdf_file.ln(2)
+            pdf_file.multi_cell(w=190, txt=text,
+                                align='CENTER', print_sh=False,
+                                max_line_height=pdf_file.font_size)
+        pdf_file.ln(3)
 
     def __construct_table_for_page(self, pdf_file: FPDF, table_config, horizontal_table=False):
         pdf_file.ln(2)
