@@ -25,23 +25,11 @@ const navs = [
     auth: false
   },
   {
-    name: 'Отчет',
+    name: 'Просмотр отчета',
     icon: IconSearch,
     to: '/review',
     level: 1,
     auth: false
-  },
-  {
-    name: 'Профиль',
-    icon: IconTeam,
-    to: '/profile',
-    level: 1,
-  },
-  {
-    name: 'Пользователи',
-    icon: IconUsers,
-    to: '/users',
-    level: 3,
   },
   {
     name: 'История',
@@ -50,31 +38,43 @@ const navs = [
     level: 1,
   },
   {
+    name: 'Профиль',
+    icon: IconTeam,
+    to: '/profile',
+    level: 1,
+  },
+  {
+    name: 'Список пользователей',
+    icon: IconUsers,
+    to: '/users',
+    level: 3,
+  },
+  {
     name: 'Все запросы',
     icon: IconRequests,
     to: '/all-requests',
     level: 3,
   },
   {
-    name: 'Оборудование',
+    name: 'Список оборудования',
     icon: IconEquipment,
     to: '/equipments',
     level: 3,
   },
   {
-    name: 'Здания',
+    name: 'Список зданий',
     icon: IconBuilding,
     to: '/buildings',
     level: 3,
   },
   {
-    name: 'Отрасли',
+    name: 'Список отраслей',
     icon: IconIndustry,
     to: '/industry',
     level: 3,
   },
   {
-    name: 'Разное',
+    name: 'Список услуг',
     icon: IconDifferent,
     to: '/additional',
     level: 3,

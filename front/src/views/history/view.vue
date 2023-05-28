@@ -12,13 +12,13 @@ const router = useRouter()
 const editableInputs = ref([
   {
     name: 'Имя',
-    key: 'user_id',
+    key: 'name',
     value: '',
     mark: '',
   },
   {
     name: 'Дата',
-    key: 'average_price_dollar',
+    key: 'timestamp',
     value: '',
     mark: ' $',
   },
@@ -33,7 +33,15 @@ const revert = async (item) => {
 };
 
 const functionWrapper = async (token) => {
-  return get_user_review(user_id.value, token)
+  const res = await get_user_review(user_id.value, token)
+  if (res.status !== 'error') {
+    const data = res[0]
+    data.forEach(item => {
+      item['name'] = res[1].name
+      return item
+    })
+    return data
+  }
 }
 </script>
 

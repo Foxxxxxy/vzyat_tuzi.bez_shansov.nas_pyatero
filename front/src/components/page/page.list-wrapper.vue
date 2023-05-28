@@ -70,6 +70,10 @@ const createTitle = (item) => {
     if (el.key === 'level') {
       return getUserStatus(item[el.key])
     }
+    if (el.key === 'timestamp') {
+      const date = new Date(item[el.key])
+      return date.getHours() + ":" + date.getMinutes() + ", "+ date.toDateString();
+    }
     return item[el.key]
   });
 };

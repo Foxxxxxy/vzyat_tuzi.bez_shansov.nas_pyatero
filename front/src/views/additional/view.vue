@@ -47,7 +47,7 @@ const changeFiles = async (e) => {
     :edit-action="edit_current_additional"
     :add-action="add_new_additional"
     :config-inputs="editableInputs"
-    page-title="Разное"
+    page-title="Список услуг"
     add-title="Создать"
   />
 </template>

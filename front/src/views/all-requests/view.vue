@@ -10,14 +10,14 @@ const router = useRouter()
 
 const editableInputs = ref([
   {
-    name: 'Отрасль',
-    key: 'industry',
+    name: 'Имя',
+    key: 'name',
     value: '',
     mark: '',
   },
   {
-    name: 'Средняя стоимость, в долл',
-    key: 'average_price_dollar',
+    name: 'Дата',
+    key: 'timestamp',
     value: '',
     mark: ' $',
   },
@@ -28,13 +28,26 @@ const revert = async (item) => {
   store.result = {...data}
   router.push('/review')
 };
+
+const functionWrapper = async (token) => {
+  const res = await get_calculations(token)
+  if (res.status !== 'error') {
+    const res_data = []
+    res.forEach(item => {
+      item[0]['name'] = item[1].name
+      res_data.push(item[0])
+      return item
+    })
+    return res_data
+  }
+}
 </script>
 
 <template>
   <page-list-wrapper
     page-title="История всех запросов"
     variant="calculation"
-    :get-all-action="get_calculations"
+    :get-all-action="functionWrapper"
     :config-inputs="editableInputs"
     :view-only="true"
     @revert-calculation="revert"

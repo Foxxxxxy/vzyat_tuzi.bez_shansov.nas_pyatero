@@ -1,9 +1,15 @@
 <script setup>
-import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
+import {
+  CommonPopup,
+  CommonButton,
+  CommonInput,
+  CommonHelpinput,
+} from '~/components/common';
 import { reactive, ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { get_token, register } from '~/api/route.auth.js';
 import { useStore } from '~/stores/stores.main';
+import { get_industry_suggestion } from '~/api/route.industry';
 
 const router = useRouter();
 const route = useRoute();
@@ -16,7 +22,7 @@ const form = reactive({
 
 const registrationForm = reactive({
   name: '',
-  surname: '',
+  fathers_name: '',
   last_name: '',
   email: '',
   organisation_name: '',
@@ -25,9 +31,17 @@ const registrationForm = reactive({
   type_of_work: '',
   country: '',
   city: '',
-  work_position: '',
+  position: '',
   level: 1,
   password: '',
+  industry: {
+    input_type: 'suggestion',
+    type: 'industry',
+    value: '',
+    chosen_id: null,
+    route: get_industry_suggestion,
+    suggestions: [],
+  },
 });
 
 const isShowPopup = ref(false);
@@ -66,14 +80,23 @@ const login = async () => {
 };
 
 const signup = async () => {
-  const res = await register({ ...registrationForm });
+  const res = await register({
+    ...registrationForm,
+    industry_id: registrationForm.industry.chosen_id,
+  });
   if (res.status === 'error') return;
 
   const tokenData = await get_token(res.email, registrationForm.password);
 
   if (tokenData.status !== 'error') {
-    const { email, level, user_id, access_token} = tokenData
-    setUserStore(email, registrationForm.password, level, user_id, access_token);
+    const { email, level, user_id, access_token } = tokenData;
+    setUserStore(
+      email,
+      registrationForm.password,
+      level,
+      user_id,
+      access_token
+    );
     createCache(store.$state.user);
   }
 
@@ -139,7 +162,31 @@ const handlePopup = (isAgree) => {
   updateCache();
 };
 
-onMounted(() => {
+const updateSuggestion = async (key, index) => {
+  if (index >= 0) {
+    const block = registrationForm[key][index];
+    block.suggestions = [...(await block.route(block.value, 0, 100))];
+    return;
+  }
+};
+
+const setSuggestions = (suggestion, key, index) => {
+  if (index >= 0) {
+    return (registrationForm[key][index].chosen_id = suggestion.id);
+  }
+  registrationForm[key].chosen_id = suggestion.id;
+};
+
+const getAllSuggestions = async () => {
+  for (let key in registrationForm) {
+    const block = registrationForm[key];
+    if (block.input_type === 'suggestion' && block.type !== 'org_type') {
+      block.suggestions = [...(await block.route(block.value, 0, 100))];
+    }
+  }
+};
+
+onMounted(async () => {
   const isShownPopup = localStorage.getItem('popup_shown');
   if (!isShownPopup) {
     isShowPopup.value = true;
@@ -147,6 +194,8 @@ onMounted(() => {
   if (route.query.step === 'registration') {
     step.value = 'registration';
   }
+
+  await getAllSuggestions();
 });
 </script>
 
@@ -222,8 +271,8 @@ onMounted(() => {
         <div class="auth-modal__step" v-show="registrationStep === 1">
           <div class="auth-modal__block">
             <common-input
-              v-model="registrationForm.surname"
-              :value="registrationForm.surname"
+              v-model="registrationForm.last_name"
+              :value="registrationForm.last_name"
               class="auth-modal__input"
               label="Фамилия"
             />
@@ -239,8 +288,8 @@ onMounted(() => {
           </div>
           <div class="auth-modal__block">
             <common-input
-              v-model="registrationForm.last_name"
-              :value="registrationForm.last_name"
+              v-model="registrationForm.fathers_name"
+              :value="registrationForm.fathers_name"
               class="auth-modal__input"
               label="Отчество"
             />
@@ -275,11 +324,14 @@ onMounted(() => {
             />
           </div>
           <div class="auth-modal__block">
-            <common-input
-              v-model="registrationForm.type_of_work"
-              :value="registrationForm.type_of_work"
+            <common-helpinput
+              v-model="registrationForm.industry.value"
               class="auth-modal__input"
               label="Отрасль ведения хозяйственной деятельности"
+              :value="registrationForm.industry.value"
+              :suggestions="registrationForm.industry.suggestions"
+              @input="updateSuggestion('industry')"
+              @set-item="(item) => setSuggestions(item, 'industry')"
             />
           </div>
         </div>
@@ -302,8 +354,8 @@ onMounted(() => {
           </div>
           <div class="auth-modal__block">
             <common-input
-              v-model="registrationForm.work_position"
-              :value="registrationForm.work_position"
+              v-model="registrationForm.position"
+              :value="registrationForm.position"
               class="auth-modal__input"
               label="Должность"
             />

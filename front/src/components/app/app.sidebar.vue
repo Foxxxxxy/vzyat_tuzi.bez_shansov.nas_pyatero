@@ -33,6 +33,12 @@ const navs = [
     auth: false
   },
   {
+    name: 'История',
+    icon: IconHistory,
+    to: '/history',
+    level: 1,
+  },
+  {
     name: 'Профиль',
     icon: IconTeam,
     to: '/profile',
@@ -43,12 +49,6 @@ const navs = [
     icon: IconUsers,
     to: '/users',
     level: 3,
-  },
-  {
-    name: 'История',
-    icon: IconHistory,
-    to: '/history',
-    level: 1,
   },
   {
     name: 'Все запросы',
@@ -75,7 +75,7 @@ const navs = [
     level: 3,
   },
   {
-    name: 'Разное',
+    name: 'Список услуг',
     icon: IconDifferent,
     to: '/additional',
     level: 3,

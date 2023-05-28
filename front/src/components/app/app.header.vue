@@ -63,7 +63,9 @@ onMounted(async () => {
     </h1>
     <h1 class="header__title header__title--md">Smetaverse</h1>
     <div class="user" v-if="name">
-      <h3 class="user__name">{{ name }}</h3>
+      <h3 class="user__name" v-if="name">
+        <router-link to="/profile">{{ name }}</router-link>
+      </h3>
       <div @click="logout" class="user__logout">
         <icon-wrapper width="30" height="30">
           <icon-logout />

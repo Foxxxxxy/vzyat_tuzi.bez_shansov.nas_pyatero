@@ -5,14 +5,26 @@ import { ref } from 'vue';
 
 const editableInputs = ref([
   {
-    name: 'Фамилия',
-    key: 'last_name',
+    name: 'Email',
+    key: 'email',
     value: '',
     mark: '',
   },
   {
     name: 'Имя',
     key: 'name',
+    value: '',
+    mark: '',
+  },
+  {
+    name: 'Фамилия',
+    key: 'last_name',
+    value: '',
+    mark: '',
+  },
+  {
+    name: 'Отчество',
+    key: 'fathers_name',
     value: '',
     mark: '',
   },
@@ -25,6 +37,12 @@ const editableInputs = ref([
   {
     name: 'Наименование организации',
     key: 'organisation_name',
+    value: '',
+    mark: '',
+  },
+  {
+    name: 'Должность',
+    key: 'position',
     value: '',
     mark: '',
   },

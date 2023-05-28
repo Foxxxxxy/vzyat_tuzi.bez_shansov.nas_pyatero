@@ -38,8 +38,13 @@ export function register({
   name,
   last_name,
   organisation_name,
+  fathers_name,
   inn,
   web_site,
+  industry_id,
+  country,
+  city,
+  position
 } = {}) {
   return xfetch.$post(
     `${SERVER_ENDPOINT}/user/sign_up`,
@@ -52,6 +57,11 @@ export function register({
       organisation_name,
       inn,
       web_site,
+      fathers_name,
+      industry_id,
+      country,
+      city,
+      position
     },
     { token: null }
   );
