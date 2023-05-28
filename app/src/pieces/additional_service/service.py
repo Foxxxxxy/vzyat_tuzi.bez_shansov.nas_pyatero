@@ -1,9 +1,12 @@
 import io
+import os
 from tempfile import SpooledTemporaryFile
+from typing import Union
 
 from openpyxl.reader.excel import load_workbook
 from sqlalchemy import func, text
 
+from app.src.config import DATA_FOLDER_PATH
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.additional_service.schemas import AdditionalServiceCreationSchema
 from sqlalchemy.orm import Session
@@ -69,3 +72,18 @@ async def upload_additional_services_excel_to_db(file: SpooledTemporaryFile, ref
     for row in worksheet.iter_rows(min_row=2):
         schema = AdditionalServiceCreationSchema(name=row[0].value, average_price_dollar=float(row[1].value))
         add_additional_service(db, schema)
+
+
+def parse_additional_services(filename: str, db: Session, only_first: Union[int, None] = None):
+    if only_first is not None:
+        only_first += 2
+
+    file_path = os.path.join(DATA_FOLDER_PATH, filename)
+    workbook = load_workbook(file_path, data_only=True)
+    worksheet = workbook.active
+
+    for row in worksheet.iter_rows(min_row=2, max_row=only_first, max_col=5, values_only=True):
+        if row[2] is None or row[2] == '-':
+            continue
+        schema = AdditionalServiceCreationSchema(name=row[1], average_price_dollar=float(row[2]))
+        res = add_additional_service(db, schema)

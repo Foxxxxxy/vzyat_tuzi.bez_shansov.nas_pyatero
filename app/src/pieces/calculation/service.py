@@ -4,11 +4,9 @@ from os.path import basename
 from datetime import datetime
 from typing import Union, Tuple
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.src.common import round_floats
-from app.src.database.common import get_db
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.building.models import BuildingModel
 from app.src.pieces.calculation.models import RequestModel

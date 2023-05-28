@@ -1,12 +1,8 @@
 import datetime
 
-from fastapi import Depends
 from pydantic import BaseModel
 from typing import Optional, Union
 
-from sqlalchemy.orm import Session
-
-from app.src.database.common import get_db
 from app.src.pieces.additional_service.models import AdditionalServiceModel
 from app.src.pieces.additional_service.schemas import AdditionalServiceSchema
 from app.src.pieces.building.models import BuildingModel
