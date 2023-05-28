@@ -5,6 +5,7 @@ const props = defineProps({
   titles: Array,
   idx: Number,
   item: Object,
+  immediateClick: Boolean
 });
 
 const emit = defineEmits(['edit', 'remove']);
@@ -16,10 +17,15 @@ const edit = () => {
 const remove = () => {
   emit('remove', props.item);
 };
+
+const immediate = () => {
+  if (!props.immediateClick) return
+  emit('edit', props.item);
+}
 </script>
 
 <template>
-  <div class="row" :class="{ double: idx % 2 === 0 }">
+  <div class="row" @click="immediate" :class="{ double: idx % 2 === 0, cursor: immediateClick }">
     <div class="row__content">
       <p class="row__name" v-for="(title, idx) of titles" :key="idx">
         <p class="row__title">{{ title.name }}:</p>

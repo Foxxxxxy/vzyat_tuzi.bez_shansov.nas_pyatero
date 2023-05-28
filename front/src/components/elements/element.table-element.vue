@@ -5,6 +5,7 @@ const props = defineProps({
   titles: Array,
   idx: Number,
   item: Object,
+  immediateClick: Boolean
 });
 
 const emit = defineEmits(['edit', 'remove']);
@@ -12,6 +13,11 @@ const emit = defineEmits(['edit', 'remove']);
 const edit = () => {
   emit('edit', props.item);
 };
+
+const immediate = () => {
+  if (!props.immediateClick) return
+  emit('edit', props.item);
+}
 
 const remove = () => {
   emit('remove', props.item);
@@ -21,7 +27,8 @@ const remove = () => {
 <template>
   <div
     class="row"
-    :class="{ double: idx % 2 === 0 }"
+    @click="immediate"
+    :class="{ double: idx % 2 === 0, cursor: immediateClick }"
     :style="{ gridTemplateColumns: `repeat(${titles.length}, 1fr) 40px 40px` }"
   >
     <p class="row__name" v-for="(title, idx) of titles" :key="idx">
@@ -44,7 +51,9 @@ const remove = () => {
   border-radius: 5px;
   border: 1px solid transparent;
   align-items: center;
-  cursor: pointer;
+  &.cursor {
+    cursor: pointer;
+  }
   &:hover {
     border: 1px solid $accent-purple;
   }

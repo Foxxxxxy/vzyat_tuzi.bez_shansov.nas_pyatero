@@ -38,6 +38,9 @@
     font-weight: bold;
     opacity: 0;
     transition: 0.3s ease opacity;
+    @include md {
+      font-size: 17px;
+    }
     &--active {
       opacity: 1;
     }
@@ -107,6 +110,10 @@
     justify-content: center;
     align-items: center;
     animation: spin 3s ease-in-out infinite;
+    // @include md {
+    //   width: 20px;
+    //   height: 20px;
+    // }
   }
   &__wrapper {
     display: flex;

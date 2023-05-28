@@ -61,6 +61,7 @@ const editableInputs = ref([
     :get-current-action="get_current_user"
     :config-inputs="editableInputs"
     :view-only="true"
+    :immediate-click="true"
     page-title="Список пользователей"
   />
 </template>

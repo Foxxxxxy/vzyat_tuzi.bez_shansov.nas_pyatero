@@ -50,6 +50,7 @@ const functionWrapper = async (token) => {
     :get-all-action="functionWrapper"
     :config-inputs="editableInputs"
     :view-only="true"
+    :immediate-click="true"
     @revert-calculation="revert"
   />
 </template>

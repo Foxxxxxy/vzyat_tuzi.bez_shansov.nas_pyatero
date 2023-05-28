@@ -24,6 +24,7 @@ const props = defineProps({
   pageTitle: String,
   viewOnly: Boolean,
   refresh: Boolean,
+  immediateClick: Boolean,
   variant: {
     type: String,
     default: () => 'default',
@@ -232,6 +233,7 @@ onMounted(async () => {
         :idx="idx"
         :titles="createTitle(item)"
         :item="item"
+        :immediate-click="immediateClick"
         @edit="edit(item)"
         @remove="handleRemove"
       />
@@ -244,6 +246,7 @@ onMounted(async () => {
         :idx="idx"
         :titles="createAdaptiveTitle(item)"
         :item="item"
+        :immediate-click="immediateClick"
         @edit="edit(item)"
         @remove="handleRemove"
       />
