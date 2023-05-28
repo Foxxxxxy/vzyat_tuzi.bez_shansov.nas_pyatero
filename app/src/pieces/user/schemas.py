@@ -23,7 +23,7 @@ class SignUpSchema(BaseModel):
     web_site: str
 
     fathers_name: str
-    industry_id: Optional[int, None] = None
+    industry_id: Optional[int] = None
     country: str
     city: str
     position: str
@@ -41,7 +41,7 @@ class UserOutputSchema(BaseModel):
     web_site: str
 
     fathers_name: str
-    industry_id: Optional[int, None] = None
+    industry_id: Optional[int] = None
     country: str
     city: str
     position: str
