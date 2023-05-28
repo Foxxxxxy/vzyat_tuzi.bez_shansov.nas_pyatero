@@ -192,3 +192,5 @@ class CalculationPreparedDataSchema(BaseModel):
     # additional needs
     additional_needs: list[AdditionalNeedCalculationSchema]
     total_additional_needs_expenses: float
+
+    total_additional_expenses: float

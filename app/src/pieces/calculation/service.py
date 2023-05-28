@@ -203,6 +203,12 @@ def _handle_calculation(form: CalculationCreateRequestSchema, db: Session) -> Ca
     calculation_prepared_data["total_additional_needs_expenses"] = sum(it.price for it in additional_needs)
     calculation_prepared_data["total_expenses"] += calculation_prepared_data["total_additional_needs_expenses"]
 
+    calculation_prepared_data["total_additional_expenses"] = \
+        calculation_prepared_data["total_additional_services_expenses"] + \
+        calculation_prepared_data["total_additional_needs_expenses"]
+
+    calculation_prepared_data["total_expenses"] = 0.0
+
     return CalculationPreparedDataSchema(**calculation_prepared_data)
 
 
