@@ -27,7 +27,8 @@ services:
     build:
       context: ./front
     ports:
-      - '8000:80'
+      - '443:443'
+      - '80:80'
     volumes:
       - './front:/app'
 
