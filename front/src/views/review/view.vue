@@ -415,7 +415,7 @@ onMounted(() => {
             >
           </p>
         </div>
-        <div class="result__section">
+        <div class="result__section" v-if="result.additional_services.length">
           <div class="result__subtitle">Дополнительные услуги</div>
           <div class="result__grid" v-if="windowInner > 768">
             <div class="result__grid-wrapper">
@@ -480,7 +480,7 @@ onMounted(() => {
             >
           </p>
         </div>
-        <div class="result__section">
+        <div class="result__section" v-if="result.additional_needs.length">
           <div class="result__subtitle">Дополнительные пользовательские услуги</div>
           <div class="result__grid" v-if="windowInner > 768">
             <div class="result__grid-wrapper">

@@ -10,6 +10,7 @@ import {
 import { get_equipment_suggestion } from '~/api/route.equipment';
 import { get_building_suggestion } from '~/api/route.building';
 import { get_industry_suggestion } from '~/api/route.industry';
+import { get_district_suggestion } from '~/api/route.district';
 import { get_additional_suggestion } from '~/api/route.additional';
 import { create_calculation } from '~/api/route.calculation';
 import { useStore } from '~/stores/stores.main';
@@ -27,6 +28,15 @@ const form = reactive({
     value: '',
     chosen_id: null,
     route: get_industry_suggestion,
+    suggestions: [],
+  },
+
+  district: {
+    input_type: 'suggestion',
+    type: 'district',
+    value: '',
+    chosen_id: null,
+    route: get_district_suggestion,
     suggestions: [],
   },
 
@@ -241,8 +251,7 @@ const deleteItem = (key, idx) => {
 const submit = async () => {
   const data = {
     industry_id: form.industry.chosen_id,
-    subindustry_id: 1, // УДАЛИТЬ
-    district_id: 1, // IN PROGRESS
+    district_id: form.district.chosen_id,
     employee_amount: +form.employee_amount.value,
     building_area_size: +form.building_area_size.value,
     land_area_size: +form.land_area_size.value,
@@ -405,7 +414,7 @@ onMounted(async () => {
               label="Предполагаемый доход в год, руб"
             />
           </div>
-          <div class="home-modal__block home-modal__block--fluid">
+          <!-- <div class="home-modal__block home-modal__block--fluid">
             <common-input
               value="Не выбран"
               class="home-modal__input"
@@ -413,6 +422,17 @@ onMounted(async () => {
               :view-only="true"
             />
             <common-button @click="openMap">Выбрать округ</common-button>
+          </div> -->
+          <div class="home-modal__block">
+            <common-helpinput
+              v-model="form.district.value"
+              class="home-modal__input"
+              label="Выбрать округ"
+              :value="form.district.value"
+              :suggestions="form.district.suggestions"
+              @input="updateSuggestion('district')"
+              @set-item="(item) => setSuggestions(item, 'district')"
+            />
           </div>
           <div class="home-modal__block">
             <common-multiply-input

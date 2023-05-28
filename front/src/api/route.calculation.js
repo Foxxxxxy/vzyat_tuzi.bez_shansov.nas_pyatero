@@ -4,7 +4,6 @@ import { download_file } from './route.common';
 
 export function create_calculation({
   industry_id,
-  subindustry_id,
   district_id,
   employee_amount,
   building_area_size,
@@ -22,7 +21,6 @@ export function create_calculation({
     {
       buildings,
       industry_id,
-      subindustry_id,
       district_id,
       employee_amount,
       building_area_size,
