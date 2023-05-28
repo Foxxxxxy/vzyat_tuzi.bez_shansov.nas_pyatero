@@ -4,8 +4,8 @@ import { CommonInput, CommonButton } from '../common';
 import { useStore } from '~/stores/stores.main';
 import { useRouter } from 'vue-router';
 
-const store = useStore()
-const router = useRouter()
+const store = useStore();
+const router = useRouter();
 
 const props = defineProps({
   blocks: Array,
@@ -13,51 +13,58 @@ const props = defineProps({
   actionUrl: Function,
   viewOnly: {
     type: Boolean,
-    default: () => false
+    default: () => false,
   },
   backUrl: {
     type: String,
-    default: () => ''
+    default: () => '',
   },
   action: {
     type: String,
-    default: () => 'edit'
-  }
+    default: () => 'edit',
+  },
 });
 
-const token = computed(() => store.$state.user.token)
+const token = computed(() => store.$state.user.token);
 
 const computedButtonTitle = computed(() => {
   if (props.action === 'edit') {
-    return 'Сохранить'
+    return 'Сохранить';
   }
-  return 'Создать'
-})
+  return 'Создать';
+});
 
 const computedTitle = computed(() => {
   if (props.viewOnly) {
-    return "Просмотр"
+    return 'Просмотр';
   }
   if (props.action === 'edit') {
-    return 'Редактирование'
+    return 'Редактирование';
   }
-  return 'Создание'
-})
+  return 'Создание';
+});
 
 const action = async () => {
-  const formattedObject = {}
-    props.blocks.forEach(item => {
-      formattedObject[item.key] = item.value
-    })
+  const formattedObject = {};
+  props.blocks.forEach((item) => {
+    formattedObject[item.key] = item.value;
+  });
   if (props.action === 'edit') {
-    await props.actionUrl(props.item.id, {...formattedObject}, token.value)
-    router.push(props.backUrl)
-    return
+    const data = await props.actionUrl(
+      props.item.id,
+      { ...formattedObject },
+      token.value
+    );
+    if (data.status !== 'error') {
+      router.push(props.backUrl);
+      return;
+    }
   }
-  await props.actionUrl({...formattedObject}, token.value)
-  router.push(props.backUrl)
-}
-
+  const data = await props.actionUrl({ ...formattedObject }, token.value);
+  if (data.status !== 'error') {
+    router.push(props.backUrl);
+  }
+};
 </script>
 
 <template>
@@ -65,7 +72,9 @@ const action = async () => {
     <div class="edit__header">
       <h1 class="edit__title">{{ computedTitle }}</h1>
       <div class="edit__buttons">
-        <common-button v-if="!viewOnly" @click="action" class="edit__button"> {{ computedButtonTitle }} </common-button>
+        <common-button v-if="!viewOnly" @click="action" class="edit__button">
+          {{ computedButtonTitle }}
+        </common-button>
         <router-link :to="backUrl">
           <common-button variant="outlined" class="edit__button">
             Назад

@@ -39,6 +39,7 @@ const registrationStep = ref(1);
 const isValidStep = ref(false);
 
 const createCache = (user) => {
+  console.log("MAKE", user);
   localStorage.setItem('user', JSON.stringify(user));
 };
 
@@ -108,6 +109,7 @@ const validate = (step) => {
     return false;
   }
   if (step === 2 && !registrationForm.inn.length) {
+
     return false;
   }
   if (
@@ -259,10 +261,12 @@ onMounted(() => {
           <div class="auth-modal__block">
             <common-input
               v-model="registrationForm.inn"
-              :value="registrationForm.inn"
               class="auth-modal__input"
+              :value="registrationForm.inn"
               :required="true"
               label="ИНН"
+              max-length="10"
+              type="number"
             />
           </div>
           <div class="auth-modal__block">

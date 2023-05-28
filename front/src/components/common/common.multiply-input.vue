@@ -1,8 +1,5 @@
 <script setup>
-import {
-  CommonInput,
-  CommonHelpinput,
-} from '~/components/common';
+import { CommonInput, CommonHelpinput } from '~/components/common';
 import { IconPlus } from '~/components/icons';
 
 const props = defineProps({
@@ -10,27 +7,32 @@ const props = defineProps({
   block: Array,
   labelMain: String,
   labelCount: String,
-  noSelect: Boolean
-})
+  noSelect: Boolean,
+  inputOnly: Boolean,
+});
 
-const emit = defineEmits(['add', 'delete', 'updateSuggestion', 'setSuggestions'])
+const emit = defineEmits([
+  'add',
+  'delete',
+  'updateSuggestion',
+  'setSuggestions',
+]);
 
 const addMore = () => {
-  emit('add', props.suggestionKey, props.block[0].route)
-}
+  emit('add', props.suggestionKey, props.block[0].route);
+};
 
 const deleteItem = () => {
-  emit('delete', props.suggestionKey, props.block.length - 1)
-}
+  emit('delete', props.suggestionKey, props.block.length - 1);
+};
 
 const updateSuggestion = (type, index) => {
-  emit('updateSuggestion', type, index)
-}
+  emit('updateSuggestion', type, index);
+};
 
 const setSuggestions = (item, type, index) => {
-  emit('setSuggestions', item, type, index)
-}
-
+  emit('setSuggestions', item, type, index);
+};
 </script>
 
 <template>
@@ -51,9 +53,10 @@ const setSuggestions = (item, type, index) => {
         @set-item="(item) => setSuggestions(item, suggestionKey, index)"
       />
       <common-input
+        v-if="!inputOnly"
         v-model.number="item.count"
+        type="number"
         :value="item.count"
-        class="home-modal__input"
         :label="index > 0 ? '' : labelCount"
       />
     </div>

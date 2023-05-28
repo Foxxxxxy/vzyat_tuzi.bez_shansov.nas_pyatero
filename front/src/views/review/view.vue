@@ -1,24 +1,36 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
 import { useStore } from '~/stores/stores.main';
-import { download_pdf } from '~/api/route.calculation';
+import { download_pdf, download_detailed_pdf } from '~/api/route.calculation';
 
-const store = useStore()
-const isLoggedIn = computed(() => !!store.$state.user.token)
+const store = useStore();
+const isLoggedIn = computed(() => !!store.$state.user.token);
 
-const result = computed(() => store.$state.result)
+const windowInner = ref(window.innerWidth);
+
+const result = computed(() => store.$state.result);
 
 const download = () => {
-  download_pdf(result.value.request_id, store.$state.user.token)
-}
+  download_pdf(result.value.request_id, store.$state.user.token);
+};
+
+const downloadDetailed = () => {
+  download_detailed_pdf(result.value.request_id, store.$state.user.token);
+};
 
 const returnLegal = (legal) => {
-  if (legal === "OOO_AO") {
-    return "ООО"
+  if (legal === 'OOO_AO') {
+    return 'ООО';
   }
-  return "ИП"
-}
+  return 'ИП';
+};
+
+onMounted(() => {
+  window.addEventListener('resize', (e) => {
+    windowInner.value = window.innerWidth;
+  });
+});
 </script>
 
 <template>
@@ -26,10 +38,27 @@ const returnLegal = (legal) => {
     <div class="result__content" v-if="result">
       <header class="result__header">
         <h1 class="result__title">Предпросмотр отчета</h1>
-        <common-button v-if="isLoggedIn" @click="download" variant="outlined" class="result__button">СКАЧАТЬ ОТЧЕТ</common-button>
-        <router-link to="/auth?back=review" v-else>
-          <common-button variant="outlined" class="result__button">Войдите, чтобы скачать отчет</common-button>
-        </router-link>
+        <div class="result__buttons">
+          <common-button
+            v-if="isLoggedIn"
+            @click="download"
+            variant="outlined"
+            class="result__button"
+            >СКАЧАТЬ ОТЧЕТ</common-button
+          >
+          <router-link to="/auth?back=review" v-else>
+            <common-button variant="outlined" class="result__button"
+              >Войдите, чтобы скачать отчет</common-button
+            >
+          </router-link>
+          <common-button
+            v-if="isLoggedIn"
+            @click="downloadDetailed"
+            variant="outlined"
+            class="result__button"
+            >СКАЧАТЬ ПОДРОБНЫЙ ОТЧЕТ</common-button
+          >
+        </div>
       </header>
       <main class="result__main">
         <div class="result__section">
@@ -202,7 +231,7 @@ const returnLegal = (legal) => {
         </div>
         <div class="result__section">
           <div class="result__subtitle">Здания</div>
-          <div class="result__grid">
+          <div class="result__grid" v-if="windowInner > 768">
             <div class="result__grid-wrapper">
               <div class="result__row result__row--4">
                 <div class="result__column">
@@ -244,6 +273,48 @@ const returnLegal = (legal) => {
               </div>
             </div>
           </div>
+          <div class="result__grid" v-else>
+            <div
+              class="result__grid-wrapper"
+              v-for="(item, index) of result.buildings"
+              :key="index"
+            >
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Средняя стоимость</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Площадь</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.building.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.building.average_price_rub }} руб.
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">{{ item.area }} м2</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.total_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
           <p class="result__section-sum">
             Итого расходы:
             <span class="result__section-sumval"
@@ -253,7 +324,7 @@ const returnLegal = (legal) => {
         </div>
         <div class="result__section">
           <div class="result__subtitle">Оборудование</div>
-          <div class="result__grid">
+          <div class="result__grid" v-if="windowInner > 768">
             <div class="result__grid-wrapper">
               <div class="result__row result__row--4">
                 <div class="result__column">
@@ -295,6 +366,48 @@ const returnLegal = (legal) => {
               </div>
             </div>
           </div>
+          <div v-else class="result__grid">
+            <div
+              class="result__grid-wrapper"
+              v-for="(item, index) of result.equipments"
+              :key="index"
+            >
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Средняя стоимость</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Количество</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div class="result__row result__row--4">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.equipment.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.equipment.average_price_dollar }} $
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">{{ item.amount }} шт.</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.total_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
           <p class="result__section-sum">
             Итого расходы:
             <span class="result__section-sumval"
@@ -304,7 +417,7 @@ const returnLegal = (legal) => {
         </div>
         <div class="result__section">
           <div class="result__subtitle">Дополнительные услуги</div>
-          <div class="result__grid">
+          <div class="result__grid" v-if="windowInner > 768">
             <div class="result__grid-wrapper">
               <div class="result__row">
                 <div class="result__column">
@@ -332,10 +445,103 @@ const returnLegal = (legal) => {
               </div>
             </div>
           </div>
+          <div class="result__grid" v-else>
+            <div
+              class="result__grid-wrapper"
+              v-for="(item, index) of result.additional_services"
+              :key="index"
+            >
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.additional_service.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.total_expenses }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
           <p class="result__section-sum">
             Итого расходы:
             <span class="result__section-sumval"
               >{{ result.total_additional_services_expenses }} руб.</span
+            >
+          </p>
+        </div>
+        <div class="result__section">
+          <div class="result__subtitle">Дополнительные пользовательские услуги</div>
+          <div class="result__grid" v-if="windowInner > 768">
+            <div class="result__grid-wrapper">
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div
+                class="result__row"
+                v-for="(item, index) of result.additional_needs"
+                :key="index"
+              >
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.price }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="result__grid" v-else>
+            <div
+              class="result__grid-wrapper"
+              v-for="(item, index) of result.additional_needs"
+              :key="index"
+            >
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-title">Тип</p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-title">Стоимость</p>
+                </div>
+              </div>
+              <div class="result__row">
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.name }}
+                  </p>
+                </div>
+                <div class="result__column">
+                  <p class="result__grid-value">
+                    {{ item.price }} руб.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="result__section-sum">
+            Итого расходы:
+            <span class="result__section-sumval"
+              >{{ result.total_additional_needs_expenses }} руб.</span
             >
           </p>
         </div>
@@ -434,7 +640,7 @@ const returnLegal = (legal) => {
       padding-bottom: 10px;
       @include md {
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: none
+        grid-template-rows: none;
       }
     }
     &-title {
@@ -578,7 +784,14 @@ const returnLegal = (legal) => {
       left: 0;
     }
   }
+  &__buttons {
+    flex-direction: column;
+  }
   &__button {
+    width: 100%;
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
     @include md {
       margin-left: 10px;
     }

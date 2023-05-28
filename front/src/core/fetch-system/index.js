@@ -8,8 +8,8 @@
  */
 
 async function $fetch({ path, body, method, headers, type, is_file }, ...args) {
-  try {
-    const f = await fetch(path, {
+  return new Promise((resolve, reject) => {
+    fetch(path, {
       body:
         type === 'application/json;charset=utf-8' ? JSON.stringify(body) : body,
       method,
@@ -19,19 +19,17 @@ async function $fetch({ path, body, method, headers, type, is_file }, ...args) {
       },
       ...args,
     })
-    if (!f.ok) return null
-    if (!is_file) {
-      const parsed = await f.json()
-      parsed.status = f.status
-      return parsed
-    }
-    return f
-  } catch (e) {
-    console.log('[FETCH ERROR]', e)
-    return {
-      status: 400,
-    }
-  }
+      .then(res => {
+        if (!res.ok) {
+          resolve({ status: 'error' })
+        } else {
+          resolve(res.json())
+        }
+      })
+      .catch(e => {
+        console.log('[FETCH ERROR]', e)
+      })
+  })
 }
 
 export class xfetch {

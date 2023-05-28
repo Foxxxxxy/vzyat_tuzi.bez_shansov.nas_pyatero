@@ -45,6 +45,13 @@ export function download_pdf(req_id, token) {
   })
 }
 
+export function download_detailed_pdf(req_id, token) {
+  return new Promise((resolve, reject) => {
+    const url = `${SERVER_ENDPOINT}/calculation/${req_id}/download-zip`
+    download_file(url, token, (status) => resolve(status))
+  })
+}
+
 export function get_calculations({ token } = {}) {
   return xfetch.$get(`${SERVER_ENDPOINT}/calculation`, { token });
 }

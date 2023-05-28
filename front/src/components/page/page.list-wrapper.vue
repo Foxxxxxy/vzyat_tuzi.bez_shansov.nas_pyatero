@@ -83,7 +83,10 @@ const edit = (item) => {
 };
 
 const remove = async () => {
-  await props.deleteAction(currentItem.value.id, token.value);
+  const data = await props.deleteAction(currentItem.value.id, token.value);
+  if (data.status === 'error') {
+    return
+  }
   isShowDeletePopup.value = false;
   listData.value = listData.value.filter(
     (item) => item.id !== currentItem.value.id
@@ -112,6 +115,9 @@ const updateCurrentItem = async () => {
     const data = await props.getCurrentAction(currentRouteId.value, {
       token: token.value,
     });
+    if (data.status === 'error') {
+      return
+    }
     currentItem.value = { ...data };
   }
 };

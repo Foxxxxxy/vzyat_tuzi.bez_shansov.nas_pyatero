@@ -1,6 +1,17 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { IconHome, IconTeam, IconSetup } from '~/components/icons';
+import { computed, ref } from 'vue';
+import {
+  IconHome,
+  IconTeam,
+  IconSearch,
+  IconHistory,
+  IconRequests,
+  IconEquipment,
+  IconBuilding,
+  IconIndustry,
+  IconDifferent,
+  IconUsers
+} from '~/components/icons';
 import { useStore } from '~/stores/stores.main';
 import { CommonHamburger } from '~/components/common';
 
@@ -12,12 +23,14 @@ const navs = [
     icon: IconHome,
     to: '/',
     level: 1,
+    auth: false
   },
   {
     name: 'Просмотр отчета',
-    icon: IconHome,
+    icon: IconSearch,
     to: '/review',
     level: 1,
+    auth: false
   },
   {
     name: 'Профиль',
@@ -26,71 +39,59 @@ const navs = [
     level: 1,
   },
   {
+    name: 'Список пользователей',
+    icon: IconUsers,
+    to: '/users',
+    level: 3,
+  },
+  {
     name: 'История',
-    icon: IconTeam,
+    icon: IconHistory,
     to: '/history',
     level: 1,
   },
   {
     name: 'Все запросы',
-    icon: IconTeam,
+    icon: IconRequests,
     to: '/all-requests',
-    level: 1,
+    level: 3,
   },
   {
     name: 'Список оборудования',
-    icon: IconTeam,
+    icon: IconEquipment,
     to: '/equipments',
-    level: 1,
+    level: 3,
   },
   {
     name: 'Список зданий',
-    icon: IconTeam,
+    icon: IconBuilding,
     to: '/buildings',
-    level: 1,
+    level: 3,
   },
   {
     name: 'Список отраслей',
-    icon: IconTeam,
+    icon: IconIndustry,
     to: '/industry',
-    level: 1,
+    level: 3,
   },
   {
     name: 'Разное',
-    icon: IconTeam,
+    icon: IconDifferent,
     to: '/additional',
-    level: 1,
+    level: 3,
   },
-  {
-    name: 'Список пользователей',
-    icon: IconTeam,
-    to: '/users',
-    level: 1,
-  },
-  // {
-  //   name: 'Редактирование справочников',
-  //   icon: IconSetup,
-  //   to: '/setup',
-  //   level: 2,
-  // },
-  // {
-  //   name: 'Список пользователей',
-  //   icon: IconTeam,
-  //   to: '/team',
-  //   level: 3,
-  // },
 ];
 
 const isShowedSidebar = ref(false);
 const activateBurger = ref(false);
 
 const openSidebar = () => {
-  isShowedSidebar.value = !isShowedSidebar.value
-  activateBurger.value = !activateBurger.value
-}
+  isShowedSidebar.value = !isShowedSidebar.value;
+  activateBurger.value = !activateBurger.value;
+};
 
-const navs_moderator = computed(() => {
-  return navs.filter((item) => item.level <= 2);
+const navs_admin = computed(() => {
+  return navs.filter((item) => item.level <= 3);
 });
 
 const navs_user = computed(() => {
@@ -98,14 +99,19 @@ const navs_user = computed(() => {
 });
 
 const user_level = computed(() => {
-  return store.$state.level;
+  return store.$state.user.level;
 });
 
+const notauth_user = computed(() => {
+  return navs.filter((item) => item.auth === false);
+});
+
+const isAuth = computed(() => store.$state.user.token)
+
 const return_navs = computed(() => {
-  if (user_level.value == 3) {
-    return navs;
-  } else if (user_level.value == 2) {
-    return navs_moderator.value;
+  if (!isAuth.value) return notauth_user.value
+  if (user_level.value === 3) {
+    return navs_admin.value;
   } else {
     return navs_user.value;
   }
@@ -114,7 +120,6 @@ const return_navs = computed(() => {
 
 <template>
   <aside class="sidebar" :class="{ active: isShowedSidebar }">
-    <!-- <div class="bg" :class="{ active: isShowedSidebar }"></div> -->
     <div class="sidebar__wrapper">
       <div class="sidebar__header">
         <h1 class="sidebar__title">Smetaverse</h1>
@@ -260,4 +265,3 @@ const return_navs = computed(() => {
   border-left: 3px solid $accent-purple;
 }
 </style>
-

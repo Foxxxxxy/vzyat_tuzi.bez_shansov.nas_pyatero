@@ -1,5 +1,20 @@
 <script setup>
-import { IconHome, IconTeam, IconSetup } from '~/components/icons';
+import {
+  IconHome,
+  IconTeam,
+  IconSearch,
+  IconHistory,
+  IconRequests,
+  IconEquipment,
+  IconBuilding,
+  IconIndustry,
+  IconDifferent,
+  IconUsers
+} from '~/components/icons';
+import { computed, ref } from 'vue';
+import { useStore } from '~/stores/stores.main';
+
+const store = useStore();
 
 const navs = [
   {
@@ -7,12 +22,14 @@ const navs = [
     icon: IconHome,
     to: '/',
     level: 1,
+    auth: false
   },
   {
     name: 'Отчет',
-    icon: IconHome,
+    icon: IconSearch,
     to: '/review',
     level: 1,
+    auth: false
   },
   {
     name: 'Профиль',
@@ -21,36 +38,76 @@ const navs = [
     level: 1,
   },
   {
-    name: 'Оборудование',
-    icon: IconTeam,
-    to: '/equipments',
+    name: 'Пользователи',
+    icon: IconUsers,
+    to: '/users',
+    level: 3,
+  },
+  {
+    name: 'История',
+    icon: IconHistory,
+    to: '/history',
     level: 1,
+  },
+  {
+    name: 'Все запросы',
+    icon: IconRequests,
+    to: '/all-requests',
+    level: 3,
+  },
+  {
+    name: 'Оборудование',
+    icon: IconEquipment,
+    to: '/equipments',
+    level: 3,
   },
   {
     name: 'Здания',
-    icon: IconTeam,
+    icon: IconBuilding,
     to: '/buildings',
-    level: 1,
+    level: 3,
   },
   {
     name: 'Отрасли',
-    icon: IconTeam,
+    icon: IconIndustry,
     to: '/industry',
-    level: 1,
+    level: 3,
   },
   {
     name: 'Разное',
-    icon: IconTeam,
+    icon: IconDifferent,
     to: '/additional',
-    level: 1,
-  },
-  {
-    name: 'Пользователи',
-    icon: IconTeam,
-    to: '/users',
-    level: 1,
+    level: 3,
   },
 ];
+
+const navs_admin = computed(() => {
+  return navs.filter((item) => item.level <= 3);
+});
+
+const navs_user = computed(() => {
+  return navs.filter((item) => item.level <= 1);
+});
+
+const user_level = computed(() => {
+  return store.$state.user.level;
+});
+
+const auth_user = computed(() => {
+  return navs.filter((item) => item.auth);
+});
+
+const isAuth = computed(() => store.$state.user.token)
+
+const return_navs = computed(() => {
+  if (isAuth.value) return auth_user.value
+  if (user_level.value === 3) {
+    return navs_admin.value;
+  } else {
+    return navs_user.value;
+  }
+});
+
 </script>
 
 <template>
@@ -58,7 +115,7 @@ const navs = [
     <nav class="nav">
       <router-link
         :to="nav.to"
-        v-for="(nav, idx) of navs"
+        v-for="(nav, idx) of return_navs"
         :key="idx"
         class="nav__link"
       >

@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref, onMounted, watch } from 'vue';
+import { ElementMap } from '~/components/elements';
 import {
   CommonButton,
   CommonInput,
@@ -9,6 +10,7 @@ import {
 import { get_equipment_suggestion } from '~/api/route.equipment';
 import { get_building_suggestion } from '~/api/route.building';
 import { get_industry_suggestion } from '~/api/route.industry';
+import { get_additional_suggestion } from '~/api/route.additional';
 import { create_calculation } from '~/api/route.calculation';
 import { useStore } from '~/stores/stores.main';
 import router from '~/router';
@@ -104,6 +106,17 @@ const form = reactive({
       count: 1,
     },
   ],
+  additional_services: [
+    {
+      input_type: 'suggestion',
+      type: 'additional_services',
+      value: '',
+      chosen_id: null,
+      route: get_additional_suggestion,
+      suggestions: [],
+      count: 1,
+    }
+  ]
 });
 
 const isValidStep = ref(false);
@@ -245,11 +258,11 @@ const submit = async () => {
         area: +item.count,
       };
     }),
-    additional_services: [
-      {
-        id: 2,
-      },
-    ],
+    additional_services: form.additional_services.map((item) => {
+      return {
+        id: +item.chosen_id
+      };
+    }),
 
     legal_entity_type: form.org_type.chosen_id,
     accounting_services_documents_amount: +form.org_type.count,
@@ -283,7 +296,9 @@ onMounted(async () => {
 <template>
   <div class="home">
     <div v-if="isOpenedMap" class="modal">
-      <div class="modal__content"></div>
+      <div class="modal__content">
+        <element-map class="map" />
+      </div>
     </div>
     <div class="home-modal">
       <p class="home-modal__steps">{{ step }}/3 шаг</p>
@@ -308,6 +323,7 @@ onMounted(async () => {
             <common-input
               v-model="form.employee_amount.value"
               :value="form.employee_amount.value"
+              type="number"
               class="home-modal__input"
               label="Штатная численность сотрудников:"
             />
@@ -316,6 +332,7 @@ onMounted(async () => {
             <common-input
               v-model="form.land_area_size.value"
               :value="form.land_area_size.value"
+              type="number"
               class="home-modal__input"
               label="Предполагаемая площадь земельного участка для расположения промышленного производства (в квадратных метрах)"
             />
@@ -324,6 +341,7 @@ onMounted(async () => {
             <common-input
               v-model="form.building_area_size.value"
               :value="form.building_area_size.value"
+              type="number"
               class="home-modal__input"
               label="Планируемая площадь объектов капитального строительства"
             />
@@ -364,6 +382,7 @@ onMounted(async () => {
             <common-input
               v-model="form.org_type.count"
               :value="form.org_type.count"
+              type="number"
               class="home-modal__input"
               label="Количество документов"
             />
@@ -374,6 +393,7 @@ onMounted(async () => {
             <common-input
               v-model="form.predicted_income_per_year_rub.value"
               :value="form.predicted_income_per_year_rub.value"
+              type="number"
               class="home-modal__input"
               label="Предполагаемый доход в год, руб"
             />
@@ -394,6 +414,19 @@ onMounted(async () => {
               label-count="Стоимость, руб."
               suggestion-key="additional_needs"
               :block="form.additional_needs"
+              @add="addMore"
+              @delete="deleteItem"
+              @update-suggestion="updateSuggestion"
+              @set-suggestions="setSuggestions"
+            />
+          </div>
+          <div class="home-modal__block">
+            <common-multiply-input
+              label-main="Дополнительные услуги"
+              label-count="Количество, шт"
+              suggestion-key="additional_services"
+              :block="form.additional_services"
+              :input-only="true"
               @add="addMore"
               @delete="deleteItem"
               @update-suggestion="updateSuggestion"
@@ -433,6 +466,13 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
+.continent {
+    fill: none;
+    stroke: #5c443e;
+    stroke-width: 3px;
+    cursor: pointer;
+    pointer-events: all;
+}
 .modal {
   position: fixed;
   width: 100%;
@@ -445,6 +485,10 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.4);
+  &__map {
+    width: 100%;
+    height: 100%;
+  }
   &__content {
     background: #ffffff;
     padding: 20px;

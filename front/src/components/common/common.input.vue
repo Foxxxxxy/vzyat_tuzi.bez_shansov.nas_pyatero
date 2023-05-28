@@ -16,6 +16,7 @@ const props = defineProps({
   },
   viewOnly: Boolean,
   isErrored: Boolean,
+  maxLength: Number
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -46,13 +47,14 @@ const blur = () => {
     </p>
     <input
       v-if="!viewOnly"
-      :type="type"
-      :class="{ error: isErrored }"
       class="input"
+      :type="type"
+      :value="value"
+      :class="{ error: isErrored }"
+      :maxLength="maxLength"
       @input="updateInput"
       @focus="focus"
       @blur="blur"
-      :value="value"
     />
     <p v-else class="label__view">{{ value }}</p>
   </label>
