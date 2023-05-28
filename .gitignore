@@ -4,6 +4,6 @@ test_main.http
 app/__pycache__/
 .*.idea
 **/__pycache__/
-app/src/pieces/calculation/pdf/brochures/*
-app/src/pieces/calculation/pdf/zip_reports/*
+app/src/pieces/calculation/pdf/brochures/*.pdf
+app/src/pieces/calculation/pdf/zip_reports/*.zip
 app/src/pieces/calculation/pdf/utility_files/constructed.pdf
