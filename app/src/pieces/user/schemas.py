@@ -22,6 +22,12 @@ class SignUpSchema(BaseModel):
     inn: str
     web_site: str
 
+    fathers_name: str
+    industry_id: int
+    country: str
+    city: str
+    position: str
+
 
 class UserOutputSchema(BaseModel):
     id: int
@@ -33,6 +39,12 @@ class UserOutputSchema(BaseModel):
     organisation_name: str
     inn: str
     web_site: str
+
+    fathers_name: str
+    industry_id: int
+    country: str
+    city: str
+    position: str
 
     class Config:
         orm_mode = True
@@ -47,3 +59,9 @@ class UserUpdateSchema(BaseModel):
     organisation_name: Optional[str] = None
     inn: Optional[str] = None
     web_site: Optional[str] = None
+
+    fathers_name: Optional[str] = None
+    industry_id: Optional[int] = None
+    country: Optional[str] = None
+    city: Optional[str] = None
+    position: Optional[str] = None
