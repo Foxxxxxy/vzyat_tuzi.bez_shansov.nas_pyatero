@@ -35,7 +35,9 @@ class PdfCreator:
                                   "additional_services_page"]
         self.pdfs_to_merge = [f"{self.util_files_dir}/title.pdf",
                               f"{self.util_files_dir}/greetings.pdf",
-                              f"{self.output_dir}/constructed{req_id}.pdf",]
+                              f"{self.output_dir}/constructed{req_id}.pdf",
+                              f"{self.util_files_dir}/pre_last.pdf",
+                              f"{self.util_files_dir}/last.pdf"]
 
         # pdf utils
         self.constructed_pdf = FPDF()
