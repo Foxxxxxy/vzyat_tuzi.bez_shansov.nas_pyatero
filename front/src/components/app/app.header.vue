@@ -87,6 +87,8 @@ onMounted(async () => {
   align-items: center;
   height: 95px;
   @include md {
+    position: fixed;
+    top: 0;
     height: 50px;
   }
   &__icon {
@@ -132,6 +134,9 @@ onMounted(async () => {
     cursor: pointer;
     padding: 32px 20px;
     background-color: $accent-purple;
+    @include md {
+      padding: 10px 20px;
+    }
   }
 }
 </style>
