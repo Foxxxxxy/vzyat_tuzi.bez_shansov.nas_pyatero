@@ -25,7 +25,7 @@ const navs = [
     auth: false
   },
   {
-    name: 'Просмотр отчета',
+    name: 'Отчет',
     icon: IconSearch,
     to: '/review',
     level: 1,
@@ -44,7 +44,7 @@ const navs = [
     level: 1,
   },
   {
-    name: 'Список пользователей',
+    name: 'Пользователи',
     icon: IconUsers,
     to: '/users',
     level: 3,
@@ -56,25 +56,25 @@ const navs = [
     level: 3,
   },
   {
-    name: 'Список оборудования',
+    name: 'Оборудование',
     icon: IconEquipment,
     to: '/equipments',
     level: 3,
   },
   {
-    name: 'Список зданий',
+    name: 'Здания',
     icon: IconBuilding,
     to: '/buildings',
     level: 3,
   },
   {
-    name: 'Список отраслей',
+    name: 'Отрасли',
     icon: IconIndustry,
     to: '/industry',
     level: 3,
   },
   {
-    name: 'Список услуг',
+    name: 'Услуги',
     icon: IconDifferent,
     to: '/additional',
     level: 3,
@@ -93,14 +93,14 @@ const user_level = computed(() => {
   return store.$state.user.level;
 });
 
-const auth_user = computed(() => {
-  return navs.filter((item) => item.auth);
+const notauth_user = computed(() => {
+  return navs.filter((item) => item.auth === false);
 });
 
-const isAuth = computed(() => store.$state.user.token)
+const isAuth = computed(() => !!store.$state.user.token)
 
 const return_navs = computed(() => {
-  if (isAuth.value) return auth_user.value
+  if (!isAuth.value) return notauth_user.value
   if (user_level.value === 3) {
     return navs_admin.value;
   } else {

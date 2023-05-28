@@ -58,7 +58,7 @@ onMounted(async () => {
         <icon-wrapper class="header__icon">
           <icon-economics />
         </icon-wrapper>
-        Экономика москвы
+        Экономика Москвы
       </p>
     </h1>
     <h1 class="header__title header__title--md">Smetaverse</h1>

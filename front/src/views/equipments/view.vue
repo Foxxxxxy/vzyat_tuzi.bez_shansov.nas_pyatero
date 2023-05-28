@@ -48,7 +48,7 @@ const changeFiles = async (e) => {
     :config-inputs="editableInputs"
     :send-file-action="changeFiles"
     page-title="Список оборудования"
-    add-title="Создать оборудования"
+    add-title="Создать оборудование"
   />
 </template>
 

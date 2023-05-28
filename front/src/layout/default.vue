@@ -64,6 +64,7 @@ import { AppSidebar, AppHeader, AppFooter } from '~/components/app';
     padding: 50px 0;
     height: 100%;
     min-height: unset;
+    padding-bottom: 150px;
   }
 }
 </style>
