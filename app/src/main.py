@@ -31,7 +31,7 @@ from app.src.pieces.user.schemas import SignUpSchema, EUserLevel
 from app.src.pieces.user.service import create_user
 
 prefixes = ['http://', '', 'https://']
-bodies = ['localhost', 'smetaverse.ru', 'www.smetaverse.ru', '176.59.54.18']
+bodies = ['localhost', 'smetaverse.ru', 'www.smetaverse.ru', '176.59.54.18', '158.160.56.253']
 ports = [':80', ':443', ':3000', ':3030', ':8000', ':8080', '']
 
 origins = []
