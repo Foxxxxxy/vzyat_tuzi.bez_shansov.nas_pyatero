@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, onMounted, watch } from 'vue';
+import { reactive, ref, onMounted, watch, computed } from 'vue';
 import { ElementMap } from '~/components/elements';
 import {
   CommonButton,
@@ -286,7 +286,7 @@ const submit = async () => {
     }),
   };
 
-  data.additional_needs = data.additional_needs.filter(item => item)
+  data.additional_needs = data.additional_needs.filter((item) => item);
 
   const resultData = await create_calculation(
     { ...data },
@@ -304,8 +304,30 @@ const openMap = () => {
   isOpenedMap.value = true;
 };
 
+const currentArea = ref({
+  title: '',
+  id: null,
+});
+
+const areaValue = computed(() =>
+  currentArea.value.title.length ? currentArea.value.title : 'Не выбран'
+);
+
+const windowWidth = ref(window.innerWidth)
+
+const addArea = (data) => {
+  isOpenedMap.value = false;
+  currentArea.value.title = data.title;
+  currentArea.value.id = data.id;
+  form.district.chosen_id = data.id
+};
+
 onMounted(async () => {
   await getAllSuggestions();
+
+  window.addEventListener('resize', () => {
+    windowWidth.value = window.innerWidth
+  })
 });
 </script>
 
@@ -313,7 +335,7 @@ onMounted(async () => {
   <div class="home">
     <div v-if="isOpenedMap" class="modal">
       <div class="modal__content">
-        <element-map class="map" />
+        <element-map @addArea="addArea" class="map" />
       </div>
     </div>
     <div class="home-modal">
@@ -414,16 +436,16 @@ onMounted(async () => {
               label="Предполагаемый доход в год, руб"
             />
           </div>
-          <!-- <div class="home-modal__block home-modal__block--fluid">
+          <div v-if="windowWidth > 768" class="home-modal__block home-modal__block--fluid">
             <common-input
-              value="Не выбран"
+              :value="areaValue"
               class="home-modal__input"
               label="Округ"
               :view-only="true"
             />
             <common-button @click="openMap">Выбрать округ</common-button>
-          </div> -->
-          <div class="home-modal__block">
+          </div>
+          <div v-else class="home-modal__block">
             <common-helpinput
               v-model="form.district.value"
               class="home-modal__input"
@@ -519,6 +541,8 @@ onMounted(async () => {
   &__content {
     background: #ffffff;
     padding: 20px;
+    max-width: 600px;
+    width: 100%;
   }
   z-index: 1000;
 }

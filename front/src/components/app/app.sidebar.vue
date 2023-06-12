@@ -10,7 +10,8 @@ import {
   IconBuilding,
   IconIndustry,
   IconDifferent,
-  IconUsers
+  IconUsers,
+  IconStat
 } from '~/components/icons';
 import { useStore } from '~/stores/stores.main';
 import { CommonHamburger } from '~/components/common';
@@ -43,6 +44,12 @@ const navs = [
     icon: IconTeam,
     to: '/profile',
     level: 1,
+  },
+  {
+    name: 'Статистика',
+    icon: IconStat,
+    to: '/stat',
+    level: 3,
   },
   {
     name: 'Список пользователей',

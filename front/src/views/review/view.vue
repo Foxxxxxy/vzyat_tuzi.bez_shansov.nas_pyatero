@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { CommonPopup, CommonButton, CommonInput } from '~/components/common';
+import { CommonButton } from '~/components/common';
 import { useStore } from '~/stores/stores.main';
 import { download_pdf, download_detailed_pdf } from '~/api/route.calculation';
 

@@ -9,11 +9,13 @@ import IndustryView from '~/views/industry';
 import AdditionalView from '~/views/additional';
 import UsersView from '~/views/users';
 import HistoryView from '~/views/history';
+import StatView from '~/views/stat';
 import AllRequestsView from '~/views/all-requests';
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
+    ...StatView,
     ...HomeView,
     ...AuthView,
     ...ProfileView,

@@ -9,9 +9,12 @@
     "update": "npx npm-check-updates -u"
   },
   "dependencies": {
+    "chart.js": "^4.3.0",
+    "moment": "^2.29.1",
     "pinia": "latest",
     "vite-plugin-fonts": "^0.6.0",
     "vue": "latest",
+    "vue-chartjs": "^4.0.0",
     "vue-router": "latest"
   },
   "devDependencies": {
